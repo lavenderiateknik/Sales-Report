@@ -18,12 +18,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
-  server: {
-    host: '0.0.0.0',   // biar bisa diakses dari device lain
-    port: 5173,        // bisa ganti kalau bentrok
-     https: {
-      key: fs.readFileSync('./cert/vite.key'),
-      cert: fs.readFileSync('./cert/vite.crt'),
-    }
-  }
+  // server: {
+  //   host: '0.0.0.0',   // biar bisa diakses dari device lain
+  //   port: 5173,        // bisa ganti kalau bentrok
+  //    https: {
+  //     key: fs.readFileSync('./cert/vite.key'),
+  //     cert: fs.readFileSync('./cert/vite.crt'),
+  //   }
+  // }
 })
