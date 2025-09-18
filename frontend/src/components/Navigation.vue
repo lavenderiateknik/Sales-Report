@@ -8,12 +8,21 @@
           System <strong>Report Sales</strong>
         </span>
       </div>
-
+      
       <!-- Tombol Menu (hanya mobile) -->
       <button @click="isOpen = !isOpen" class="md:hidden">
         <Menu v-if="!isOpen" class="w-6 h-6 text-[#F3C623]" />
         <X v-else class="w-6 h-6 text-[#F3C623]" />
       </button>
+    </div>
+
+    <!-- User Data-->
+    <div class="flex flex-row gap-2 items-center lg:items-start mx-2 mb-2 rounded-xl px-4 py-4 text-sm text-slate-600 bg-slate-50 border-2 border-[#F3C623] shadow-amber-50 shadow-sm">
+      <Contact class="w-10 h-10" />
+      <div class="flex flex-col">
+        <span>Selamat datang,</span>
+        <strong class="ml-0">{{ userName }}</strong>
+      </div>
     </div>
 
     <!-- Navigasi (satu untuk semua) -->
@@ -22,29 +31,48 @@
         class="flex flex-col gap-2 bg-[#F4F6FF] mx-2 rounded-lg mb-3 py-3 border-2 border-[#EB8317]">
         <div class="text-[#10375C] ">
           <span class="text-sm px-2 font-semibold">DASHBOARD</span>
-          <RouterLink to="/" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold">
+          <RouterLink 
+            to="/" 
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
             <Home /> Sales Dashboard
           </RouterLink>
-          <RouterLink to="/customer"  class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold">
-            <NotebookTabs />Customer Dashboard
+          <RouterLink 
+            to="/customer"  
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <NotebookTabs /> Customer Dashboard
           </RouterLink>
-          <RouterLink to="/spvdashboard" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold">
-            <ScrollText />SPV Rekap
+          <RouterLink 
+            to="/spvdashboard" 
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <ScrollText /> SPV Rekap
           </RouterLink>
         </div>
+
         <div class="text-[#10375C] ">
           <span class="text-sm px-2 font-semibold">FUNCTION</span>
-          <RouterLink to="/checkin" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold">
-            <LandPlot />Report Sales
+          <RouterLink 
+            to="/checkin" 
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <LandPlot /> Report Sales
           </RouterLink>
         </div>
-        <div class="text-[#10375C] cursor-pointer" @click="logout()">
+
+        <!-- Logout -->
+        <div class="text-[#10375C] cursor-pointer" @click="handleLogout">
           <span class="text-sm px-2 font-semibold flex flex-row gap-1">
-            <LogOut />LOGOUT
+            <LogOut /> LOGOUT
           </span>
         </div>
       </nav>
@@ -55,12 +83,37 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { Menu, X, Home, NotebookTabs, ScrollText, LogOut, LandPlot } from "lucide-vue-next";
+import { Menu, X, Home, NotebookTabs, ScrollText, LogOut, LandPlot, Contact } from "lucide-vue-next";
+import axios from 'axios';
+
+// Variabel untuk menyimpan data pengguna
+const userName = ref('');
+const userEmail = ref('');
+const userId = ref(null);
+
+// Ambil data pengguna dari API yang terproteksi
+const fetchUserData = async () => {
+    try {
+        const token = localStorage.getItem('api_token');
+        if (token) {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const user = response.data;
+            userName.value = user.name;
+            userEmail.value = user.email;
+            userId.value = user.id;
+        }
+    } catch (error) {
+        console.error("Gagal mengambil data user:", error);
+    }
+};
 
 const isOpen = ref(false);
 const isDesktop = ref(false);
 const router = useRouter();
-
 
 // deteksi lebar layar (supaya nav selalu tampil di desktop)
 const checkScreen = () => {
@@ -69,14 +122,44 @@ const checkScreen = () => {
 };
 
 // fungsi logout
-const logout = () => {
-  localStorage.removeItem("auth");
-  router.push({ name: "Login" });
+const logout = async () => {
+  try {
+    const token = localStorage.getItem("api_token");
+    if (token) {
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/logout`,
+        {},
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+    }
+    localStorage.removeItem("api_token");
+    router.push({ name: "Login" });
+  } catch (error) {
+    console.error("Logout gagal:", error);
+    localStorage.removeItem("api_token");
+    router.push({ name: "Login" });
+  }
+};
+
+// Tutup menu jika mobile
+const closeMobileMenu = () => {
+  if (!isDesktop.value) {
+    isOpen.value = false;
+  }
+};
+
+// Logout + tutup menu
+const handleLogout = async () => {
+  await logout();
+  closeMobileMenu();
 };
 
 onMounted(() => {
   checkScreen();
   window.addEventListener("resize", checkScreen);
+  fetchUserData();
 });
 
 onUnmounted(() => {

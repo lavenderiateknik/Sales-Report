@@ -1,23 +1,25 @@
 <template>
   <div>
-    <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-      <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
-          <span>Customer</span>
-          <strong class="ml-2">Dashboard</strong>
+    <Transition appear enter-active-class="transition-transform duration-1000 ease-out" enter-from-class="translate-x-10 opacity-0" enter-to-class="translate-x-0 opacity-100">
+      <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+        <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
+            <span>Customer</span>
+            <strong class="ml-2">Dashboard</strong>
+        </div>
+        <Tabel 
+            :rows-data="customerProject" 
+            :cols="colsCustomerProject" 
+            title1="Recap" 
+            title2="Customer Project" 
+        />
+        <Tabel 
+            :rows-data="customerNotes" 
+            :cols="colsCustomerNotes" 
+            title1="Recap" 
+            title2="Customer Notes" 
+        />
       </div>
-      <Tabel 
-          :rows-data="customerProject" 
-          :cols="colsCustomerProject" 
-          title1="Recap" 
-          title2="Customer Project" 
-      />
-      <Tabel 
-          :rows-data="customerNotes" 
-          :cols="colsCustomerNotes" 
-          title1="Recap" 
-          title2="Customer Notes" 
-      />
-    </div>
+    </Transition>
   </div>
 </template>
 

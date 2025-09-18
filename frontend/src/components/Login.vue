@@ -2,13 +2,10 @@
   <div class="font-sans">
     <div class="relative min-h-screen flex flex-col justify-center items-center bg-[#F4F6FF] px-4 sm:px-6 lg:px-8">
       <div class="relative w-full max-w-xs">
-        <!-- background cards -->
         <div class="card bg-[#10375C] shadow-lg w-full h-full rounded-3xl absolute transform -rotate-6"></div>
         <div class="card bg-[#F3C623] shadow-lg w-full h-full rounded-3xl absolute transform rotate-6"></div>
 
-        <!-- form card -->
         <div class="relative w-full rounded-3xl px-6 py-6 sm:py-8 bg-[#F4F6FF] border-2 border-[#F3C623] shadow-lg shadow-slate-700">
-          <!-- logo / image -->
           <img
             src="../assets/img/flat version.png"
             class="h-28 sm:h-40 md:h-44 lg:h-46 mx-auto object-contain mb-3"
@@ -22,13 +19,12 @@
             <span class="font-semibold text-white">Report System</span>
           </label>
 
-          <!-- form -->
           <form class="mt-8 space-y-6" @submit.prevent="login">
             <div>
               <input
                 type="email"
-                placeholder="User Name"
-                class="block w-full h-11 rounded-xl px-3 bg-gray-100 shadow-md border border-gray-200 focus:bg-blue-50 focus:ring focus:ring-blue-200 focus:outline-none text-sm md:text-base"
+                placeholder="Email"
+                v-model="email" class="block w-full h-11 rounded-xl px-3 bg-gray-100 shadow-md border border-gray-200 focus:bg-blue-50 focus:ring focus:ring-blue-200 focus:outline-none text-sm md:text-base"
               />
             </div>
 
@@ -36,7 +32,7 @@
               <input
                 type="password"
                 placeholder="Password"
-                class="block w-full h-11 rounded-xl px-3 bg-gray-100 shadow-md border border-gray-200 focus:bg-blue-50 focus:ring focus:ring-blue-200 focus:outline-none text-sm md:text-base"
+                v-model="password" class="block w-full h-11 rounded-xl px-3 bg-gray-100 shadow-md border border-gray-200 focus:bg-blue-50 focus:ring focus:ring-blue-200 focus:outline-none text-sm md:text-base"
               />
             </div>
 
@@ -48,6 +44,7 @@
                 Login
               </button>
             </div>
+            <div v-if="loginError" class="text-red-500 text-center mt-2">{{ loginError }}</div>
           </form>
         </div>
       </div>
@@ -56,13 +53,37 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'; // KOREKSI: Tambahkan 'ref'
 import { useRouter } from "vue-router";
+import axios from 'axios'; // KOREKSI: Import axios
 
 const router = useRouter();
+const email = ref(''); // KOREKSI: Deklarasi variabel reaktif
+const password = ref(''); // KOREKSI: Deklarasi variabel reaktif
+const loginError = ref(null); // KOREKSI: Variabel untuk pesan error
 
-const login = () => {
-  localStorage.setItem("auth", "true");
-  router.push({ name: "home" });
+// Ambil URL dasar API dari variabel lingkungan
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+const login = async () => { // KOREKSI: Buat fungsi ini menjadi async
+  loginError.value = null; // Reset error message
+
+    try {
+    const response = await axios.post(`${apiBaseUrl}/api/login`, { // Gunakan variabel di sini
+      email: email.value,
+      password: password.value,
+    });
+
+    localStorage.setItem('api_token', response.data.token);
+    localStorage.setItem('id', response.data.user.id);
+    localStorage.setItem('name', response.data.user.name);
+    localStorage.setItem('email', response.data.user.email);
+    router.push({ name: 'home' });
+
+  } catch (error) {
+    // Login gagal
+    loginError.value = error.response.data.message || 'Terjadi kesalahan saat login.'; // Tampilkan pesan error dari API
+  }
 };
 </script>
 

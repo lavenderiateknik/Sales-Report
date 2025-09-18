@@ -1,8 +1,35 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\TypeProjectController;
+use App\Http\Controllers\TypeCustomerController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
+
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+//Route::get('/allusers', [UserController::class, 'all'])->name("allUsers");
+
+// Rute yang memerlukan otentikasi
+// Rute untuk otentikasi, tidak perlu middleware auth
+
+Route::post('/login', [AuthController::class, 'login']);
+
+// Rute yang memerlukan otentikasi
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::get('/alltypecustomers', [TypeCustomerController::class, 'index']);
+    Route::get('/alltypeprojects', [TypeProjectController::class, 'index']);
+
+    Route::post('/logout', [AuthController::class, 'logout']);
+});

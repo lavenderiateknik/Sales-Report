@@ -1,6 +1,7 @@
 <template>
     <main>
         <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+
             <!-- Header -->
             <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
                 <span>Sales</span>
@@ -8,15 +9,20 @@
             </div>
 
             <!-- Chart -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 mx-4 p-3 gap-4">
-                <Chart class="pb-3" :chart-data="pieChartData" title1="Type " title2="Customer" />
-                <Bar class="pb-3" :chart-data="barChartData" title1="Offering " title2="VS Preorder" />
-            </div>
+            <Transition appear enter-active-class="transition-transform duration-1000 ease-out"
+                enter-from-class="translate-x-10 opacity-0" enter-to-class="translate-x-0 opacity-100">
+                <div class="grid grid-cols-1 lg:grid-cols-2 mx-4 p-3 gap-4">
+                    <Chart class="pb-3" :chart-data="pieChartData" title1="Type " title2="Customer" />
+                    <Bar class="pb-3" :chart-data="barChartData" title1="Offering " title2="VS Preorder" />
+                </div>
+            </Transition>
 
             <!-- Table 1 -->
             <div class="grid grid-cols-1 p-3 gap-4">
-                <Tabel :rows-data="customersWithGrandTotal" :cols="colsData" title1="Recap"
-                    title2="Visit, Follow up, Offering, PO, Negotiation & Grand Total" />
+                <Transition appear enter-active-class="transition-transform duration-1000 ease-out"
+                enter-from-class="translate-x-10 opacity-0" enter-to-class="translate-x-0 opacity-100"> 
+                <Tabel :rows-data="customersWithGrandTotal" :cols="colsData" title1="Recap" title2="Visit, Follow up, Offering, PO, Negotiation & Grand Total" />
+                </Transition>
             </div>
 
             <!-- Table 2 & 3 -->
@@ -41,7 +47,7 @@
 import Chart from '@/components/Chart.vue';
 import Bar from '@/components/Bar.vue';
 import Tabel from '@/components/Tabel.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 // --- CHART DATA ---
 const pieChartData = ref({

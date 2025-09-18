@@ -1,47 +1,51 @@
 <template>
   <div>
-    <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-      <!-- Header -->
-      <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
-        <span>Supervisor</span>
-        <strong class="ml-2">Rekap</strong>
-      </div>
-      <!-- Chart -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 mx-4 p-3 gap-4">
-        <Chart class="pb-3" :chart-data="pieChartData" title1="Type " title2="Customer" />
-        <Bar class="pb-3" :chart-data="barChartData" title1="Offering " title2="VS Preorder" />
-      </div>
-      <div>
-        <Tabel
-          :rows-data="customersWithTotal"
-          :cols="colsData"
-          title1="Customer"
-          title2="Rekap By Date"
-        />
-      </div>
-       <!-- table 2 & 3 -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 p-3 gap-4">
-        <Tabel :rows-data="customers2WithTotal" :cols="colsData2" title1="Recap" title2="Penawaran & PO" :pageable="false" />
-        <Tabel :rows-data="nominalRowsDataFormatted" :cols="nominalCols" title1="Recap" title2="Nominal"
-          :pageable="false" />
-      </div>
-      <div>
-        <Tabel
-          :rows-data="recapReportByCustomersWithTotal"
-          :cols="colsRecapReportByCustomer"
-          title1="Recap Report"
-          title2="By Customer Name"
-        />
-      </div>
-       <div>
-        <Tabel
-          :rows-data="recapCustomerNeeds"
-          :cols="colsRecapCustomerNeeds"
-          title1="Recap"
-          title2="Customer Needs"
-        />
-      </div>
-    </div>   
+   
+      <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+        <!-- Header -->
+        <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
+          <span>Supervisor</span>
+          <strong class="ml-2">Rekap</strong>
+        </div>
+        <!-- Chart -->
+          <Transition appear enter-active-class="transition-transform duration-1000 ease-out" enter-from-class="translate-y-30 opacity-0" enter-to-class="translate-x-0 opacity-100">
+            <div class="grid grid-cols-1 lg:grid-cols-2 mx-4 p-3 gap-4">
+              <Chart class="pb-3" :chart-data="pieChartData" title1="Type " title2="Customer" />
+              <Bar class="pb-3" :chart-data="barChartData" title1="Offering " title2="VS Preorder" />
+            </div>
+          </Transition>
+        <div>
+          <Tabel
+            :rows-data="customersWithTotal"
+            :cols="colsData"
+            title1="Customer"
+            title2="Rekap By Date"
+          />
+        </div>
+         <!-- table 2 & 3 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 p-3 gap-4">
+          <Tabel :rows-data="customers2WithTotal" :cols="colsData2" title1="Recap" title2="Penawaran & PO" :pageable="false" />
+          <Tabel :rows-data="nominalRowsDataFormatted" :cols="nominalCols" title1="Recap" title2="Nominal"
+            :pageable="false" />
+        </div>
+        <div>
+          <Tabel
+            :rows-data="recapReportByCustomersWithTotal"
+            :cols="colsRecapReportByCustomer"
+            title1="Recap Report"
+            title2="By Customer Name"
+          />
+        </div>
+         <div>
+          <Tabel
+            :rows-data="recapCustomerNeeds"
+            :cols="colsRecapCustomerNeeds"
+            title1="Recap"
+            title2="Customer Needs"
+          />
+        </div>
+      </div>   
+    
   </div>
 </template>
 

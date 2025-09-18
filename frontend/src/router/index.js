@@ -49,10 +49,14 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-  const isAuth = JSON.parse(localStorage.getItem('auth'));
-  
-  if (to.name !== "Login" && !isAuth) next({ name: 'Login' });
-  if (to.name == "Login" && isAuth) next({ name: 'home' });
-  else next();
-})
+  const isAuth = localStorage.getItem('api_token'); // Menggunakan token, bukan boolean
+
+  if (to.name !== "Login" && !isAuth) {
+    next({ name: 'Login' });
+  } else if (to.name === "Login" && isAuth) {
+    next({ name: 'home' });
+  } else {
+    next();
+  }
+});
 export default router
