@@ -16,12 +16,6 @@ const apiInfo = {
       <p class="text-gray-700">Version: {{ apiInfo.version }}</p>
       <p class="text-green-600 font-semibold">Status: {{ apiInfo.status }}</p>
 
-      <a
-        :href="apiInfo.docsUrl"
-        class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-      >
-        📖 API Documentation
-      </a>
     </div>
   </div>
 </template>
