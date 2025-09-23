@@ -30,57 +30,18 @@ class SalesReport extends Model
         'coordinate_check_out',
     ];
 
-    /**
-     * Relasi ke TypeCustomer
-     */
     public function typeCustomer()
     {
-        return $this->belongsTo(TypeCustomer::class);
+        return $this->belongsTo(TypeCustomer::class, 'type_customer_id');
     }
 
-    /**
-     * Relasi ke TypeProject
-     */
     public function typeProject()
     {
-        return $this->belongsTo(TypeProject::class);
+        return $this->belongsTo(TypeProject::class, 'type_project_id');
     }
 
-    /**
-     * Relasi ke TypeReport
-     */
     public function typeReport()
     {
-        return $this->belongsTo(TypeReport::class);
+        return $this->belongsTo(TypeReport::class, 'type_report_id');
     }
-
-    /**
-     * Akses lat/lng sebagai array untuk check-in
-     */
-    // public function getCheckInCoordinateAttribute()
-    // {
-    //     if ($this->coordinate_check_in) {
-    //         [$lat, $lng] = explode(',', $this->coordinate_check_in);
-    //         return [
-    //             'lat' => (float)$lat,
-    //             'lng' => (float)$lng,
-    //         ];
-    //     }
-    //     return null;
-    // }
-
-    /**
-     * Akses lat/lng sebagai array untuk check-out
-     */
-    // public function getCheckOutCoordinateAttribute()
-    // {
-    //     if ($this->coordinate_check_out) {
-    //         [$lat, $lng] = explode(',', $this->coordinate_check_out);
-    //         return [
-    //             'lat' => (float)$lat,
-    //             'lng' => (float)$lng,
-    //         ];
-    //     }
-    //     return null;
-    // }
 }

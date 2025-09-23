@@ -37,7 +37,15 @@
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
             @click="closeMobileMenu"
           >
-            <Home /> Sales Dashboard
+            <Home />Dashboard
+          </RouterLink>
+          <RouterLink 
+            to="/sales"  
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <ChartNoAxesCombined /> Sales Dashboard
           </RouterLink>
           <RouterLink 
             to="/customer"  
@@ -83,7 +91,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { Menu, X, Home, NotebookTabs, ScrollText, LogOut, LandPlot, Contact } from "lucide-vue-next";
+import { Menu, X, Home, NotebookTabs, ScrollText, LogOut, LandPlot, Contact, ChartNoAxesCombined } from "lucide-vue-next";
 import axios from 'axios';
 
 // Variabel untuk menyimpan data pengguna

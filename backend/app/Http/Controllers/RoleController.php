@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SalesReport;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
-class SalesReportController extends Controller
+class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $allTypeReport = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport'])->get();
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $allTypeReport
-        ]);
+        //
     }
 
     /**
@@ -39,7 +34,7 @@ class SalesReportController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SalesReport $salesReport)
+    public function show(Role $role)
     {
         //
     }
@@ -47,7 +42,7 @@ class SalesReportController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(SalesReport $salesReport)
+    public function edit(Role $role)
     {
         //
     }
@@ -55,7 +50,7 @@ class SalesReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, SalesReport $salesReport)
+    public function update(Request $request, Role $role)
     {
         //
     }
@@ -63,7 +58,7 @@ class SalesReportController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SalesReport $salesReport)
+    public function destroy(Role $role)
     {
         //
     }

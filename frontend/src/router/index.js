@@ -5,6 +5,7 @@ import CheckinView from '@/views/CheckinView.vue'
 import SalesDashboardView from '../views/SalesDashboardView.vue'
 import CustomerDashboardView from '@/views/CustomerDashboardView.vue'
 import SpvRekapView from '@/views/SpvRekapView.vue'
+import DashboardView from '@/views/DashboardView.vue'
 
 
 
@@ -14,6 +15,11 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
+      component: DashboardView,
+    },
+    {
+      path: '/sales',
+      name: 'sales',
       component: SalesDashboardView,
     },
     {
