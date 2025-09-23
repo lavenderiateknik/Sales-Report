@@ -1,23 +1,21 @@
 <?php
 
+use App\Models\Branch;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use App\Models\SalesReport;
 use App\Models\TypeCustomer;
 use App\Models\TypeProject;
 use App\Models\TypeReport;
 use App\Models\User;
+use Illuminate\Support\Str;
+use Faker\Factory as Faker;
+
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         TypeCustomer::insert([
             ['name' => 'BCI'],
             ['name' => 'REG'],
@@ -42,28 +40,59 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Purchase Order'],
         ]);
 
-        SalesReport::insert([
-            [
-                'date' => now()->toDateString(),
-                'check_in' => '09:00:00',
-                'coordinate_check_in' => '-6.2000000,106.8166667',
-                'type_customer_id' => 1,
-                'customer_name' => 'PT Maju Jaya',
-                'type_project_id' => 2,
-                'project_name' => 'Data Center Upgrade',
-                'pic_name' => 'Budi Santoso',
-                'pic_phone' => '08123456789',
-                'pic_position' => 'IT Manager',
-                'type_report_id' => 1,
-                'report_notes' => 'Diskusi panjang tentang kebutuhan sistem, upgrade server, dan alur pembelian.', // 👈 tambahan
-                'equipment_needs' => 'Server Rack, UPS',
-                'items_purchase_order' => 'Dell PowerEdge, APC UPS',
-                'nominal_purchase_order' => 150000000.00,
-                'check_out' => '11:30:00',
-                'coordinate_check_out' => '-6.2010000,106.8170000',
+        Role::insert([
+            ['name' => "superuser"],
+            ['name' => "admin"],
+            ['name' => "general manager"],
+            ['name' => "manager sales"],
+            ['name' => "asistant manager sales"],
+            ['name' => "branch manager sales"],
+            ['name' => "supervisor sales"],
+            ['name' => "sales"],
+        ]);
+
+        Branch::insert([
+            ['name' => "Jakarta 1"],
+            ['name' => "Jakarta 2"],
+            ['name' => "Jakarta 3"],
+            ['name' => "Bali"],
+            ['name' => "Balikpapan"],
+            ['name' => "Semarang"],
+            ['name' => "Surabaya"],
+            ['name' => "Medan"],
+            ['name' => "Makassar"],
+        ]);
+
+        User::factory(10)->create([
+            'role_id' => 8,
+            'branch_id' => fn() => Branch::inRandomOrder()->first()->id,
+        ]);
+
+        $faker = Faker::create();
+        for ($i = 0; $i < 20; $i++) {
+
+            SalesReport::create([
+                'date' => $faker->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
+                'check_in' => $faker->time('H:i:s'),
+                'check_out' => $faker->time('H:i:s'),
+                'coordinate_check_in' => $faker->latitude(-6.25, -6.15) . ',' . $faker->longitude(106.75, 106.85),
+                'coordinate_check_out' => $faker->latitude(-6.25, -6.15) . ',' . $faker->longitude(106.75, 106.85),
+                'user_id' => User::inRandomOrder()->first()->id,
+                'type_customer_id' => $faker->numberBetween(1, 2),
+                'type_project_id' => $faker->numberBetween(1, 8),
+                'type_report_id' => $faker->numberBetween(1, 5),
+                'customer_name' => $faker->company,
+                'project_name' => $faker->bs,
+                'pic_name' => $faker->name,
+                'pic_phone' => $faker->phoneNumber,
+                'pic_position' => $faker->jobTitle,
+                'report_notes' => $faker->paragraph(3),
+                'equipment_needs' => $faker->words(3, true),
+                'items_purchase_order' => $faker->words(4, true),
+                'nominal_purchase_order' => $faker->numberBetween(5_000_000, 200_000_000),
                 'created_at' => now(),
                 'updated_at' => now(),
-            ],
-        ]);
+            ]);
+        };
     }
 }

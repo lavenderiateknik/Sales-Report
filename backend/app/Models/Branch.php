@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Role extends Model
+class Branch extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        "name"
+        "name",
     ];
 
     /**
-     * Relasi: Satu role dimiliki banyak user.
+     * Relasi: Satu branch dimiliki banyak user.
      */
     public function users()
     {

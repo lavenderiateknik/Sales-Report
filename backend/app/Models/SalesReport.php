@@ -44,4 +44,9 @@ class SalesReport extends Model
     {
         return $this->belongsTo(TypeReport::class, 'type_report_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
 }

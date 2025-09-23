@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\TypeReportController;
 use App\Http\Controllers\TypeProjectController;
@@ -33,7 +35,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/alltypecustomers', [TypeCustomerController::class, 'index']);
     Route::get('/alltypeprojects', [TypeProjectController::class, 'index']);
     Route::get('/alltypereports', [TypeReportController::class, 'index']);
+    //salesreport
     Route::get('/allsalesreports', [SalesReportController::class, 'index']);
+    Route::get('/salesreports/{id}', [SalesReportController::class, 'salesreports']);
+    Route::get('branchsalesreports/{id}', [SalesReportController::class, 'branchsalesreports']);
+
+    Route::get('/allroles', [RoleController::class, 'index']);
+    Route::get('/allbranches', [BranchController::class, 'index']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

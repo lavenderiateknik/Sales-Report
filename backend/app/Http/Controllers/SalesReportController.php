@@ -17,8 +17,34 @@ class SalesReportController extends Controller
             "success" => true,
             "message" => "Data Found",
             "data" => $allTypeReport
-        ]);
+        ], 200);
     }
+
+    public function salesreports($id)
+    {
+        $reports = SalesReport::where('user_id', $id)->with(['typeCustomer', 'typeProject', 'typeReport'])->get();
+        return response()->json([
+            "success" => true,
+            "message" => "Data Found",
+            "data" => $reports
+        ], 200);
+    }
+    public function branchsalesreports($id)
+    {
+        $branchreports = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport'])
+            ->join('users', 'users.id', '=', 'sales_reports.user_id')
+            ->where('users.branch_id', $id)
+            ->select('sales_reports.*')
+            ->get();
+
+        return response()->json([
+            "success" => true,
+            "message" => "Data Found",
+            "data" => $branchreports
+        ], 200);
+    }
+
+
 
     /**
      * Show the form for creating a new resource.

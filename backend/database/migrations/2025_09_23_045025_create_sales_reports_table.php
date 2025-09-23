@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('sales_reports', function (Blueprint $table) {
             $table->id();
             $table->date('date');
-
+            //user
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             // check-in
             $table->time('check_in');
             $table->string('coordinate_check_in')->nullable(); // lat,lng gabungan

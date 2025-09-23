@@ -2,22 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Role;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 
-class RoleController extends Controller
+class BranchController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $allRoles = Role::all();
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $allRoles
-        ], 200);
+        $allBranch = Branch::all();
+        return response()->json(
+            [
+                "success" => true,
+                "message" => "Data Found",
+                "data" => $allBranch
+            ],
+            200
+        );
     }
 
     /**
@@ -39,7 +42,7 @@ class RoleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Role $role)
+    public function show(Branch $branch)
     {
         //
     }
@@ -47,7 +50,7 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Role $role)
+    public function edit(Branch $branch)
     {
         //
     }
@@ -55,7 +58,7 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Role $role)
+    public function update(Request $request, Branch $branch)
     {
         //
     }
@@ -63,7 +66,7 @@ class RoleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Role $role)
+    public function destroy(Branch $branch)
     {
         //
     }

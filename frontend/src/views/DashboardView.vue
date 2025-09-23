@@ -17,43 +17,53 @@
       :loading="loading"
     />
 
-    <!-- Komponen lain -->
-    <VisitReport />
+    
   </div>
 </template>
 
 <script setup>
 import Tabel from '@/components/Tabel.vue';
-import VisitReport from '@/components/VisitReport.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
-
 
 // Data tabel
 const customers = ref([]);
 const loading = ref(false);
+const url = ref('');
 
 // Token dan API
 const token = localStorage.getItem('api_token');
-const api = 'http://127.0.0.1:8000/api/allsalesreports';
+const id = localStorage.getItem('id');
+const role = parseInt(localStorage.getItem('role'));
+const branch = localStorage.getItem('branch');
+
+if (role === 8) {
+  url.value = `http://127.0.0.1:8000/api/salesreports/${id}`;
+} else if ([7, 6, 5].includes(role)) {
+  url.value = `http://127.0.0.1:8000/api/branchsalesreports/${branch}`;
+} else {
+  url.value = 'http://127.0.0.1:8000/api/allsalesreports';
+}
+console.log('API URL:', url.value);
 
 // Ambil data dari API
 const fetchSalesReports = async () => {
   loading.value = true;
   try {
-    const res = await axios.get(api, {
+    const res = await axios.get(url.value, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    customers.value = res.data.data;
-    console.log('Sales Reports:', customers.value);
-    console.log('Nominal:', customers.value[0].nominal_purchase_order);
+
+    // Pastikan sesuai struktur API Anda
+    customers.value = res.data.data ?? res.data;
+
+    console.log('Customers:', customers.value);
   } catch (err) {
     console.error('Gagal ambil sales reports:', err);
   } finally {
     loading.value = false;
   }
 };
-
 
 // Kolom tabel
 const colsData = ref([
@@ -69,7 +79,7 @@ const colsData = ref([
   {
     field: 'type_customer.name',
     title: 'Type Customer',
-    minWidth: "100px",
+    maxWidth: "100px",
     render: (row) => row.type_customer?.name ?? '-',
     filter: false,
   },
@@ -117,12 +127,11 @@ const colsData = ref([
       }).format(num);
     },
   },
- 
-
 ]);
 
 onMounted(fetchSalesReports);
 </script>
+
 
 <style scoped>
 /* paksa plugin supaya pake fixed layout */
