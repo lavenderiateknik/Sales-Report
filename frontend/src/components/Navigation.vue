@@ -20,8 +20,10 @@
     <div class="flex flex-row gap-2 items-center lg:items-start mx-2 mb-2 rounded-xl px-4 py-4 text-sm text-slate-600 bg-slate-50 border-2 border-[#F3C623] shadow-amber-50 shadow-sm">
       <Contact class="w-10 h-10" />
       <div class="flex flex-col">
-        <span>Selamat datang,</span>
+        <span>Welcome,</span>
         <strong class="ml-0">{{ userName }}</strong>
+        <strong class="ml-0 uppercase text-[10px]">{{ userRole }}</strong>
+        <strong v-if="userRole>4" class="ml-0">{{ userBranch }}</strong>
       </div>
     </div>
 
@@ -98,21 +100,27 @@ import axios from 'axios';
 const userName = ref('');
 const userEmail = ref('');
 const userId = ref(null);
+const userRole = ref('');
+const userBranch = ref('');
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 // Ambil data pengguna dari API yang terproteksi
 const fetchUserData = async () => {
     try {
         const token = localStorage.getItem('api_token');
         if (token) {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/user`, {
+            const response = await axios.get(apiBaseUrl+`/api/user`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            const user = response.data;
+            const user = response.data.data;
             userName.value = user.name;
             userEmail.value = user.email;
             userId.value = user.id;
+            userRole.value = user.role.name;
+            userBranch.value = user.branch.name;
+            
         }
     } catch (error) {
         console.error("Gagal mengambil data user:", error);
@@ -163,6 +171,14 @@ const handleLogout = async () => {
   await logout();
   closeMobileMenu();
 };
+
+const getUserRole = async () => {
+  try {
+    const token = localStorage.getItem("api_token");
+  } catch (error) {
+    
+  }
+}
 
 onMounted(() => {
   checkScreen();

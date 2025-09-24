@@ -79,8 +79,7 @@ const login = async () => { // KOREKSI: Buat fungsi ini menjadi async
     localStorage.setItem('name', response.data.user.name);
     localStorage.setItem('email', response.data.user.email);
     localStorage.setItem('role', response.data.user.role_id);
-      localStorage.setItem('branch', response.data.user.branch_id);
-      console.log(response.data);
+    localStorage.setItem('branch', response.data.user.branch_id);  
     router.push({ name: 'home' });
 
   } catch (error) {
