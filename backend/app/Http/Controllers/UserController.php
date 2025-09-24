@@ -10,9 +10,20 @@ use function Pest\Laravel\json;
 
 class UserController extends Controller
 {
-    public function all()
+    public function index()
     {
-        $user = User::all();
+        $users = User::with(['role', 'branch'])->get();
+        return response()->json([
+            "success" => true,
+            "message" => "Data Found",
+            "data" => $users
+        ]);
+    }
+
+    public function user(Request $request)
+    {
+        $user = $request->user()->load(['role', 'branch']);
+
         return response()->json([
             "success" => true,
             "message" => "Data Found",

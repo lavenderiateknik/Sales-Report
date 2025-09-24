@@ -29,16 +29,27 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Rute yang memerlukan otentikasi
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // Route::get('/user', function (Request $request) {
+    //     return $request->user();
+    // });
+    Route::get('/user', [UserController::class, 'user']);
+    Route::get('/allusers', [UserController::class, 'index']);
     Route::get('/alltypecustomers', [TypeCustomerController::class, 'index']);
     Route::get('/alltypeprojects', [TypeProjectController::class, 'index']);
     Route::get('/alltypereports', [TypeReportController::class, 'index']);
     //salesreport
     Route::get('/allsalesreports', [SalesReportController::class, 'index']);
     Route::get('/salesreports/{id}', [SalesReportController::class, 'salesreports']);
-    Route::get('branchsalesreports/{id}', [SalesReportController::class, 'branchsalesreports']);
+    Route::get('/branchsalesreports/{branch}', [SalesReportController::class, 'branchsalesreports']);
+
+    Route::get('/typecustomers/{id}', [SalesReportController::class, 'typecustomerbysales']);
+    Route::get('/typecustomersbybranch/{branchId}', [SalesReportController::class, 'typecustomerbybranch']);
+    Route::get('/alltypecustomers', [SalesReportController::class, 'alltypecustomers']);
+
+    Route::get('/recap-reports', [SalesReportController::class, 'recapByMonth']);
+    Route::get('/recap-reports-branch/{branch}', [SalesReportController::class, 'recapByMonthBranch']);
+    Route::get('/recap-reports/{id}', [SalesReportController::class, 'recapByMonthUser']);
+
 
     Route::get('/allroles', [RoleController::class, 'index']);
     Route::get('/allbranches', [BranchController::class, 'index']);
