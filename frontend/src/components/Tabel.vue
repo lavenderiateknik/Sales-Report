@@ -23,6 +23,7 @@
 <script setup>
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
+import { watchEffect } from 'vue';
 
 const props = defineProps({
   rowsData: { type: Array, required: true },
@@ -33,7 +34,13 @@ const props = defineProps({
   perPage: { type: Number, default: 10 },
   loading: { type: Boolean, default: false },
 });
+
+watchEffect(() => {
+  console.log("Cols diterima di Tabel.vue:", props.cols);
+});
+
 </script>
+
 
 <style>
 .no-footer .bh-pagination.bh-py-5 {

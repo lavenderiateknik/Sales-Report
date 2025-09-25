@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class SalesReport extends Model
 {
     use HasFactory;
+    protected $casts = [
+    'nominal_purchase_order' => 'float',
+    ];
+
 
     // Kolom yang bisa diisi massal
     protected $fillable = [
