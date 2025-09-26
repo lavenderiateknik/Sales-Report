@@ -130,8 +130,6 @@ class SalesReportController extends Controller
         ]);
     }
 
-
-
     public function recapByMonthUser($id)
     {
         $reports = SalesReport::selectRaw("
@@ -166,6 +164,41 @@ class SalesReportController extends Controller
         )
             ->join('users', 'sales_reports.user_id', '=', 'users.id')
             ->groupBy('customer_name');
+
+        // 🔹 Filter sesuai role
+        if ($user->role_id == 8) {
+            // Sales → hanya data miliknya
+            $query->where('sales_reports.user_id', $user->id);
+        } elseif (in_array($user->role_id, [7, 6, 5])) {
+            // Supervisor, Branch Manager, Assistant Manager → berdasarkan branch
+            $query->where('users.branch_id', $user->branch_id);
+        }
+        // Manager Sales & Top Management → tidak ada filter
+
+        $data = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data Found',
+            'data' => $data
+        ]);
+    }
+
+    public function recapByDate()
+    {
+        $user = Auth::user();
+
+        $query = SalesReport::select(
+            'date',
+            DB::raw("SUM(CASE WHEN type_report_id = 1 THEN 1 ELSE 0 END) as visit"),
+            DB::raw("SUM(CASE WHEN type_report_id = 2 THEN 1 ELSE 0 END) as follow_up"),
+            DB::raw("SUM(CASE WHEN type_report_id = 3 THEN 1 ELSE 0 END) as offering"),
+            DB::raw("SUM(CASE WHEN type_report_id = 4 THEN 1 ELSE 0 END) as negotiation"),
+            DB::raw("SUM(CASE WHEN type_report_id = 5 THEN 1 ELSE 0 END) as po"),
+            DB::raw("COUNT(*) as total")
+        )
+            ->join('users', 'sales_reports.user_id', '=', 'users.id')
+            ->groupBy('date');
 
         // 🔹 Filter sesuai role
         if ($user->role_id == 8) {
@@ -249,6 +282,30 @@ class SalesReportController extends Controller
             'data' => $reports,
             'grand_total' => $grandTotal,
         ]);
+    }
+    public function recapByCustomerName()
+    {
+        $reports = DB::table('sales_reports as sr')
+        ->join('type_reports as tr', 'sr.type_report_id', '=', 'tr.id')
+        ->select(
+            'sr.customer_name as customer',
+            'sr.project_name as project_name',
+            DB::raw("SUM(CASE WHEN LOWER(tr.name) = 'visit' THEN 1 ELSE 0 END) as visit"),
+            DB::raw("SUM(CASE WHEN LOWER(tr.name) IN ('follow up','follow_up','follow') THEN 1 ELSE 0 END) as follow_up"),
+            DB::raw("SUM(CASE WHEN LOWER(tr.name) IN ('negosiasi','negotiation') THEN 1 ELSE 0 END) as negotiation"),
+            DB::raw("SUM(CASE WHEN LOWER(tr.name) IN ('penawaran','offering') THEN 1 ELSE 0 END) as penawaran"),
+            DB::raw("SUM(CASE WHEN LOWER(tr.name) IN ('po','purchase order','preorder') THEN 1 ELSE 0 END) as po"),
+            DB::raw("COUNT(sr.id) as grand_total")
+        )
+        ->groupBy('sr.customer_name', 'sr.project_name')
+        ->orderBy('sr.customer_name')
+        ->orderBy('sr.project_name')
+        ->get();
+
+    return response()->json([
+        'success' => true,
+        'data' => $reports
+    ]);
     }
 
 

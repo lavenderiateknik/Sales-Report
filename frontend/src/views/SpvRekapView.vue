@@ -1,51 +1,29 @@
 <template>
   <div>
-   
-      <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-        <!-- Header -->
-        <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
-          <span>Supervisor</span>
-          <strong class="ml-2">Rekap</strong>
-        </div>
-        <!-- Chart -->
-          <Transition appear enter-active-class="transition-transform duration-1000 ease-out" enter-from-class="translate-y-30 opacity-0" enter-to-class="translate-x-0 opacity-100">
-            <div class="grid grid-cols-1 lg:grid-cols-2 mx-4 p-3 gap-4">
-              <Chart class="pb-3" :chart-data="pieChartData" title1="Type " title2="Customer" />
-              <Bar class="pb-3" :chart-data="barChartData" title1="Offering " title2="VS Preorder" />
-            </div>
-          </Transition>
-        <div>
-          <Tabel
-            :rows-data="customersWithTotal"
-            :cols="colsData"
-            title1="Customer"
-            title2="Rekap By Date"
-          />
-        </div>
-         <!-- table 2 & 3 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 p-3 gap-4">
-          <Tabel :rows-data="customers2WithTotal" :cols="colsData2" title1="Recap" title2="Penawaran & PO" :pageable="false" />
-          <Tabel :rows-data="nominalRowsDataFormatted" :cols="nominalCols" title1="Recap" title2="Nominal"
-            :pageable="false" />
-        </div>
-        <div>
-          <Tabel
-            :rows-data="recapReportByCustomersWithTotal"
-            :cols="colsRecapReportByCustomer"
-            title1="Recap Report"
-            title2="By Customer Name"
-          />
-        </div>
-         <div>
-          <Tabel
-            :rows-data="recapCustomerNeeds"
-            :cols="colsRecapCustomerNeeds"
-            title1="Recap"
-            title2="Customer Needs"
-          />
-        </div>
-      </div>   
-    
+    <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+      <!-- Header -->
+      <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
+        <span>Supervisor</span>
+        <strong class="ml-2">Rekap</strong>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <Tabel :rows-data="typecustomers" :cols="colsDataTypeCustomer" title1="Recap Type" title2="Customer"
+          :pageable="false" :per-page="10" :loading="loading" />
+        <Tabel :rows-data="monthreports" :cols="colsDataMonthRecap" title1="Recap" title2="Offering VS Purchase Order"
+          :pageable="true" :per-page="10" :loading="loading" />
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <!-- Nominal monthly -->
+        <Tabel :rows-data="monthRecap" :cols="colsDataNominalMonthRecap" title1="Recap" title2="Nominal Monthly"
+          :pageable="true" :per-page="10" :loading="loading" />
+      </div>
+      <!-- recap date -->
+      <Tabel :rows-data="dateRecap" :cols="colsDataDateRecap" title1="Recap" title2="By Date" :pageable="true"
+        :per-page="10" :loading="loading" />
+      <!-- recap by name -->
+      <Tabel :rows-data="recapReportByNameCustomers" :cols="colsRecapReportByNameCustomer" title1="Recap"
+        title2="Visit, Follow Up, Offering, Negotiation and Purchase Order by Customer" />
+    </div>
   </div>
 </template>
 
@@ -53,256 +31,236 @@
 import Tabel from '@/components/Tabel.vue';
 import Chart from '@/components/Chart.vue';
 import Bar from '@/components/Bar.vue';
-import { ref, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
+import currency from 'currency.js';
 
-// --- CHART DATA ---
-const pieChartData = ref({
-    labels: ["BCI", "REG", "OTHER"],
-    datasets: [
-        {
-            data: [30, 40, 60],
-            backgroundColor: ["#77CEFF", "#0079AF", "#123E6B"],
-        },
-    ],
-});
+/* ===========================
+   Helpers
+=========================== */
+function formatCurrency(value, options = { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }) {
+  if (value === null || value === undefined || value === '') return '-';
+  const num = Number(value);
+  if (!Number.isFinite(num)) return '-';
+  return currency(num, options).format();
+}
 
-const barChartData = ref({
-    labels: ["Januari", "Februari", "Maret", "April"],
-    datasets: [
-        {
-            label: "Penawaran",
-            data: [16, 25, 35, 35],
-            backgroundColor: "#F3C623",
-        },
-        {
-            label: "Preorder (PO)",
-            data: [8, 18, 10, 30],
-            backgroundColor: "#10375C",
-        },
-    ],
-});
-
-
-// Definisikan data kolom di parent
-const colsData = ref([
-  { field: 'id', title: 'No.', isUnique: true, type: 'number', filter: false },
-  { field: 'tanggal', title: 'Tanggal', type: 'date' },
-  { field: 'visit', title: 'Visit', filter: false },
-  { field: 'follow_up', title: 'Follow Up', filter: false },
-  { field: 'penawaran', title: 'Penawaran', filter: false },
-  { field: 'PO', title: 'PO', filter: false },
-  { field: 'negotiation', title: 'Negotiation', filter: false },
-  { field: 'grand_total', title: 'Grand Total', filter: false },
-]);
-
-// Data di parent
-const customers = ref([
-  {
-    id: 1,
-    tanggal: '11/09/2025',
-    visit: 0,
-    follow_up: 10,
-    penawaran: 3,
-    PO: 5,
-    negotiation: 3,
-  },
-  {
-    id: 2,
-    tanggal: '03/09/2025',
-    visit: 5,
-    follow_up: 4,
-    penawaran: 0,
-    PO: 7,
-    negotiation: 7,
-  },
-  {
-    id: 3,
-    tanggal: '05/08/2025',
-    visit: 10,
-    follow_up: 0,
-    penawaran: 8,
-    PO: 3,
-    negotiation: 4,
-  },
-  {
-    id: 4,
-    tanggal: '04/04/2025',
-    visit: 13,
-    follow_up: 5,
-    penawaran: 8,
-    PO: 9,
-    negotiation: 0,
-  },
-]);
-
-// ✅ Menggunakan computed property untuk menghitung grand_total dan menambahkan baris total.
-const customersWithTotal = computed(() => {
-  // Tambahkan grand_total ke setiap baris data
-  const data = customers.value.map(customer => ({
-    ...customer,
-    grand_total: customer.visit + customer.follow_up + customer.penawaran + customer.PO,
-  }));
-
-  // Hitung total untuk setiap kolom numerik
-  const totals = data.reduce((acc, current) => {
-    acc.visit += current.visit;
-    acc.follow_up += current.follow_up;
-    acc.penawaran += current.penawaran;
-    acc.PO += current.PO;
-    acc.negotiation += current.negotiation;
-    acc.grand_total += current.grand_total;
-    return acc;
-  }, {
-    visit: 0,
-    follow_up: 0,
-    penawaran: 0,
-    PO: 0,
-    negotiation: 0,
-    grand_total: 0
+function formatDate(value) {
+  if (!value) return '-';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
   });
+}
 
-  // Buat baris total
-  data.push({
-    id: 'Total',
-    tanggal: 'Total', // Ubah 'tanggal' menjadi 'Total'
-    visit: totals.visit,
-    follow_up: totals.follow_up,
-    penawaran: totals.penawaran,
-    PO: totals.PO,
-    negotiation: totals.negotiation,
-    grand_total: totals.grand_total,
-  });
 
-  return data;
-});
+const typecustomers = ref([]);
+const monthreports = ref([]);
+const monthRecap = ref([]);
+const dateRecap = ref([]);
+const recapReportByNameCustomers = ref([]);
 
-// --- TABLE 2: Penawaran & PO ---
-const colsData2 = ref([
-    { field: 'id', title: 'No.', isUnique: true, type: 'number', filter: false },
-    { field: 'month', title: 'Month', filter: false },
-    { field: 'penawaran', title: 'Penawaran', filter: false },
-    { field: 'PO', title: 'PO', filter: false },
-    { field: 'grand_total', title: 'Grand Total', filter: false },
+const loading = ref(false);
+const url = ref('');
+
+const token = localStorage.getItem('api_token');
+const id = localStorage.getItem('id');
+const role = parseInt(localStorage.getItem('role'));
+const branch = localStorage.getItem('branch');
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+const fetchTypeReports = async () => {
+  if (role === 8) {
+    url.value = `${apiBaseUrl}/api/typecustomers/${id}`;
+  } else if ([7, 6, 5].includes(role)) {
+    url.value = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
+  } else {
+    url.value = `${apiBaseUrl}/api/alltypecustomers`;
+  }
+
+  loading.value = true;
+  try {
+    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
+    const data = res.data.data ?? res.data;
+    typecustomers.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
+  } catch (err) {
+    console.error('Gagal ambil type customers:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const colsDataTypeCustomer = ref([
+  { field: 'no', title: 'No', align: 'center' },
+  { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer?.name ?? '-' },
+  { field: 'total', title: 'Total', align: 'center', render: (value) => (Number(value) ? value : 0) },
 ]);
 
-const customers2 = ref([
-    { id: 1, month: 'Januari', penawaran: 3, PO: 5 },
-    { id: 2, month: 'Februari', penawaran: 8, PO: 7 },
-    { id: 3, month: 'Maret', penawaran: 10, PO: 7 },
+const fetchMonthReports = async () => {
+  if (role === 8) {
+    url.value = `${apiBaseUrl}/api/recap-reports/${id}`;
+  } else if ([7, 6, 5].includes(role)) {
+    url.value = `${apiBaseUrl}/api/recap-reports-branch/${branch}`;
+  } else {
+    url.value = `${apiBaseUrl}/api/recap-reports`;
+  }
+
+  loading.value = true;
+  try {
+    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
+    const data = res.data.data ?? res.data;
+    monthreports.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
+  } catch (err) {
+    console.error('Gagal ambil month recap :', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const colsDataMonthRecap = ref([
+  { field: 'no', title: 'No', align: 'center' },
+  { field: 'month', title: 'Bulan', align: 'center' },
+  { field: 'offering', title: 'Penawaran', align: 'center' },
+  { field: 'purchase', title: 'Purchase Order', align: 'center' },
 ]);
 
-const customers2WithTotal = computed(() => {
-    return customers2.value.map(customer => ({
-        ...customer,
-        grand_total: customer.penawaran + customer.PO,
+const fetchMonthRecap = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.get(`${apiBaseUrl}/api/recap-nominal-monthly`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const rows = (res.data.data || []).map((item, idx) => ({
+      no: idx + 1,
+      month: item.month,
+      total: formatCurrency(Number(item.total) || 0), // <-- ubah ke format currency
     }));
-});
 
-// --- TABLE 3: Nominal ---
-const nominalCols = ref([
-    { field: 'no', title: 'No.', isUnique: true, type: 'number', filter: false },
-    { field: 'month', title: 'Month', filter: false },
-    { field: 'nominal', title: 'Nominal', filter: false },
+    const grand = formatCurrency(Number(res.data.grand_total) || 0); // <-- ubah ke currency
+    monthRecap.value = [...rows, { no: '', month: 'Grand Total', total: grand }];
+  } catch (err) {
+    console.error('Gagal ambil data rekap nominal monthly:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const colsDataNominalMonthRecap = ref([
+  { field: 'no', title: 'No', align: 'center', filter: false },
+  { field: 'month', title: 'Bulan', align: 'center', filter: false },
+  { field: 'total', title: 'Jumlah Nominal', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
 ]);
 
-// Data asli
-const nominalRowsData = ref([
-    { no: 1, month: 'Januari', nominal: 323896580 },
-    { no: 2, month: 'Februari', nominal: 256785420 },
-    { no: 3, month: 'Maret', nominal: 673568542 },
+const fetchDateRecap = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.get(`${apiBaseUrl}/api/recap-reports-date`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    dateRecap.value = (res.data.data || []).map((item, idx) => ({
+      no: idx + 1,
+      date: formatDate(item.date),
+      followup: item.follow_up,
+      visit: item.visit,
+      negotiation: item.negotiation,
+      offering: item.offering,
+      purchase: item.po,
+      total: Number(item.total) || 0, // biarkan angka mentah, biar format pakai render di table
+    }));
+  } catch (err) {
+    console.error('Gagal ambil data rekap per tanggal:', err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const colsDataDateRecap = ref([
+  { field: 'date', title: 'Date', align: 'center', filter: false },
+  { field: 'visit', title: 'Visit', align: 'center', filter: false },
+  { field: 'offering', title: 'Offering', align: 'center', filter: false },
+  { field: 'negotiation', title: 'Negotiation', align: 'center', filter: false },
+  { field: 'purchase', title: 'Purchase', align: 'center', filter: false },
+  { field: 'total', title: 'Total', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
 ]);
 
-// ✅ Format nominal jadi Rupiah sebelum dikirim ke Tabel
-const nominalRowsDataFormatted = computed(() =>
-    nominalRowsData.value.map(item => ({
-        ...item,
-        nominal: new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(item.nominal)
-    }))
-);
+const fetchRecapByCustomer = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.get(`${apiBaseUrl}/api/recap-report-by-customer`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-// --- TABLE 4: Recap Visit By Customer ---
-const colsRecapReportByCustomer = ref([
-    { field: 'customer', title: 'Customer', filter: false },
-    { field: 'project_name', title: 'Project Name', filter: false },
-    { field: 'visit', title: 'Visit', filter: false },
-    { field: 'follow', title: 'Follow', filter: false },
-    { field: 'negosiasi', title: 'Negosiasi', filter: false },
-    { field: 'penawaran', title: 'Penawaran', filter: false },
-    { field: 'po', title: 'PO', filter: false },
-    { field: 'grand_total', title: 'Grand Total', filter: false },
-]);
+    const raw = res.data.data || [];
+    
 
-const recapReportByCustomers = ref([
-    { customer: 'ABIBRAYA', project_name: "Jembatan Cianjuran", visit: "0", follow: "3", negosiasi: "7", penawaran: "11", po: "17" },
-    { customer: 'Nindya Karya', project_name: "Gedung MA IKN", visit: "0", follow: "4", negosiasi: "8", penawaran: "13", po: "11" },
-    { customer: 'Bakri Group', project_name: "Universitas", visit: "3", follow: "1", negosiasi: "9", penawaran: "9", po: "5" },
-]);
+    // langsung gunakan data dari API, tambahkan nomor & hitung grand total
+    recapReportByNameCustomers.value = raw.map((item, idx) => ({
+      no: idx + 1,
+      customer: item.customer,
+      project_name: item.project_name,
+      visit: Number(item.visit) || 0,
+      follow_up: Number(item.follow_up) || 0,
+      negotiation: Number(item.negotiation) || 0,
+      penawaran: Number(item.penawaran) || 0,
+      po: Number(item.po) || 0,
+      grand_total:
+        (Number(item.visit) || 0) +
+        (Number(item.follow_up) || 0) +
+        (Number(item.negotiation) || 0) +
+        (Number(item.penawaran) || 0) +
+        (Number(item.po) || 0)
+    }));
 
-const recapReportByCustomersWithTotal = computed(() => {
-  // Tambahkan grand_total ke setiap baris data
-  const data = recapReportByCustomers.value.map(item => {
-    const visit = Number(item.visit) || 0;
-    const follow = Number(item.follow) || 0;
-    const negosiasi = Number(item.negosiasi) || 0;
-    const penawaran = Number(item.penawaran) || 0;
-    const po = Number(item.po) || 0;
+    // Hitung total keseluruhan
+    const totals = recapReportByNameCustomers.value.reduce(
+      (acc, cur) => {
+        acc.visit += cur.visit;
+        acc.follow_up += cur.follow_up;
+        acc.negotiation += cur.negotiation;
+        acc.penawaran += cur.penawaran;
+        acc.po += cur.po;
+        acc.grand_total += cur.grand_total;
+        return acc;
+      },
+      { visit: 0, follow_up: 0, negotiation: 0, penawaran: 0, po: 0, grand_total: 0 }
+    );
 
-    return {
-      ...item,
-      grand_total: visit + follow + negosiasi + penawaran + po,
-    };
-  });
+    
 
-  // Hitung total untuk setiap kolom numerik
-  const totals = data.reduce((acc, current) => {
-    acc.visit += Number(current.visit) || 0;
-    acc.follow += Number(current.follow) || 0;
-    acc.negosiasi += Number(current.negosiasi) || 0;
-    acc.penawaran += Number(current.penawaran) || 0;
-    acc.po += Number(current.po) || 0;
-    acc.grand_total += Number(current.grand_total) || 0;
-    return acc;
-  }, {
-    visit: 0,
-    follow: 0,
-    negosiasi: 0,
-    penawaran: 0,
-    po: 0,
-    grand_total: 0
-  });
+  } catch (err) {
+    console.error('Gagal ambil recap by customer:', err);
+  } finally {
+    loading.value = false;
+  }
+};
 
-  // Buat baris total
-  data.push({
-    customer: 'Total',
-    project_name: '',
-    visit: totals.visit,
-    follow: totals.follow,
-    negosiasi: totals.negosiasi,
-    penawaran: totals.penawaran,
-    po: totals.po,
-    grand_total: totals.grand_total,
-  });
-
-  return data;
-});
-
-// --- TABLE 4: Recap Customer Needs ---
-const colsRecapCustomerNeeds = ref([
+const colsRecapReportByNameCustomer = ref([
   { field: 'customer', title: 'Customer', filter: false },
   { field: 'project_name', title: 'Project Name', filter: false },
-  { field: 'date', title: 'Date', filter: false },
-  { field: 'report_type', title: 'Report Type', filter: false },
-  { field: 'needs', title: 'Needs', filter: false },
+  { field: 'visit', title: 'Visit', align: 'center' },
+  { field: 'follow_up', title: 'Follow Up', align: 'center' },
+  { field: 'negotiation', title: 'Negosiasi', align: 'center' },
+  { field: 'penawaran', title: 'Penawaran', align: 'center' },
+  { field: 'po', title: 'PO', align: 'center' },
+  { field: 'grand_total', title: 'Grand Total', align: 'center' }
 ]);
 
-const recapCustomerNeeds = ref([
-  { customer: 'ABIBRAYA', project_name: "Jembatan Cianjuran", visit: "0", date: "01/09/2025", report_type: "Negosiasi", needs: "Wacker"},
-  { customer: 'NINDYA KARYA', project_name: "RS HUSADA TERNATE", visit: "0", date: "08/09/2025", report_type: "Follow up", needs: "Vibrator IE58"},
-  { customer: 'Bakrie Group', project_name: "Universitas", visit: "0", date: "11/08/2025", report_type: "negotiation", needs: "Universal Worm Pump Putzmeister"},
-]);
 
+/* ===========================
+   Lifecycle
+=========================== */
+onMounted(() => {
+
+  fetchTypeReports();
+  fetchMonthReports();
+  fetchMonthRecap();
+  fetchDateRecap();
+  fetchRecapByCustomer();
+
+});
 </script>

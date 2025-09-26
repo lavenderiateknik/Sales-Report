@@ -16,7 +16,6 @@
       :per-page="10"
       :loading="loading"
     />
-
     <div class="grid grid-cols-1 lg:grid-cols-2">
       <!-- Tabel Type Customer -->
       <Tabel
@@ -39,7 +38,7 @@
         :loading="loading"
       />
     </div>
-
+    
     <!-- Recap per customer -->
     <Tabel
       :rows-data="customerreports"
@@ -78,7 +77,7 @@
 
 <script setup>
 import Tabel from '@/components/Tabel.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import currency from 'currency.js';
 

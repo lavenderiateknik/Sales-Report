@@ -50,8 +50,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/recap-reports-branch/{branch}', [SalesReportController::class, 'recapByMonthBranch']);
     Route::get('/recap-reports/{id}', [SalesReportController::class, 'recapByMonthUser']);
     Route::get('/recap-reports-customer', [SalesReportController::class, 'recapByCustomer']);
+    Route::get('/recap-reports-date', [SalesReportController::class, 'recapByDate']);
     Route::get('/recap-nominal-monthly', [SalesReportController::class, 'recapNominalMontly']);
     Route::get('/recap-reports-type', [SalesReportController::class, 'recapByType']);
+    Route::get('/recap-report-by-customer', [SalesReportController::class, 'recapByCustomerName']);
 
 
     Route::get('/allroles', [RoleController::class, 'index']);
