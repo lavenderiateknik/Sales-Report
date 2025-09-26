@@ -274,7 +274,6 @@ const colsData = ref([
   align: 'right',
   filter: false,
   cell: (row) => {
-    console.log("Cell formatter dipanggil:", row.nominal_purchase_order);
     return formatCurrency(row.nominal_purchase_order);
   }
 }

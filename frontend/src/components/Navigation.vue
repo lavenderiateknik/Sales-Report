@@ -42,14 +42,6 @@
             <Home />Dashboard
           </RouterLink>
           <RouterLink 
-            to="/sales"  
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
-            <ChartNoAxesCombined /> Sales Dashboard
-          </RouterLink>
-          <RouterLink 
             to="/customer"  
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
@@ -57,6 +49,15 @@
           >
             <NotebookTabs /> Customer Dashboard
           </RouterLink>
+          <RouterLink 
+            to="/sales"  
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <ChartNoAxesCombined /> Sales Dashboard
+          </RouterLink>
+          
           <RouterLink 
             to="/spvdashboard" 
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"

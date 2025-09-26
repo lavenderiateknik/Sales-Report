@@ -35,9 +35,9 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
 });
 
-watchEffect(() => {
-  console.log("Cols diterima di Tabel.vue:", props.cols);
-});
+// watchEffect(() => {
+//   console.log("Cols diterima di Tabel.vue:", props.cols);
+// });
 
 </script>
 
