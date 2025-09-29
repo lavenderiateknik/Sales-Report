@@ -76,6 +76,14 @@
           >
             <LandPlot /> Report Sales
           </RouterLink>
+          <RouterLink 
+            to="/adduser" 
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <UserRoundPlus /> Add User
+          </RouterLink>
         </div>
 
         <!-- Logout -->
@@ -92,7 +100,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import { Menu, X, Home, NotebookTabs, ScrollText, LogOut, LandPlot, Contact } from "lucide-vue-next";
+import { Menu, X, Home, NotebookTabs, ScrollText, LogOut, LandPlot, Contact, UserRoundPlus } from "lucide-vue-next";
 import axios from 'axios';
 
 const userName = ref('');

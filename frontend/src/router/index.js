@@ -6,6 +6,7 @@ import SalesDashboardView from '../views/SalesDashboardView.vue'
 import CustomerDashboardView from '@/views/CustomerDashboardView.vue'
 import SpvRekapView from '@/views/SpvRekapView.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import UserView from '@/views/UserView.vue'
 
 
 
@@ -49,6 +50,11 @@ const router = createRouter({
       path: '/checkin',
       name: 'Checkin',
       component: CheckinView,
+    },
+    {
+      path: '/adduser',
+      name: 'Add User',
+      component: UserView,
     },
   ],
 })
