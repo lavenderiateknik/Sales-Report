@@ -100,27 +100,43 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $faker = Faker::create();
-        for ($i = 0; $i < 60; $i++) {
+        for ($i = 0; $i < 160; $i++) {
 
             SalesReport::create([
                 'date' => $faker->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
+
+                // check in/out
                 'check_in' => $faker->time('H:i:s'),
                 'check_out' => $faker->time('H:i:s'),
+
+                // koordinat (lat,lng)
                 'coordinate_check_in' => $faker->latitude(-6.25, -6.15) . ',' . $faker->longitude(106.75, 106.85),
                 'coordinate_check_out' => $faker->latitude(-6.25, -6.15) . ',' . $faker->longitude(106.75, 106.85),
+
+                // relasi user & type
                 'user_id' => $faker->numberBetween(1, 17),
                 'type_customer_id' => $faker->numberBetween(1, 2),
                 'type_project_id' => $faker->numberBetween(1, 8),
                 'type_report_id' => $faker->numberBetween(1, 5),
+
+                // customer & project
                 'customer_name' => $faker->company,
                 'project_name' => $faker->bs,
+
+                // PIC
                 'pic_name' => $faker->name,
                 'pic_phone' => $faker->phoneNumber,
                 'pic_position' => $faker->jobTitle,
+
+                // laporan
                 'report_notes' => $faker->paragraph(3),
                 'equipment_needs' => $faker->words(3, true),
                 'items_purchase_order' => $faker->words(4, true),
                 'nominal_purchase_order' => $faker->numberBetween(5_000_000, 200_000_000),
+
+                // picture → isi dummy blob (string dikonversi ke binary)
+                'picture' => $faker->boolean(70) ? $faker->image(null, 640, 480, 'business', true, true, 'Report') : null,
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

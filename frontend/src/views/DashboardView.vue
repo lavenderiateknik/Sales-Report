@@ -133,8 +133,9 @@ const fetchSalesReports = async () => {
 
   loading.value = true;
   try {
-      const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
-      const data = res.data.data ?? res.data;
+    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
+    const data = res.data.data ?? res.data;
+    
       customers.value = data.map((item, idx) => ({
     ...item,
         no: idx + 1,
@@ -154,7 +155,7 @@ const fetchTypeReports = async () => {
   } else if ([7, 6, 5].includes(role)) {
     url.value = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
   } else {
-    url.value = `${apiBaseUrl}/api/alltypecustomers`;
+    url.value = `${apiBaseUrl}/api/optiontypecustomers`;
   }
 
   loading.value = true;
@@ -281,7 +282,7 @@ const colsData = ref([
 
 const colsDataTypeCustomer = ref([
   { field: 'no', title: 'No', align: 'center' },
-  { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer?.name ?? '-' },
+  { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer_id?.name ?? '-' },
   { field: 'total', title: 'Total', align: 'center', render: (value) => (Number(value) ? value : 0) },
 ]);
 

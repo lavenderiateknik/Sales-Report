@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -10,12 +11,16 @@ return new class extends Migration
     {
         Schema::create('sales_reports', function (Blueprint $table) {
             $table->id();
+
+            // tanggal laporan
             $table->date('date');
-            //user
+
+            // relasi ke users
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+
             // check-in
             $table->time('check_in');
-            $table->string('coordinate_check_in')->nullable(); // lat,lng gabungan
+            $table->string('coordinate_check_in')->nullable(); // lat,lng
 
             // relasi ke type_customers
             $table->foreignId('type_customer_id')->constrained('type_customers')->onDelete('cascade');
@@ -36,16 +41,23 @@ return new class extends Migration
             // tambahan notes panjang
             $table->longText('report_notes')->nullable();
 
+            // kebutuhan tambahan
             $table->text('equipment_needs')->nullable();
             $table->text('items_purchase_order')->nullable();
             $table->decimal('nominal_purchase_order', 15, 2)->nullable();
 
             // check-out
             $table->time('check_out')->nullable();
-            $table->string('coordinate_check_out')->nullable(); // lat,lng gabungan
+            $table->string('coordinate_check_out')->nullable(); // lat,lng
+
+            // sementara binary, nanti diubah ke LONGBLOB
+            $table->binary('picture')->nullable();
 
             $table->timestamps();
         });
+
+        // ubah kolom picture menjadi LONGBLOB (supaya support >64KB)
+        DB::statement('ALTER TABLE sales_reports MODIFY picture LONGBLOB NULL');
     }
 
     public function down(): void

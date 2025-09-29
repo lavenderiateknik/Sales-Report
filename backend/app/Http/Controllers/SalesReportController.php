@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use function in_array; 
 
 class SalesReportController extends Controller
@@ -16,7 +17,9 @@ class SalesReportController extends Controller
      */
     public function index()
     {
-        $allTypeReport = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport','user'])->get();
+        $allTypeReport = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport','user'])
+                        ->get()
+                        ->makeHidden(['picture']);;
         return response()->json([
             "success" => true,
             "message" => "Data Found",
@@ -26,7 +29,10 @@ class SalesReportController extends Controller
 
     public function salesreports($id)
     {
-        $reports = SalesReport::where('user_id', $id)->with(['typeCustomer', 'typeProject', 'typeReport', 'user'])->get();
+        $reports = SalesReport::where('user_id', $id)
+        ->with(['typeCustomer', 'typeProject', 'typeReport', 'user'])
+        ->get()
+        ->makeHidden(['picture']);
         return response()->json([
             "success" => true,
             "message" => "Data Found",
@@ -39,7 +45,8 @@ class SalesReportController extends Controller
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
             ->select('sales_reports.*')
-            ->get();
+            ->get()
+            ->makeHidden(['picture']);
 
         return response()->json([
             "success" => true,
@@ -71,6 +78,7 @@ class SalesReportController extends Controller
             ->groupBy('type_customer_id')
             ->with('typeCustomer')
             ->get();
+            
 
         return response()->json([
             "success" => true,
@@ -312,6 +320,8 @@ class SalesReportController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+    
+
     public function create()
     {
         //
@@ -320,10 +330,57 @@ class SalesReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+ 
+
     public function store(Request $request)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'date' => 'required|date',
+                'check_in' => 'required|date_format:H:i',
+                'coordinate_check_in' => 'nullable|string',
+                'type_customer_id' => 'required|exists:type_customers,id',
+                'customer_name' => 'required|string|max:255',
+                'type_project_id' => 'required|exists:type_projects,id',
+                'project_name' => 'required|string|max:255',
+                'pic_name' => 'required|string|max:255',
+                'pic_phone' => 'required|string|max:20',
+                'pic_position' => 'required|string|max:255',
+                'type_report_id' => 'required|exists:type_reports,id',
+                'report_notes' => 'nullable|string',
+                'equipment_needs' => 'nullable|string',
+                'items_purchase_order' => 'nullable|string',
+                'nominal_purchase_order' => 'nullable|numeric',
+                'check_out' => 'nullable|date_format:H:i',
+                'coordinate_check_out' => 'nullable|string',
+                'picture' => 'nullable|image|max:5120',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        // ✅ Simpan ke database
+        $report = new SalesReport($validated);
+        $report->user_id = Auth::id();
+
+        if ($request->hasFile('picture')) {
+            $report->picture = file_get_contents($request->file('picture')->getRealPath());
+        }
+
+        $report->save();
+
+    return response()->json([
+            'message' => 'Sales report berhasil disimpan',
+            'data' => [
+                'id' => $report->id,
+                'date' => $report->date,
+            ]
+        ], 201);
     }
+
 
     /**
      * Display the specified resource.

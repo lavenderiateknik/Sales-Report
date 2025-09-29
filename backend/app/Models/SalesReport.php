@@ -8,12 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class SalesReport extends Model
 {
     use HasFactory;
+
     protected $casts = [
-    'nominal_purchase_order' => 'float',
+        'nominal_purchase_order' => 'float',
     ];
 
-
-    // Kolom yang bisa diisi massal
     protected $fillable = [
         'date',
         'check_in',
@@ -32,6 +31,7 @@ class SalesReport extends Model
         'nominal_purchase_order',
         'check_out',
         'coordinate_check_out',
+        'picture', // 👈 ini ditambahkan
     ];
 
     public function typeCustomer()

@@ -44,7 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/typecustomers/{id}', [SalesReportController::class, 'typecustomerbysales']);
     Route::get('/typecustomersbybranch/{branchId}', [SalesReportController::class, 'typecustomerbybranch']);
-    Route::get('/alltypecustomers', [SalesReportController::class, 'alltypecustomers']);
+    Route::get('/optiontypecustomers', [SalesReportController::class, 'alltypecustomers']);
 
     Route::get('/recap-reports', [SalesReportController::class, 'recapByMonth']);
     Route::get('/recap-reports-branch/{branch}', [SalesReportController::class, 'recapByMonthBranch']);
@@ -55,9 +55,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/recap-reports-type', [SalesReportController::class, 'recapByType']);
     Route::get('/recap-report-by-customer', [SalesReportController::class, 'recapByCustomerName']);
 
-
     Route::get('/allroles', [RoleController::class, 'index']);
     Route::get('/allbranches', [BranchController::class, 'index']);
+
+    Route::post('/sales-reports', [SalesReportController::class, 'store']);
+    Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
