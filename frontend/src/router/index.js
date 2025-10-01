@@ -7,6 +7,7 @@ import CustomerDashboardView from '@/views/CustomerDashboardView.vue'
 import SpvRekapView from '@/views/SpvRekapView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import UserView from '@/views/UserView.vue'
+import BranchesView from '@/views/BranchesView.vue'
 
 
 
@@ -56,6 +57,11 @@ const router = createRouter({
       name: 'Add User',
       component: UserView,
     },
+    {
+      path: '/branches',
+      name: 'Branches',
+      component: BranchesView,
+    }
   ],
 })
 

@@ -36,16 +36,39 @@ class BranchController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255|unique:branches,name',
+        ]);
+
+        $branch = Branch::create([
+            'name' => $request->name,
+        ]);
+
+        return response()->json([
+            'message' => 'Branch berhasil ditambahkan',
+            'data' => $branch
+        ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Branch $branch)
+    public function show($id)
     {
-        //
+        $branch = Branch::find($id);
+
+        if (!$branch) {
+            return response()->json([
+                'message' => 'Branch tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Detail branch',
+            'data' => $branch
+        ], 200);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -58,16 +81,49 @@ class BranchController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Branch $branch)
+    public function update(Request $request, $id)
     {
-        //
+        $branch = Branch::find($id);
+
+        if (!$branch) {
+            return response()->json([
+                'message' => 'Branch tidak ditemukan'
+            ], 404);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255|unique:branches,name,' . $branch->id,
+        ]);
+
+        $branch->update([
+            'name' => $request->name,
+        ]);
+
+        return response()->json([
+            'message' => 'Branch berhasil diperbarui',
+            'data' => $branch
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Branch $branch)
-    {
-        //
+    public function destroy($id)
+{
+    $branch = Branch::find($id);
+
+    if (!$branch) {
+        return response()->json([
+            'message' => 'Branch tidak ditemukan'
+        ], 404);
     }
+
+    $branch->delete();
+
+    return response()->json([
+        'message' => 'Branch berhasil dihapus'
+    ], 200);
+}
+
 }
