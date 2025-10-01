@@ -136,9 +136,9 @@ const fetchSalesReports = async () => {
     const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
     const data = res.data.data ?? res.data;
     
-      customers.value = data.map((item, idx) => ({
+    customers.value = data.map((item, idx) => ({
     ...item,
-        no: idx + 1,
+    no: idx + 1,
     date: formatDate(item.date),
     nominal_purchase_order: formatCurrency(item.nominal_purchase_order)
   }));
@@ -250,7 +250,7 @@ const colsData = ref([
   { field: 'no', title: 'No', align: 'center', minWidth: '60px', filter: false },
   {
     field: 'date',
-    title: 'Tanggal',
+    title: 'Date',
     type: 'date',
     minWidth: '150px',
     align: 'center',
@@ -288,8 +288,8 @@ const colsDataTypeCustomer = ref([
 
 const colsDataMonthRecap = ref([
   { field: 'no', title: 'No', align: 'center' },
-  { field: 'month', title: 'Bulan', align: 'center' },
-  { field: 'offering', title: 'Penawaran', align: 'center' },
+  { field: 'month', title: 'Month', align: 'center' },
+  { field: 'offering', title: 'Offer', align: 'center' },
   { field: 'purchase', title: 'Purchase Order', align: 'center' },
 ]);
 
@@ -298,7 +298,7 @@ const colsDataCustomerRecap = ref([
   { field: 'customer_name', title: 'Customer', align: 'left' },
   { field: 'visit', title: 'Visit', align: 'center' },
   { field: 'follow_up', title: 'Follow Up', align: 'center' },
-  { field: 'penawaran', title: 'Offering', align: 'center' },
+  { field: 'Offer', title: 'Offering', align: 'center' },
   { field: 'negosiasi', title: 'Negotiation', align: 'center' },
   { field: 'po', title: 'Purchase Order', align: 'center' },
   { field: 'total', title: 'Total', align: 'center' },
@@ -306,8 +306,8 @@ const colsDataCustomerRecap = ref([
 
 const colsDataNominalMonthRecap = ref([
   { field: 'no', title: 'No', align: 'center', filter: false },
-  { field: 'month', title: 'Bulan', align: 'center', filter: false },
-  { field: 'total', title: 'Jumlah Nominal', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
+  { field: 'month', title: 'Month', align: 'center', filter: false },
+  { field: 'total', title: 'Purchase Total', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
 ]);
 
 const colsDataTypeRecap = ref([

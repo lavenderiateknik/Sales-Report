@@ -77,6 +77,7 @@
             <LandPlot /> Report Sales
           </RouterLink>
           <RouterLink 
+          v-if="![4,5,6,7,8].includes(userRoleId)"
             to="/adduser" 
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"

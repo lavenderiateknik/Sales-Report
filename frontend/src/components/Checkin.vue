@@ -44,6 +44,15 @@
         </div>
         <p v-if="errors.check_in" class="text-red-600 text-sm mt-1">{{ errors.check_in[0] }}</p>
       </div>
+       <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Koordinat Check In</label>
+          <div class="flex flex-col lg:flex-row gap-2">
+            <input type="text" v-model="form.coordinate_check_in" readonly
+                   class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
+            <button type="button" @click="getLocation('check_in')"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Dapatkan Lokasi 📍</button>
+          </div>
+        </div>
 
       <div class="grid md:grid-cols-2 md:gap-6">
         <!-- Company (customer_name) -->
@@ -145,7 +154,7 @@
       <!-- Check Out & Coordinates -->
       <div>
         <label for="check_out" class="block text-sm font-medium text-gray-700 mb-1">Time Check Out</label>
-        <div class="flex gap-2">
+        <div class="flex flex-row lg:flex-col gap-2">
           <input id="check_out" type="time" v-model="form.check_out" readonly
                  class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" />
           <button type="button" @click="setCheckOut"
@@ -154,19 +163,11 @@
       </div>
 
       <div class="grid md:grid-cols-1 md:gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Koordinat Check In</label>
-          <div class="flex gap-2">
-            <input type="text" v-model="form.coordinate_check_in" readonly
-                   class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
-            <button type="button" @click="getLocation('check_in')"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Dapatkan Lokasi 📍</button>
-          </div>
-        </div>
+       
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Koordinat Check Out</label>
-          <div class="flex gap-2">
+          <div class="flex flex-col lg:flex-row gap-2">
             <input type="text" v-model="form.coordinate_check_out" readonly
                    class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
             <button type="button" @click="getLocation('check_out')"
@@ -435,6 +436,7 @@ async function submitForm() {
     const res = await axios.post(`${apiBase}/sales-reports`, fd, { headers });
     alert(res.data?.message ?? "Laporan berhasil disimpan");
     resetForm();
+    window.location.href = "/";
   } catch (err) {
     const r = err?.response;
     if (r && r.status === 422 && r.data && r.data.errors) {

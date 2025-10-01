@@ -18,6 +18,7 @@ class SalesReportController extends Controller
     public function index()
     {
         $allTypeReport = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport','user'])
+                        ->orderBy('created_at', 'desc')
                         ->get()
                         ->makeHidden(['picture']);;
         return response()->json([
@@ -31,6 +32,7 @@ class SalesReportController extends Controller
     {
         $reports = SalesReport::where('user_id', $id)
         ->with(['typeCustomer', 'typeProject', 'typeReport', 'user'])
+        ->orderBy('created_at', 'desc')
         ->get()
         ->makeHidden(['picture']);
         return response()->json([
@@ -45,6 +47,7 @@ class SalesReportController extends Controller
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
             ->select('sales_reports.*')
+            ->orderBy('created_at', 'desc')
             ->get()
             ->makeHidden(['picture']);
 

@@ -33,7 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //     return $request->user();
     // });
     Route::get('/user', [UserController::class, 'user']);
+    Route::post('/createuser',[UserController::class, 'store']);
     Route::get('/allusers', [UserController::class, 'index']);
+    Route::get('/user/{id}', [UserController::class, 'edit']);
+    
     Route::get('/alltypecustomers', [TypeCustomerController::class, 'index']);
     Route::get('/alltypeprojects', [TypeProjectController::class, 'index']);
     Route::get('/alltypereports', [TypeReportController::class, 'index']);

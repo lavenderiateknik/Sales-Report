@@ -1,29 +1,36 @@
 <template>
-  <div class="border-1 border-amber-500 m-3 p-3 rounded-xl bg-[#F4F6FF]/30 shadow-md/60 shadow-slate-400"
-    :class="{ 'no-footer': !pageable }">
-    <!-- Judul -->
+  <div
+    class="border-1 border-amber-500 m-3 p-3 rounded-xl bg-[#F4F6FF]/30 shadow-md/60 shadow-slate-400"
+    :class="{ 'no-footer': !pageable }"
+  >
     <div class="flex items-center justify-between mb-5">
       <h2 class="text-3xl">{{ title1 }} <strong>{{ title2 }}</strong></h2>
     </div>
 
-    <!-- Datatable -->
-    <vue3-datatable 
-    :rows="rowsData" 
-    :columns="cols" 
-    :loading="loading" 
-    :columnFilter="true" 
-    :pageable="pageable"  
-    :per-page="perPage" 
-    :skin="'bh-table-striped bh-table-hover'"
-     />
+    <vue3-datatable
+      :rows="rowsData"
+      :columns="cols"
+      :loading="loading"
+      :columnFilter="true"
+      :pageable="pageable"
+      :per-page="perPage"
+      :skin="'bh-table-striped bh-table-hover'"
+    >
+      <template v-for="col in cols" :key="col.field" #[`cell-${col.field}`]="slotProps">
+        <template v-if="col.field === 'actions'">
+          <div v-html="slotProps.value"></div>
+        </template>
+        <template v-else>
+          {{ slotProps.value }}
+        </template>
+      </template>
+      </vue3-datatable>
   </div>
 </template>
-
 
 <script setup>
 import Vue3Datatable from '@bhplugin/vue3-datatable';
 import '@bhplugin/vue3-datatable/dist/style.css';
-import { watchEffect } from 'vue';
 
 const props = defineProps({
   rowsData: { type: Array, required: true },
@@ -34,17 +41,10 @@ const props = defineProps({
   perPage: { type: Number, default: 10 },
   loading: { type: Boolean, default: false },
 });
-
-// watchEffect(() => {
-//   console.log("Cols diterima di Tabel.vue:", props.cols);
-// });
-
 </script>
 
-
-<style>
-.no-footer .bh-pagination.bh-py-5 {
+<style scoped>
+.no-footer .bh-pagination {
   display: none !important;
 }
-
 </style>

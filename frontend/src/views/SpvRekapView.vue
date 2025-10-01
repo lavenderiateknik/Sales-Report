@@ -78,7 +78,7 @@ const fetchTypeReports = async () => {
   } else if ([7, 6, 5].includes(role)) {
     url.value = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
   } else {
-    url.value = `${apiBaseUrl}/api/alltypecustomers`;
+    url.value = `${apiBaseUrl}/api/optiontypecustomers`;
   }
 
   loading.value = true;
@@ -122,7 +122,7 @@ const fetchMonthReports = async () => {
 
 const colsDataMonthRecap = ref([
   { field: 'no', title: 'No', align: 'center' },
-  { field: 'month', title: 'Bulan', align: 'center' },
+  { field: 'month', title: 'Month', align: 'center' },
   { field: 'offering', title: 'Penawaran', align: 'center' },
   { field: 'purchase', title: 'Purchase Order', align: 'center' },
 ]);
@@ -151,8 +151,8 @@ const fetchMonthRecap = async () => {
 
 const colsDataNominalMonthRecap = ref([
   { field: 'no', title: 'No', align: 'center', filter: false },
-  { field: 'month', title: 'Bulan', align: 'center', filter: false },
-  { field: 'total', title: 'Jumlah Nominal', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
+  { field: 'month', title: 'Month', align: 'center', filter: false },
+  { field: 'total', title: 'Purchase Order', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
 ]);
 
 const fetchDateRecap = async () => {
