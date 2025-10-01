@@ -67,4 +67,56 @@ class UserController extends Controller
         ], 201);
     }
 
+    public function update(Request $request, $id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => ['required','string','max:255'],
+            'email' => ['required','email', Rule::unique('users')->ignore($user->id)],
+            'role_id' => ['required','exists:roles,id'],
+            'branch_id' => ['required','exists:branches,id'],
+            'password' => ['nullable','confirmed','min:6'],
+        ]);
+
+        // update field biasa
+        $user->fill([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'role_id' => $validated['role_id'],
+            'branch_id' => $validated['branch_id'],
+        ]);
+
+        // jika password dikirim
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'User updated successfully',
+            'data' => $user
+        ]);
+    }
+
+    // app/Http/Controllers/Api/UserController.php
+
+public function destroy($id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    $user->delete();
+
+    return response()->json(['message' => 'User deleted successfully']);
+}
+
+
 }

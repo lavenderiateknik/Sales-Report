@@ -84,7 +84,7 @@
 
       <p v-if="errors.general" class="text-red-600 text-sm">{{ errors.general }}</p>
 
-      <div class="flex justify-end">
+      <div class="flex justify-end pt-2">
         <button
           type="submit"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg disabled:opacity-60"

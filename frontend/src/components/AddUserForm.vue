@@ -1,12 +1,12 @@
 <template>
-  <div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-6">
-    <div class="flex flex-row items-center px-4 text-3xl text-slate-600">
-      <UserRoundPlus class="pr-2 h-14 w-14" />
+  <div class="max-w-2xl mx-auto bg-white shadow-lg rounded-lg mt-3 px-3">
+    <div class="flex flex-row items-center px-4 text-xl text-slate-600">
+      <UserRoundPlus class="pr-2 h-8 w-8" />
       <span>Add</span>
       <strong class="ml-2">User</strong>
     </div>
 
-    <form @submit.prevent="submitForm" class="space-y-1">
+    <form @submit.prevent="submitForm" class="space-y-1 space-x-2">
       <!-- Name -->
       <div>
         <label class="block text-sm font-medium text-gray-700">Name</label>
@@ -94,7 +94,7 @@
       <p v-if="errors.general" class="text-red-600 text-sm">{{ errors.general }}</p>
 
       <!-- Submit Button -->
-      <div class="flex justify-end">
+      <div class="flex justify-end py-1">
         <button
           type="submit"
           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-60"

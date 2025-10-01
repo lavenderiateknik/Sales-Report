@@ -36,6 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/createuser',[UserController::class, 'store']);
     Route::get('/allusers', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'edit']);
+    Route::put('/updateuser/{id}',[UserController::class,'update']);
+    Route::delete('/deleteuser/{id}', [UserController::class, 'destroy']);
     
     Route::get('/alltypecustomers', [TypeCustomerController::class, 'index']);
     Route::get('/alltypeprojects', [TypeProjectController::class, 'index']);

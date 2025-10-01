@@ -65,14 +65,14 @@
 
     </div>
     <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-white m-4 p-6 rounded-2xl shadow-lg w-full max-w-lg relative">
+      <div class="bg-slate-100 m-4 px-4 py-3 rounded-2xl shadow-xl w-full max-w-lg relative">
         <button 
           @click="showModal = false" 
           class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
         >
           ✕
         </button>
-        <h3 class="text-xl font-bold mb-4">Tambah User Baru</h3>
+        <h3 class="text-xl font-bold">Add User</h3>
         <AddUserForm @saved="handleUserSaved" />
       </div>
     </div>
