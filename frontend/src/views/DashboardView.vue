@@ -326,6 +326,18 @@ onMounted(() => {
   fetchCustomerRecap();
   fetchMonthRecap();
   fetchTypeRecap();
+
+  // auto-refresh setiap 5 menit
+  setInterval(() => {
+    fetchSalesReports();
+    fetchTypeReports();
+    fetchMonthReports();
+    fetchCustomerRecap();
+    fetchMonthRecap();
+    fetchTypeRecap();
+  }, 5 * 60 * 1000);
+
+  
 });
 </script>
 
