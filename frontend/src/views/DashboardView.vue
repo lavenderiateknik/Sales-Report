@@ -198,6 +198,7 @@ const fetchCustomerRecap = async () => {
     const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
     const data = res.data.data ?? res.data;
     customerreports.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
+    console.log(customerreports.value);
   } catch (err) {
     console.error('Gagal ambil customer recap:', err);
   } finally {
@@ -298,7 +299,7 @@ const colsDataCustomerRecap = ref([
   { field: 'customer_name', title: 'Customer', align: 'left' },
   { field: 'visit', title: 'Visit', align: 'center' },
   { field: 'follow_up', title: 'Follow Up', align: 'center' },
-  { field: 'Offer', title: 'Offering', align: 'center' },
+  { field: 'penawaran', title: 'Offering', align: 'center' },
   { field: 'negosiasi', title: 'Negotiation', align: 'center' },
   { field: 'po', title: 'Purchase Order', align: 'center' },
   { field: 'total', title: 'Total', align: 'center' },

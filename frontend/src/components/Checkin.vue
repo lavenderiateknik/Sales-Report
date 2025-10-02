@@ -314,6 +314,7 @@ async function fetchAllDropdowns() {
   loading.value.typeCustomers = true;
   errorsFetch.value.typeCustomers = null;
   typeCustomers.value = await tryEndpoints(customerCandidates, headers);
+  console.log(typeCustomers.value);
   if (!typeCustomers.value.length) {
     errorsFetch.value.typeCustomers = "Tidak dapat memuat tipe customer. Periksa endpoint API.";
     // fallback: optionally set minimal options so user can continue
