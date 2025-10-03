@@ -342,24 +342,24 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-::deep .bh-table {
+<!-- <style scoped>
+::deep(.bh-table) {
   table-layout: fixed;
   width: 100%;
 }
-::deep .bh-items-center {
+::deep(.bh-items-center) {
   white-space: normal !important;
   word-break: break-word;
   overflow-wrap: break-word;
 }
-::deep .bh-table td {
+::deep(.bh-table td) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-::deep .bh-table td.wrap-cell {
+::deep(.bh-table td.wrap-cell) {
   white-space: normal !important;
   word-break: break-word;
   overflow-wrap: break-word;
 }
-</style>
+</style> -->

@@ -205,6 +205,8 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import axios from "axios";
+// IMPOR PLUGINS CAPACITOR
+import { Geolocation } from "@capacitor/geolocation"; // <-- TAMBAHKAN INI
 
 const props = defineProps({
   coordinate: { type: Array, default: () => [0, 0] },
@@ -387,23 +389,50 @@ function setCheckOut() {
   form.value.check_out = now.toTimeString().slice(0, 5);
 }
 
-function getLocation(type = "check_in") {
-  if (!navigator.geolocation) {
-    alert("Geolocation tidak didukung oleh browser ini.");
+// FUNGSI GET LOCATION YANG DIPERBARUI
+async function getLocation(type = "check_in") {
+  
+  // 1. Periksa ketersediaan Geolocation (Opsional tapi baik untuk web)
+  if (!('geolocation' in navigator)) {
+    alert("Geolocation tidak didukung pada perangkat ini.");
     return;
   }
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const lat = pos.coords.latitude.toFixed(6);
-      const lng = pos.coords.longitude.toFixed(6);
-      const str = `${lat}, ${lng}`;
-      if (type === "check_in") form.value.coordinate_check_in = str;
-      else form.value.coordinate_check_out = str;
-      emit("update:coordinate", [parseFloat(lat), parseFloat(lng)]);
-    },
-    (err) => alert("Gagal mendapatkan lokasi: " + err.message)
-  );
+
+  try {
+    // 2. MINTA IZIN secara eksplisit (PENTING untuk Native)
+    const permissionStatus = await Geolocation.requestPermissions();
+
+    if (permissionStatus.location !== 'granted') {
+      alert("Izin lokasi ditolak. Harap izinkan akses di Pengaturan aplikasi Anda.");
+      return;
+    }
+
+    // 3. DAPATKAN POSISI menggunakan Capacitor API
+    const pos = await Geolocation.getCurrentPosition({
+      enableHighAccuracy: true, // Meningkatkan akurasi (mungkin lebih lambat)
+      timeout: 15000,           // Batas waktu 15 detik
+    });
+
+    // 4. Proses Hasil
+    const lat = pos.coords.latitude.toFixed(6);
+    const lng = pos.coords.longitude.toFixed(6);
+    const str = `${lat}, ${lng}`;
+
+    if (type === "check_in") {
+      form.value.coordinate_check_in = str;
+    } else {
+      form.value.coordinate_check_out = str;
+    }
+    
+    emit("update:coordinate", [parseFloat(lat), parseFloat(lng)]);
+
+  } catch (err) {
+    // Tangani error, termasuk jika GPS dimatikan atau timeout
+    console.error("Gagal mendapatkan lokasi:", err);
+    alert("Gagal mendapatkan lokasi. Pastikan GPS/Lokasi HP aktif. Detail: " + err.message);
+  }
 }
+// AKHIR FUNGSI GET LOCATION YANG DIPERBARUI
 
 async function submitForm() {
   errors.value = {};
@@ -485,3 +514,5 @@ function resetForm() {
 .border { border-width: 1px; }
 .border-gray-300 { border-color: #d1d5db; }
 </style>
+
+
