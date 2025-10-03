@@ -182,6 +182,7 @@ const fetchDateRecap = async () => {
 const colsDataDateRecap = ref([
   { field: 'date', title: 'Date', align: 'center', filter: false },
   { field: 'visit', title: 'Visit', align: 'center', filter: false },
+  { field: 'followup', title: 'Follow Up', align: 'center', filter: false },
   { field: 'offering', title: 'Offering', align: 'center', filter: false },
   { field: 'negotiation', title: 'Negotiation', align: 'center', filter: false },
   { field: 'purchase', title: 'Purchase', align: 'center', filter: false },
