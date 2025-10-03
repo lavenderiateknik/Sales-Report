@@ -198,7 +198,7 @@ const fetchCustomerRecap = async () => {
     const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
     const data = res.data.data ?? res.data;
     customerreports.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
-    console.log(customerreports.value);
+    
   } catch (err) {
     console.error('Gagal ambil customer recap:', err);
   } finally {
