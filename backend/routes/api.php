@@ -11,6 +11,7 @@ use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\TypeReportController;
 use App\Http\Controllers\TypeProjectController;
 use App\Http\Controllers\TypeCustomerController;
+use App\Http\Controllers\CustomerDatabaseController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -70,6 +71,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/sales-reports', [SalesReportController::class, 'store']);
     Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
+
+    Route::get('/customerdatabase', [CustomerDatabaseController::class, 'index']);
+    Route::post('/import-customer-database', [CustomerDatabaseController::class, 'import']);
+
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });

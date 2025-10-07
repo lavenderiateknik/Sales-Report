@@ -94,6 +94,15 @@
           >
             <GitBranch /> Branches
           </RouterLink>
+          <RouterLink 
+          v-if="![4,5,6,7,8].includes(userRoleId)"
+            to="/customerdata" 
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <Database /> Customer Database
+          </RouterLink>
         </div>
 
         <!-- Logout -->
@@ -120,7 +129,8 @@ import {
   LandPlot,
   Contact,
   UserRoundPlus,
-  GitBranch
+  GitBranch,
+  Database
 } from "lucide-vue-next";
 import axios from 'axios';
 
