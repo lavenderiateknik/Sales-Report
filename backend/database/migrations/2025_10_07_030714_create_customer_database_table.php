@@ -7,10 +7,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('customerdatabase', function (Blueprint $table) {
+        Schema::create('customer_database', function (Blueprint $table) { // 🟢 gunakan underscore (konvensi Laravel)
             $table->id();
-            $table->unsignedBigInteger('id_branch')->nullable();
-            $table->foreign('id_branch')->references('id')->on('branches')->onDelete('set null');
+
+            // Relasi ke branches
+            $table->foreignId('id_branch')->nullable()->constrained('branches')->nullOnDelete();
+
+            // Data proyek
             $table->string('project_id')->nullable();
             $table->string('project_type')->nullable();
             $table->string('development_type')->nullable();
@@ -50,16 +53,14 @@ return new class extends Migration {
             $table->string('role_status')->nullable();
             $table->string('construction_start_text')->nullable();
             $table->string('construction_end_text')->nullable();
+            // 🟢 Tambahan untuk deteksi duplikat
+            $table->string('hash', 64)->nullable()->unique();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::table('customerdatabase', function (Blueprint $table) {
-            $table->dropForeign(['id_branch']);
-        });
-
-        Schema::dropIfExists('customerdatabase');
+        Schema::dropIfExists('customer_database');
     }
 };

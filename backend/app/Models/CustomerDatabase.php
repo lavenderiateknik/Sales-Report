@@ -9,7 +9,7 @@ class CustomerDatabase extends Model
 {
     use HasFactory;
 
-    protected $table = 'customerdatabase';
+    protected $table = 'customer_database';
 
     protected $fillable = [
         'project_id','project_type','development_type','project_name','project_detail',
@@ -20,7 +20,7 @@ class CustomerDatabase extends Model
         'company_town','company_state','company_phone','company_email','contact_first_name',
         'contact_surname','contact_position','contact_landline','contact_email','contact_remark',
         'company_region','mobile','role_status','construction_start_text','construction_end_text',
-        'id_branch' 
+        'id_branch', "hash" 
     ];
 
     /**

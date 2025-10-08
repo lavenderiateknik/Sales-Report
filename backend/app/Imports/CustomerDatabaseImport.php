@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Imports;
 
 use Illuminate\Support\Collection;
@@ -23,9 +24,11 @@ class CustomerDatabaseImport implements ToCollection
             return;
         }
 
+        // Ambil header
         $headerRow = $rows->shift()->toArray();
         $headerRow = array_map(fn($h) => trim((string)$h), $headerRow);
 
+        // Normalisasi nama header
         $normalize = function ($value) {
             $normalized = strtolower($value);
             $normalized = preg_replace('/[^a-z0-9]+/u', '', $normalized);
@@ -39,15 +42,18 @@ class CustomerDatabaseImport implements ToCollection
 
         Log::info('🧭 Header Map:', $headerMap);
 
+        $countInserted = 0;
+        $countSkipped = 0;
+
         foreach ($rows as $i => $row) {
             $row = $row->toArray();
 
+            // Lewati baris kosong
             if (count(array_filter($row, fn($v) => $v !== null && $v !== '')) === 0) {
                 continue;
             }
 
             try {
-                // ✅ Perbaikan utama di sini
                 $get = function ($key) use ($headerMap, $row, $normalize) {
                     $keyNorm = $normalize($key);
                     if (!array_key_exists($keyNorm, $headerMap)) {
@@ -64,15 +70,16 @@ class CustomerDatabaseImport implements ToCollection
                         if (is_numeric($value)) {
                             return Carbon::instance(
                                 \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)
-                            );
+                            )->format('Y-m-d');
                         }
-                        return Carbon::parse($value);
+                        return Carbon::parse($value)->format('Y-m-d');
                     } catch (\Exception $e) {
                         return null;
                     }
                 };
 
-                CustomerDatabase::create([
+                // Susun data mentah untuk disimpan
+                $data = [
                     'id_branch' => $this->branchId,
                     'project_id' => $get('project id'),
                     'project_type' => $get('project type'),
@@ -113,12 +120,35 @@ class CustomerDatabaseImport implements ToCollection
                     'role_status' => $get('role status'),
                     'construction_start_text' => $get('construction start date (original format)'),
                     'construction_end_text' => $get('construction end date (original format)'),
-                ]);
+                ];
+
+                /**
+                 * 🔍 Buat hash berdasarkan seluruh isi baris (semua kolom)
+                 * Tujuannya: hanya jika seluruh kolom identik → dianggap duplikat
+                 */
+                $values = array_map(function ($value) {
+                    // Normalisasi: lowercase, hapus spasi ganda, trim
+                    return preg_replace('/\s+/', ' ', strtolower(trim((string)$value)));
+                }, $row);
+
+                $hash = md5(implode('|', $values));
+                $data['hash'] = $hash;
+
+                if (!CustomerDatabase::where('hash', $hash)->exists()) {
+                    CustomerDatabase::create($data);
+                    $countInserted++;
+                    Log::info("✅ Data baru disimpan di row #" . ($i + 2));
+                } else {
+                    $countSkipped++;
+                    Log::info("⚠️ Duplikat dilewati di row #" . ($i + 2));
+                }
             } catch (\Throwable $e) {
                 Log::error("❌ Error pada row #" . ($i + 2) . ": " . $e->getMessage(), [
                     'row_data' => $row,
                 ]);
             }
         }
+
+        Log::info("📊 Import selesai — Disimpan: {$countInserted}, Duplikat dilewati: {$countSkipped}");
     }
 }
