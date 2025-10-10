@@ -24,17 +24,12 @@ class CustomerDatabaseImport implements ToCollection
             return;
         }
 
-        // Ambil header
+        // Ambil header baris pertama
         $headerRow = $rows->shift()->toArray();
         $headerRow = array_map(fn($h) => trim((string)$h), $headerRow);
 
-        // Normalisasi nama header
-        $normalize = function ($value) {
-            $normalized = strtolower($value);
-            $normalized = preg_replace('/[^a-z0-9]+/u', '', $normalized);
-            return $normalized;
-        };
-
+        // Normalisasi header
+        $normalize = fn($v) => preg_replace('/[^a-z0-9]+/u', '', strtolower($v));
         $headerMap = [];
         foreach ($headerRow as $index => $header) {
             $headerMap[$normalize($header)] = $index;
@@ -43,22 +38,17 @@ class CustomerDatabaseImport implements ToCollection
         Log::info('🧭 Header Map:', $headerMap);
 
         $countInserted = 0;
+        $countUpdated = 0;
         $countSkipped = 0;
 
         foreach ($rows as $i => $row) {
             $row = $row->toArray();
-
-            // Lewati baris kosong
-            if (count(array_filter($row, fn($v) => $v !== null && $v !== '')) === 0) {
-                continue;
-            }
+            if (count(array_filter($row, fn($v) => $v !== null && $v !== '')) === 0) continue;
 
             try {
                 $get = function ($key) use ($headerMap, $row, $normalize) {
                     $keyNorm = $normalize($key);
-                    if (!array_key_exists($keyNorm, $headerMap)) {
-                        return null;
-                    }
+                    if (!array_key_exists($keyNorm, $headerMap)) return null;
                     $index = $headerMap[$keyNorm];
                     return $row[$index] ?? null;
                 };
@@ -78,7 +68,7 @@ class CustomerDatabaseImport implements ToCollection
                     }
                 };
 
-                // Susun data mentah untuk disimpan
+                // Ambil semua kolom
                 $data = [
                     'id_branch' => $this->branchId,
                     'project_id' => $get('project id'),
@@ -122,25 +112,64 @@ class CustomerDatabaseImport implements ToCollection
                     'construction_end_text' => $get('construction end date (original format)'),
                 ];
 
-                /**
-                 * 🔍 Buat hash berdasarkan seluruh isi baris (semua kolom)
-                 * Tujuannya: hanya jika seluruh kolom identik → dianggap duplikat
-                 */
-                $values = array_map(function ($value) {
-                    // Normalisasi: lowercase, hapus spasi ganda, trim
-                    return preg_replace('/\s+/', ' ', strtolower(trim((string)$value)));
-                }, $row);
-
+                // Hash untuk deteksi identik (semua isi baris)
+                $values = array_map(fn($v) => preg_replace('/\s+/', ' ', strtolower(trim((string)$v))), $row);
                 $hash = md5(implode('|', $values));
                 $data['hash'] = $hash;
 
-                if (!CustomerDatabase::where('hash', $hash)->exists()) {
+                // 🔑 Cari berdasarkan kombinasi unik baru
+                $existing = CustomerDatabase::where('project_id', $data['project_id'])
+                    ->where('project_name', $data['project_name'])
+                    ->where('company_name', $data['company_name'])
+                    ->where('role_on_project', $data['role_on_project'])
+                    ->first();
+
+                if (!$existing) {
+                    // INSERT baru
                     CustomerDatabase::create($data);
                     $countInserted++;
-                    Log::info("✅ Data baru disimpan di row #" . ($i + 2));
+                    Log::info("✅ Insert baru di row #" . ($i + 2));
                 } else {
-                    $countSkipped++;
-                    Log::info("⚠️ Duplikat dilewati di row #" . ($i + 2));
+                    if ($existing->hash === $hash) {
+                        // SKIP karena identik
+                        $countSkipped++;
+                        Log::info("⚠️ Skip (identik) di row #" . ($i + 2));
+                    } else {
+                        // Kolom yang perlu diperbarui bila berbeda
+                        $fieldsToCheck = [
+                            'project_stage',
+                            'role_on_project',
+                            'company_website',
+                            'company_name',
+                            'company_street_name',
+                            'company_roles',
+                            'company_town',
+                            'company_phone',
+                            'company_email',
+                            'contact_first_name',
+                            'contact_surname',
+                            'contact_position',
+                            'contact_landline',
+                            'contact_email',
+                        ];
+
+                        $updateData = [];
+                        foreach ($fieldsToCheck as $field) {
+                            if ($existing->$field !== $data[$field]) {
+                                $updateData[$field] = $data[$field];
+                            }
+                        }
+
+                        if (!empty($updateData)) {
+                            $updateData['hash'] = $hash;
+                            $existing->update($updateData);
+                            $countUpdated++;
+                            Log::info("📝 Update di row #" . ($i + 2), $updateData);
+                        } else {
+                            $countSkipped++;
+                            Log::info("⚠️ Skip (tidak ada perubahan signifikan) di row #" . ($i + 2));
+                        }
+                    }
                 }
             } catch (\Throwable $e) {
                 Log::error("❌ Error pada row #" . ($i + 2) . ": " . $e->getMessage(), [
@@ -149,6 +178,6 @@ class CustomerDatabaseImport implements ToCollection
             }
         }
 
-        Log::info("📊 Import selesai — Disimpan: {$countInserted}, Duplikat dilewati: {$countSkipped}");
+        Log::info("📊 Import selesai — Inserted: {$countInserted}, Updated: {$countUpdated}, Skipped: {$countSkipped}");
     }
 }
