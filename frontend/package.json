@@ -12,7 +12,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@bhplugin/vue3-datatable": "^2.0.2",
     "@capacitor/android": "^7.4.3",
     "@capacitor/geolocation": "^7.1.5",
     "@capacitor/ios": "^7.4.3",
@@ -24,6 +23,8 @@
     "tailwindcss": "^4.1.12",
     "vue": "^3.5.18",
     "vue-router": "^4.5.1",
+    "vue3-easy-data-table": "^1.5.47",
+    "vue3-select": "^0.1.2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

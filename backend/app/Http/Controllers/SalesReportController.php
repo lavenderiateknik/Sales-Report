@@ -18,9 +18,10 @@ class SalesReportController extends Controller
     public function index()
     {
         $allTypeReport = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport','user'])
-                        ->orderBy('created_at', 'desc')
+                        ->orderBy('date', 'desc')
                         ->get()
-                        ->makeHidden(['picture']);;
+                        ->makeHidden(['picture']);
+                        
         return response()->json([
             "success" => true,
             "message" => "Data Found",

@@ -21,8 +21,14 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down()
     {
+        Schema::disableForeignKeyConstraints(); // <-- Nonaktifkan
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0;'); // <-- Alternatif/Tambahan
+
         Schema::dropIfExists('branches');
+
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1;'); // <-- Aktifkan kembali
+        Schema::enableForeignKeyConstraints(); // <-- Aktifkan kembali
     }
 };

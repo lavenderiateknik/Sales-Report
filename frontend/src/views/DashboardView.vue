@@ -54,17 +54,6 @@
         :loading="loading"
       />
     </div>
-    <!-- Tabel utama -->
-    <Tabel
-      :rows-data="customers"
-      :cols="colsData"
-      title1="Visit"
-      title2="Daily"
-      :pageable="true"
-      :per-page="10"
-      :loading="loading"
-    />
-    
     <!-- Recap per customer -->
     <Tabel
       :rows-data="customerreports"
@@ -74,9 +63,7 @@
       :pageable="true"
       :per-page="10"
       :loading="loading"
-    />
-
-   
+    />  
   </div>
 </template>
 
@@ -136,7 +123,7 @@ const getDate = () => {
   // Gabungkan jadi format yang diinginkan
   DateNow.value = `${dayName}, ${day}/${month}/${year}`;
 
-  console.log(DateNow.value);
+  
 };
 
 const token = localStorage.getItem('api_token');
@@ -148,32 +135,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 /* ===========================
    Fetch Functions
 =========================== */
-const fetchSalesReports = async () => {
-  if (role === 8) {
-    url.value = `${apiBaseUrl}/api/salesreports/${id}`;
-  } else if ([7, 6, 5].includes(role)) {
-    url.value = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
-  } else {
-    url.value = `${apiBaseUrl}/api/allsalesreports`;
-  }
 
-  loading.value = true;
-  try {
-    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
-    const data = res.data.data ?? res.data;
-    
-    customers.value = data.map((item, idx) => ({
-    ...item,
-    no: idx + 1,
-    date: formatDate(item.date),
-    nominal_purchase_order: formatCurrency(item.nominal_purchase_order)
-  }));
-  } catch (err) {
-    console.error('Gagal ambil sales reports:', err);
-  } finally {
-    loading.value = false;
-  }
-};
 
 const fetchTypeReports = async () => {
   if (role === 8) {
@@ -273,39 +235,6 @@ const fetchTypeRecap = async () => {
 /* ===========================
    Kolom Tabel
 =========================== */
-const colsData = ref([
-  { field: 'no', title: 'No', align: 'center', minWidth: '60px', filter: false },
-  {
-    field: 'date',
-    title: 'Date',
-    type: 'date',
-    minWidth: '150px',
-    align: 'center',
-    render: (value) => (value ? formatDate(value) : '-'),
-  },
-  { field: 'customer_name', title: 'Name Customer', render: (value) => value ?? '-' },
-  { field: 'user.name', title: 'Sales Name', render: (value, row) => value ?? row?.user?.name ?? '-' },
-  { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer?.name ?? '-' },
-  { field: 'type_project.name', title: 'Type Project', render: (value, row) => value ?? row?.type_project?.name ?? '-' },
-  { field: 'project_name', title: 'Project Name', render: (value) => value ?? '-' },
-  { field: 'pic_name', title: 'PIC Name', filter: false, render: (value) => value ?? '-' },
-  { field: 'pic_phone', title: 'PIC Phone', filter: false, render: (value) => value ?? '-' },
-  { field: 'pic_position', title: 'PIC Position', filter: false, render: (value) => value ?? '-' },
-  { field: 'type_report.name', title: 'Type Report', filter: false, render: (value, row) => value ?? row?.type_report?.name ?? '-' },
-  { field: 'report_notes', title: 'Report Notes', filter: false, cellClass: 'wrap-cell', minWidth: '200px', render: (value) => value ?? '-' },
-  { field: 'equipment_needs', title: 'Equipments Needs', render: (value) => value ?? '-' },
-  { field: 'items_purchase_order', title: 'Items Purchase Order', filter: false, render: (value) => value ?? '-' },
-  {
-  field: 'nominal_purchase_order',
-  title: 'Estimated Nominal Purchase',
-  align: 'right',
-  filter: false,
-  cell: (row) => {
-    return formatCurrency(row.nominal_purchase_order);
-  }
-}
-
-]);
 
 const colsDataTypeCustomer = ref([
   { field: 'no', title: 'No', align: 'center' },
@@ -347,7 +276,7 @@ const colsDataTypeRecap = ref([
    Lifecycle
 =========================== */
 onMounted(() => {
-  fetchSalesReports();
+  
   fetchTypeReports();
   fetchMonthReports();
   fetchCustomerRecap();

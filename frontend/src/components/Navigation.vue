@@ -46,13 +46,22 @@
 
           <!-- Hanya tampil jika role_id ≠ 8 -->
           <RouterLink 
-            v-if="userRoleId !== 8"
+            
             to="/customer"  
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
             @click="closeMobileMenu"
           >
             <NotebookTabs /> Customer Dashboard
+          </RouterLink>
+          <RouterLink 
+            v-if="userRoleId !== 8"
+            to="/recapreport"  
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <BookOpenText /> Recap Report
           </RouterLink>
 
           <RouterLink 
@@ -130,7 +139,8 @@ import {
   Contact,
   UserRoundPlus,
   GitBranch,
-  Database
+  Database,
+  BookOpenText
 } from "lucide-vue-next";
 import axios from 'axios';
 

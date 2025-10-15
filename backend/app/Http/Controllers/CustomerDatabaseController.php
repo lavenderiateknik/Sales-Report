@@ -5,18 +5,29 @@ use Illuminate\Http\Request;
 use App\Models\CustomerDatabase;
 use App\Imports\CustomerDatabaseImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Validator;
 
 class CustomerDatabaseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = CustomerDatabase::orderBy('id', 'desc')->get();
+        $user = $request->user();
+
+        // Pastikan gunakan kolom integer, bukan relasi
+        $role = is_object($user->role) ? $user->role->id : $user->role; 
+
+        if (in_array($role, [5, 6, 7, 8])) {
+            $data = CustomerDatabase::where('id_branch', $user->branch_id)->get();
+        } else {
+            $data = CustomerDatabase::all();
+        }
 
         return response()->json([
-            'status' => 'success',
-            'data' => $data
+            'success' => true,
+            'data' => $data,
         ]);
     }
+
 
     public function import(Request $request)
     {

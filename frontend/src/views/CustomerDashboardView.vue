@@ -1,125 +1,278 @@
 <template>
   <div>
-    <Transition appear enter-active-class="transition-transform duration-1000 ease-out" enter-from-class="translate-x-10 opacity-0" enter-to-class="translate-x-0 opacity-100">
-      <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-        <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
-            <span>Customer</span>
-            <strong class="ml-2">Dashboard</strong>
+    <!-- ===== HEADER ===== -->
+    <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
+      <span>Customer</span>
+      <strong class="ml-2">Dashboard</strong>
+    </div>
+
+    <!-- ===== SEARCH ===== -->
+    <div class="px-4 mb-4">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search customer, project, PIC..."
+        class="w-full md:w-1/2 px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+      />
+    </div>
+
+    <!-- ===== TABLE CUSTOMER PROJECT ===== -->
+    <div class="overflow-x-auto px-4">
+      <table class="min-w-full border border-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 border">NO.</th>
+            <th class="px-4 py-2 border">Customer</th>
+            <th class="px-4 py-2 border">PIC</th>
+            <th class="px-4 py-2 border">Contact</th>
+            <th class="px-4 py-2 border">Project</th>
+            <th class="px-4 py-2 border">History</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="customer in paginatedData"
+            :key="customer.no"
+            class="border-t"
+          >
+            <td class="px-4 py-2 border">{{ customer.no }}</td>
+            <td class="px-4 py-2 border">{{ customer.customer_name }}</td>
+            <td class="px-4 py-2 border">{{ customer.pic_name }}</td>
+            <td class="px-4 py-2 border">{{ customer.pic_phone }}</td>
+            <td class="px-4 py-2 border">{{ customer.project_name }}</td>
+            <td class="px-4 py-2 border">
+              <button
+                class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                @click="openHistory(customer)"
+              >
+                History
+              </button>
+            </td>
+          </tr>
+          <tr v-if="paginatedData.length === 0">
+            <td colspan="6" class="text-center py-4">No customers found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    <div class="flex justify-between items-center mt-4 px-4">
+      <button
+        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+        :disabled="currentPage === 1"
+        @click="currentPage--"
+      >
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+        :disabled="currentPage === totalPages"
+        @click="currentPage++"
+      >
+        Next
+      </button>
+    </div>
+
+    <!-- ===== MODAL HISTORY ===== -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-xl shadow-lg w-11/12 md:w-3/4 p-6 max-h-[70vh] overflow-y-auto">
+        <h2 class="text-xl font-bold text-slate-700 mb-4">
+          History - {{ selectedCustomer?.customer_name }}
+        </h2>
+
+        <div v-if="selectedCustomer?.history?.length">
+          <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-2 border">No.</th>
+                  <th class="px-4 py-2 border">Tanggal Report</th>
+                  <th class="px-4 py-2 border">Type Report</th>
+                  <th class="px-4 py-2 border">Report Notes</th>
+                  <th class="px-4 py-2 border">User</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(report, idx) in selectedCustomer.history" :key="idx" class="border-t">
+                  <td class="px-4 py-2 border">{{ idx + 1 }}</td>
+                  <td class="px-4 py-2 border">{{ report.date }}</td>
+                  <td class="px-4 py-2 border">{{ report.type_report_name }}</td>
+                  <td class="px-4 py-2 border">{{ report.report_notes }}</td>
+                  <td class="px-4 py-2 border">{{ report.user_name }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-        <Tabel 
-            :rows-data="customersProject" 
-            :cols="colsCustomerProject" 
-            title1="Recap" 
-            title2="Customer Project" 
-        />
-        <Tabel 
-            :rows-data="sortedCustomerNotes" 
-            :cols="colsCustomerNotes" 
-            title1="Recap" 
-            title2="Customer Notes" 
-        />
+        <div v-else class="text-slate-500 italic">
+          No history available for your login.
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button
+            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+            @click="showModal = false"
+          >
+            Close
+          </button>
+        </div>
       </div>
-    </Transition>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import Tabel from '@/components/Tabel.vue';
-import axios from 'axios';
-import { ref, computed, onMounted } from 'vue';
-import currency from 'currency.js';
+import axios from "axios";
+import { ref, computed, onMounted, watch } from "vue";
+import currency from "currency.js";
 
 /* ===========================
-   Helpers
+   📦 Helpers
 =========================== */
-function formatCurrency(value, options = { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }) {
-  if (value === null || value === undefined || value === '') return '-';
+function formatCurrency(value) {
+  if (value === null || value === undefined || value === "") return "-";
   const num = Number(value);
-  if (!Number.isFinite(num)) return '-';
-  return currency(num, options).format();
+  if (!Number.isFinite(num)) return "-";
+  return currency(num, { symbol: "Rp ", separator: ".", decimal: ",", precision: 0 }).format();
 }
 
 function formatDate(value) {
-  if (!value) return '-';
+  if (!value) return "-";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
+  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
 }
 
-
-
+/* ===========================
+   📊 State
+=========================== */
 const customersProject = ref([]);
-
 const loading = ref(false);
-const url = ref('');
-const token = localStorage.getItem('api_token');
-const id = localStorage.getItem('id');
-const role = parseInt(localStorage.getItem('role'));
-const branch = localStorage.getItem('branch');
+
+const token = localStorage.getItem("api_token");
+const id = localStorage.getItem("id");
+const role = parseInt(localStorage.getItem("role"));
+const branch = localStorage.getItem("branch");
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
+/* ===========================
+   🪟 Modal State
+=========================== */
+const showModal = ref(false);
+const selectedCustomer = ref(null);
 
+/* ===========================
+   🔍 Search & Pagination
+=========================== */
+const searchQuery = ref("");
+const currentPage = ref(1);
+const perPage = 10;
 
+const filteredData = computed(() => {
+  if (!searchQuery.value) return customersProject.value;
+  return customersProject.value.filter(
+    (c) =>
+      c.customer_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      c.project_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      c.pic_name.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+const totalPages = computed(() => Math.ceil(filteredData.value.length / perPage));
+
+const paginatedData = computed(() => {
+  const start = (currentPage.value - 1) * perPage;
+  return filteredData.value.slice(start, start + perPage);
+});
+
+/* Reset page saat search berubah */
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
+
+/* ===========================
+   📡 Fetch Data
+=========================== */
 const fetchSalesReports = async () => {
-  if (role === 8) {
-    url.value = `${apiBaseUrl}/api/salesreports/${id}`;
-  } else if ([7, 6, 5].includes(role)) {
-    url.value = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
-  } else {
-    url.value = `${apiBaseUrl}/api/allsalesreports`;
-  }
+  let url = "";
+  if (role === 8) url = `${apiBaseUrl}/api/salesreports/${id}`;
+  else if ([7, 6, 5].includes(role)) url = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
+  else url = `${apiBaseUrl}/api/allsalesreports`;
 
   loading.value = true;
   try {
-    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
-    const data = res.data.data ?? res.data;
-    
-    customersProject.value = data.map((item, idx) => ({
-    ...item,
+    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = Array.isArray(res.data.data) ? res.data.data : [];
+
+    // Group by customer_name
+    const grouped = {};
+    data.forEach((item) => {
+      const key = item.customer_name ?? "Unknown";
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push({
+        date: formatDate(item.date),
+        type_report_name: item.type_report?.name ?? "-",
+        report_notes: item.report_notes ?? "",
+        project_name: item.project_name ?? "-",
+        pic_name: item.pic_name ?? "-",
+        pic_phone: item.pic_phone ?? "-",
+        nominal_purchase_order: formatCurrency(item.nominal_purchase_order),
+        user_id: item.user?.id ?? null,
+        user_name: item.user?.name ?? "-", 
+      });
+    });
+
+    // Convert grouped data ke array untuk tabel
+    customersProject.value = Object.keys(grouped).map((customerName, idx) => {
+      const history = grouped[customerName];
+      const first = history[0]; // ambil data pertama untuk info tabel utama
+      return {
         no: idx + 1,
-    date: formatDate(item.date),
-    nominal_purchase_order: formatCurrency(item.nominal_purchase_order)
-  }));
+        customer_name: customerName,
+        project_name: first.project_name,
+        pic_name: first.pic_name,
+        pic_phone: first.pic_phone,
+        nominal_purchase_order: first.nominal_purchase_order,
+        history: history, // ini array history per customer
+      };
+    });
+
+    console.log(customersProject.value);
   } catch (err) {
-    console.error('Gagal ambil sales reports:', err);
+    console.error("❌ Gagal ambil sales reports:", err);
   } finally {
     loading.value = false;
   }
 };
 
-// ✅ Definisikan data kolom di parent
-const colsCustomerProject = ref([
-  { field: 'no', title: 'NO.', isUnique: true, type: 'number', filter:false },
-  { field: 'customer_name', title: 'Customer', filter:false },
-  { field: 'pic_name', title: 'PIC', filter:false },
-  { field: 'pic_phone', title: 'Contact', filter:false },
-  { field: 'project_name', title: 'Project',filter:false },
-  
-]);
+/* ===========================
+   🧩 Actions
+=========================== */
+const openHistory = (row) => {
+  selectedCustomer.value = row;
+  showModal.value = true;
+};
 
-const colsCustomerNotes = ref([
-  { field: 'no', title: 'NO.', isUnique: true, type: 'number', filter:false },
-  { field: 'date', title: 'Date' },
-  { field: 'type_report.name', title: 'Type Report'},
-  { field: 'report_notes', title: 'Report Notes', filter:false },
-  
-]);
-
-const sortedCustomerNotes = computed(() => {
-  // pastikan type_report ada sebelum akses name
-  return customersProject.value.slice().sort((a, b) => {
-    const nameA = a.type_report?.name ?? '';
-    const nameB = b.type_report?.name ?? '';
-    return nameA.localeCompare(nameB); // urut ascending
-  });
-});
-
+/* ===========================
+   🚀 Lifecycle
+=========================== */
 onMounted(() => {
   fetchSalesReports();
-
 });
 </script>
+
+<style scoped>
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th, td {
+  border: 1px solid #ddd;
+}
+</style>

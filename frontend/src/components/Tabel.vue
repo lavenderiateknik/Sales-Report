@@ -1,50 +1,80 @@
 <template>
   <div
-    class="border-1 border-amber-500 m-3 p-3 rounded-xl bg-[#F4F6FF]/30 shadow-md/60 shadow-slate-400"
-    :class="{ 'no-footer': !pageable }"
+    class="border border-amber-500 m-3 p-3 rounded-xl bg-[#F4F6FF]/30 shadow-md shadow-slate-400"
   >
+    <!-- Header -->
     <div class="flex items-center justify-between mb-5">
-      <h2 class="text-3xl">{{ title1 }} <strong>{{ title2 }}</strong></h2>
+      <h2 class="text-3xl">
+        {{ title1 }} <strong>{{ title2 }}</strong>
+      </h2>
     </div>
 
-    <vue3-datatable
-      :rows="rowsData"
-      :columns="cols"
+    <!-- Table -->
+    <EasyDataTable
+      :headers="computedHeaders"
+      :items="rowsData"
       :loading="loading"
-      :columnFilter="true"
-      :pageable="pageable"
-      :per-page="perPage"
-      :skin="'bh-table-striped bh-table-hover'"
+      :rows-per-page="perPage"
+      :pagination="pageable"
+      :hide-footer="!pageable"
+      table-class-name="rounded-lg overflow-hidden"
     >
-      <template v-for="col in cols" :key="col.field" #[`cell-${col.field}`]="slotProps">
-        <template v-if="col.field === 'actions'">
-          <div v-html="slotProps.value"></div>
-        </template>
-        <template v-else>
-          {{ slotProps.value }}
-        </template>
+      <!-- === Slot Dinamis (untuk custom tombol seperti History) === -->
+      <template>
+        <div class="p-2">
+          <EasyDataTable
+            :headers="computedHeaders"
+            :items="rowsData"
+            :rows-per-page="10"
+            :hide-footer="false"
+            border-cell
+            alternating
+          >
+            <!-- Default cell content -->
+            <template v-for="col in computedHeaders" #[`item-${col.value}`]="slotProps">
+              <slot :name="`cell-${col.value}`" v-bind="slotProps">
+                {{ getValue(slotProps.item, col.value) || '-' }}
+              </slot>
+            </template>
+          </EasyDataTable>
+        </div>
       </template>
-      </vue3-datatable>
+
+    </EasyDataTable>
   </div>
 </template>
 
 <script setup>
-import Vue3Datatable from '@bhplugin/vue3-datatable';
-import '@bhplugin/vue3-datatable/dist/style.css';
+import { computed } from "vue";
+import EasyDataTable from "vue3-easy-data-table";
+import "vue3-easy-data-table/dist/style.css";
 
 const props = defineProps({
   rowsData: { type: Array, required: true },
   cols: { type: Array, required: true },
-  title1: { type: String, default: 'My Table' },
-  title2: { type: String, default: '' },
+  title1: { type: String, default: "My Table" },
+  title2: { type: String, default: "" },
   pageable: { type: Boolean, default: true },
   perPage: { type: Number, default: 10 },
   loading: { type: Boolean, default: false },
 });
-</script>
 
-<style scoped>
-.no-footer .bh-pagination {
-  display: none !important;
+const computedHeaders = computed(() =>
+  props.cols.map((col) => ({
+    text: col.title || col.text || "—",
+    value: col.field || col.value || "",
+    sortable: col.sortable ?? false,
+  }))
+);
+
+// 🧠 Fungsi helper untuk baca nested key seperti "type_report.name"
+function getValue(obj, path) {
+  if (!obj || !path) return "-";
+  try {
+    const result = path.split(".").reduce((o, key) => o?.[key], obj);
+    return result ?? "-";
+  } catch {
+    return "-";
+  }
 }
-</style>
+</script>

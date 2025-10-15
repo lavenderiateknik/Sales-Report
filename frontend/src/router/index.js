@@ -9,6 +9,7 @@ import DashboardView from '@/views/DashboardView.vue'
 import UserView from '@/views/UserView.vue'
 import BranchesView from '@/views/BranchesView.vue'
 import CustomerDatabaseView from '@/views/CustomerDatabaseView.vue'
+import RecapReportView from '@/views/RecapReportView.vue'
 
 
 
@@ -67,6 +68,11 @@ const router = createRouter({
       path: '/customerdata',
       name: 'Customer Data',
       component: CustomerDatabaseView,
+    },
+    {
+      path: '/recapreport',
+      name: 'Recap Report ',
+      component: RecapReportView,
     }
   ],
 })
