@@ -410,32 +410,61 @@ function setCheckOut() {
 /**
  * Mendapatkan koordinat geografis menggunakan Capacitor Geolocation.
  */
+/**
+ * Mendapatkan koordinat geografis, mendukung mobile (Capacitor) & web.
+ */
 async function getLocation(type = "check_in") {
-    if (!("geolocation" in navigator)) {
-        alert("Geolocation tidak didukung pada perangkat ini.");
+  try {
+    // Deteksi apakah Capacitor berjalan di native mobile
+    const isNative = !!window.Capacitor?.isNativePlatform?.();
+
+    let lat, lng;
+
+    if (isNative) {
+      // 🌍 Mode Native (Android/iOS)
+      const perm = await Geolocation.requestPermissions();
+      if (perm.location !== "granted") {
+        alert("Izin lokasi ditolak.");
         return;
+      }
+
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 15000,
+      });
+
+      lat = pos.coords.latitude;
+      lng = pos.coords.longitude;
+    } else {
+      // 🌐 Mode Web Browser
+      if (!("geolocation" in navigator)) {
+        alert("Geolocation tidak didukung di browser ini.");
+        return;
+      }
+
+      await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            lat = pos.coords.latitude;
+            lng = pos.coords.longitude;
+            resolve();
+          },
+          (err) => reject(err),
+          { enableHighAccuracy: true, timeout: 15000 }
+        );
+      });
     }
-    try {
-        // Meminta izin jika diperlukan
-        const permissionStatus = await Geolocation.requestPermissions();
-        if (permissionStatus.location !== "granted") {
-            alert("Izin lokasi ditolak.");
-            return;
-        }
-        
-        // Mendapatkan posisi
-        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 });
-        const lat = pos.coords.latitude.toFixed(6);
-        const lng = pos.coords.longitude.toFixed(6);
-        const str = `${lat}, ${lng}`;
-        
-        if (type === "check_in") form.value.coordinate_check_in = str;
-        else form.value.coordinate_check_out = str;
-    } catch (err) {
-        console.error("Gagal mendapatkan lokasi:", err);
-        alert("Gagal mendapatkan lokasi: " + (err?.message || ""));
-    }
+
+    const str = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    if (type === "check_in") form.value.coordinate_check_in = str;
+    else form.value.coordinate_check_out = str;
+
+  } catch (err) {
+    console.error("Gagal mendapatkan lokasi:", err);
+    alert("Gagal mendapatkan lokasi: " + (err?.message || "Tidak diketahui"));
+  }
 }
+
 
 /**
  * Menangani perubahan file (foto) dan menampilkan preview.

@@ -1,10 +1,3 @@
-<script setup>
-import { RouterView, useRoute } from "vue-router";
-import Navigation from "./components/Navigation.vue";
-
-const route = useRoute();
-</script>
-
 <template>
   <!-- cek route -->
   <div
@@ -26,3 +19,20 @@ const route = useRoute();
     </div>
   </div>
 </template>
+<script setup>
+import { RouterView, useRoute } from "vue-router";
+import Navigation from "./components/Navigation.vue";
+import { onMounted, nextTick } from "vue"
+import { SplashScreen } from "@capacitor/splash-screen"
+
+const route = useRoute();
+
+onMounted(async () => {
+  console.log("✅ App.vue mounted — akan mencoba hide splash...")
+  await nextTick()
+  setTimeout(() => {
+    console.log("🟢 Menjalankan SplashScreen.hide()")
+    SplashScreen.hide()
+  }, 500)
+})
+</script>

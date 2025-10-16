@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 import vueJsx from "@vitejs/plugin-vue-jsx";
 
 export default defineConfig({
-  base: '/frontend/dist/', // <--- ubah dari './' jika blank di refresh
+  base: '/frontend/dist/', // <--- jika ingin di convert ke mobile app ubah menjadi "./"
   plugins: [
     vue(),
     vueDevTools(),
