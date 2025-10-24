@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col w-full">
+  <div class="flex flex-col w-full pt-4">
     <!-- Header -->
     <div class="flex items-center justify-between p-3">
       <div class="p-2 rounded-2xl bg-[#F4F6FF] flex items-center gap-2 shadow-md shadow-[#EB8317]">
@@ -11,8 +11,8 @@
 
       <!-- Tombol Menu (hanya mobile) -->
       <button @click="isOpen = !isOpen" class="md:hidden">
-        <Menu v-if="!isOpen" class="w-6 h-6 text-[#F3C623]" />
-        <X v-else class="w-6 h-6 text-[#F3C623]" />
+        <Menu v-if="!isOpen" class="w-12 h-12 text-[#F3C623]" />
+        <X v-else class="w-12 h-12  text-[#F3C623]" />
       </button>
     </div>
 

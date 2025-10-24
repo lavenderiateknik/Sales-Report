@@ -223,13 +223,21 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import axios from "axios";
-// Mengasumsikan Anda menggunakan Capacitor/Cordova, ini adalah impor yang benar untuk Geolocation
 import { Geolocation } from "@capacitor/geolocation"; 
 import VueSelect from "vue3-select";
 import "vue3-select/dist/vue3-select.css";
 
+// --- 🔸 PROPS & EMIT UNTUK SINKRONISASI DENGAN PARENT ---
+const props = defineProps({
+  coordinate: {
+    type: Array,
+    default: () => [-6.175869, 106.823055], // Default Jakarta
+  },
+});
+const emit = defineEmits(["update:coordinate"]);
+
 // --- KONSTANTA ---
-const BCI_TYPE_ID = 1; // Asumsi: ID 1 adalah untuk tipe pelanggan BCI
+const BCI_TYPE_ID = 1;
 const apiBase = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000") + "/api";
 const token = localStorage.getItem("api_token") || localStorage.getItem("token") || "";
 const role = Number(localStorage.getItem("role") || 0);
@@ -237,211 +245,177 @@ const branch = localStorage.getItem("branch") || "";
 
 // --- STATE DATA DAN FORM ---
 const form = ref({
-    date: new Date().toISOString().split('T')[0], // Default: Hari ini
-    check_in: "",
-    check_out: "",
-    coordinate_check_in: "",
-    coordinate_check_out: "",
-    type_customer_id: "",
-    customer_name: "",
-    type_project_id: "",
-    project_name: "",
-    pic_name: "",
-    pic_phone: "",
-    pic_position: "",
-    type_report_id: "",
-    report_notes: "",
-    equipment_needs: "",
-    items_purchase_order: "",
-    // Pastikan nominal adalah number jika menggunakan v-model.number
-    nominal_purchase_order: null, 
-    picture: null,
+  date: new Date().toISOString().split("T")[0],
+  check_in: "",
+  check_out: "",
+  coordinate_check_in: "",
+  coordinate_check_out: "",
+  type_customer_id: "",
+  customer_name: "",
+  type_project_id: "",
+  project_name: "",
+  pic_name: "",
+  pic_phone: "",
+  pic_position: "",
+  type_report_id: "",
+  report_notes: "",
+  equipment_needs: "",
+  items_purchase_order: "",
+  nominal_purchase_order: null,
+  picture: null,
 });
 
-// State untuk UI & Error
+// --- UI STATE ---
 const previewUrl = ref(null);
 const errors = ref({});
 const submitting = ref(false);
 
-// State untuk Dropdowns
+// --- DROPDOWN STATES ---
 const typeCustomers = ref([]);
 const typeProjects = ref([]);
 const typeReports = ref([]);
 const loading = ref({ typeCustomers: false, typeProjects: false, typeReports: false });
 const errorsFetch = ref({ typeCustomers: null, typeProjects: null, typeReports: null });
 
-// State untuk VueSelect (Customer Database)
+// --- CUSTOMER (VueSelect) ---
 const customers = ref([]);
 const loadingCustomers = ref(false);
 const selectedCustomer = ref(null);
 let searchTimer = null;
 
-
-// --- METODE HELPER ---
-
-// Dipakai untuk v-model pada input non-BCI
+// --- HELPER FUNGI ---
 function displayCustomerName(c) {
-    return c.company_name ?? c.customer_name ?? c.company ?? c.name ?? "";
+  return c.company_name ?? c.customer_name ?? c.company ?? c.name ?? "";
 }
 
-// Dipakai untuk menampilkan label di dalam VueSelect
 function formatCustomerLabel(option) {
-    // Logika ini tampaknya sangat spesifik. Saya akan menyederhanakannya sedikit.
-    const company = option.company_name ?? option.customer_name ?? option.name ?? "-";
-    return company; 
+  return option.company_name ?? option.customer_name ?? option.name ?? "-";
 }
 
-// --- METODE FETCHING DATA (API) ---
-
-/**
- * Logika pencarian Customer Database. 
- * Ini diikat ke VueSelect menggunakan @search.
- */
-async function fetchCustomersFromServer(search = "") {
-    try {
-        loadingCustomers.value = true;
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const params = {};
-        if (search) params.search = search;
-        if (role >= 5 && branch) params.branch = branch;
-
-        const res = await axios.get(`${apiBase}/customerdatabase`, { headers, params });
-        const data = (res.data && (res.data.data || res.data)) || [];
-        
-        // Memastikan properti company_name ada untuk VueSelect
-        customers.value = data.map(item => ({
-            ...item,
-            company_name: item.company_name ?? item.customer_name ?? item.company ?? item.name ?? ""
-        }));
-    } catch (err) {
-        console.error("Gagal fetch customers:", err);
-        customers.value = [];
-    } finally {
-        loadingCustomers.value = false;
-    }
-}
-
-/**
- * Menggunakan debounce untuk pencarian di VueSelect.
- */
-function onSearch(searchTerm) {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-        fetchCustomersFromServer(searchTerm || "");
-    }, 300);
-}
-
-/**
- * Logika penambahan customer baru melalui taggable (VueSelect)
- * Ini penting untuk mengikat nilai input baru ke selectedCustomer
- */
-function handleTag(newTagName) {
-    const newCustomer = {
-        id: null, // ID null menandakan pelanggan baru
-        company_name: newTagName,
-        isNew: true // Flag untuk menunjukkan ini adalah input tag baru
-    };
-    customers.value.push(newCustomer);
-    selectedCustomer.value = newCustomer;
-}
-
-
-/**
- * Helper untuk mencoba beberapa endpoint API jika yang pertama gagal.
- */
+// --- FETCH DATA DROPDOWNS ---
 async function tryEndpoints(candidates = []) {
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    for (const url of candidates) {
-        try {
-            const r = await axios.get(url, { headers });
-            const d = r?.data?.data ?? r?.data;
-            if (Array.isArray(d)) return d;
-            if (Array.isArray(r?.data?.items)) return r.data.items;
-            if (Array.isArray(r.data)) return r.data;
-        } catch (e) {
-            // Lanjutkan ke kandidat berikutnya jika gagal
-        }
-    }
-    return [];
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  for (const url of candidates) {
+    try {
+      const r = await axios.get(url, { headers });
+      const d = r?.data?.data ?? r?.data;
+      if (Array.isArray(d)) return d;
+      if (Array.isArray(r?.data?.items)) return r.data.items;
+      if (Array.isArray(r.data)) return r.data;
+    } catch (e) {}
+  }
+  return [];
 }
 
-/**
- * Memuat semua data dropdown (Type Customer, Project, Report).
- */
 async function fetchAllDropdowns() {
-    const customerCandidates = [`${apiBase}/alltypecustomers`, `${apiBase}/typecustomers`, `${apiBase}/type_customers`, `${apiBase}/typecustomers/all`];
-    const projectCandidates = [`${apiBase}/alltypeprojects`, `${apiBase}/typeprojects`, `${apiBase}/type_projects`];
-    const reportCandidates = [`${apiBase}/alltypereports`, `${apiBase}/typereports`, `${apiBase}/type_reports`];
+  const customerCandidates = [
+    `${apiBase}/alltypecustomers`,
+    `${apiBase}/typecustomers`,
+    `${apiBase}/type_customers`,
+    `${apiBase}/typecustomers/all`,
+  ];
+  const projectCandidates = [
+    `${apiBase}/alltypeprojects`,
+    `${apiBase}/typeprojects`,
+    `${apiBase}/type_projects`,
+  ];
+  const reportCandidates = [
+    `${apiBase}/alltypereports`,
+    `${apiBase}/typereports`,
+    `${apiBase}/type_reports`,
+  ];
 
-    loading.value.typeCustomers = true;
-    typeCustomers.value = await tryEndpoints(customerCandidates);
-    if (!typeCustomers.value.length) typeCustomers.value = [{ id: 1, name: "BCI" }, { id: 2, name: "End User" }];
-    loading.value.typeCustomers = false;
+  loading.value.typeCustomers = true;
+  typeCustomers.value = await tryEndpoints(customerCandidates);
+  if (!typeCustomers.value.length) typeCustomers.value = [{ id: 1, name: "BCI" }, { id: 2, name: "End User" }];
+  loading.value.typeCustomers = false;
 
-    loading.value.typeProjects = true;
-    typeProjects.value = await tryEndpoints(projectCandidates);
-    if (!typeProjects.value.length) typeProjects.value = [{ id: 1, name: "Gudang" }, { id: 2, name: "Street" }];
-    loading.value.typeProjects = false;
+  loading.value.typeProjects = true;
+  typeProjects.value = await tryEndpoints(projectCandidates);
+  if (!typeProjects.value.length) typeProjects.value = [{ id: 1, name: "Gudang" }, { id: 2, name: "Street" }];
+  loading.value.typeProjects = false;
 
-    loading.value.typeReports = true;
-    typeReports.value = await tryEndpoints(reportCandidates);
-    if (!typeReports.value.length) typeReports.value = [{ id: 1, name: "PO" }, { id: 2, name: "Follow Up" }];
-    loading.value.typeReports = false;
+  loading.value.typeReports = true;
+  typeReports.value = await tryEndpoints(reportCandidates);
+  if (!typeReports.value.length) typeReports.value = [{ id: 1, name: "PO" }, { id: 2, name: "Follow Up" }];
+  loading.value.typeReports = false;
 }
 
-// --- METODE FUNGSI BUTTON & INPUT ---
+// --- FETCH CUSTOMERS ---
+async function fetchCustomersFromServer(search = "") {
+  try {
+    loadingCustomers.value = true;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const params = {};
+    if (search) params.search = search;
+    if (role >= 5 && branch) params.branch = branch;
 
-/**
- * Mengisi waktu Check In saat ini.
- */
+    const res = await axios.get(`${apiBase}/customerdatabase`, { headers, params });
+    const data = (res.data && (res.data.data || res.data)) || [];
+
+    customers.value = data.map((item) => ({
+      ...item,
+      company_name: item.company_name ?? item.customer_name ?? item.company ?? item.name ?? "",
+    }));
+  } catch (err) {
+    console.error("Gagal fetch customers:", err);
+    customers.value = [];
+  } finally {
+    loadingCustomers.value = false;
+  }
+}
+
+function onSearch(searchTerm) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    fetchCustomersFromServer(searchTerm || "");
+  }, 300);
+}
+
+function handleTag(newTagName) {
+  const newCustomer = {
+    id: null,
+    company_name: newTagName,
+    isNew: true,
+  };
+  customers.value.push(newCustomer);
+  selectedCustomer.value = newCustomer;
+}
+
+// --- BUTTON & INPUT HANDLER ---
 function setCheckIn() {
-    const now = new Date();
-    form.value.check_in = now.toTimeString().slice(0, 5);
+  const now = new Date();
+  form.value.check_in = now.toTimeString().slice(0, 5);
 }
 
-/**
- * Mengisi waktu Check Out saat ini.
- */
 function setCheckOut() {
-    const now = new Date();
-    form.value.check_out = now.toTimeString().slice(0, 5);
+  const now = new Date();
+  form.value.check_out = now.toTimeString().slice(0, 5);
 }
 
-/**
- * Mendapatkan koordinat geografis menggunakan Capacitor Geolocation.
- */
-/**
- * Mendapatkan koordinat geografis, mendukung mobile (Capacitor) & web.
- */
+// --- 📍 GET KOORDINAT & SINKRONISASI DENGAN MAP ---
 async function getLocation(type = "check_in") {
   try {
-    // Deteksi apakah Capacitor berjalan di native mobile
     const isNative = !!window.Capacitor?.isNativePlatform?.();
-
     let lat, lng;
 
     if (isNative) {
-      // 🌍 Mode Native (Android/iOS)
       const perm = await Geolocation.requestPermissions();
       if (perm.location !== "granted") {
         alert("Izin lokasi ditolak.");
         return;
       }
-
       const pos = await Geolocation.getCurrentPosition({
         enableHighAccuracy: true,
         timeout: 15000,
       });
-
       lat = pos.coords.latitude;
       lng = pos.coords.longitude;
     } else {
-      // 🌐 Mode Web Browser
       if (!("geolocation" in navigator)) {
         alert("Geolocation tidak didukung di browser ini.");
         return;
       }
-
       await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -459,140 +433,132 @@ async function getLocation(type = "check_in") {
     if (type === "check_in") form.value.coordinate_check_in = str;
     else form.value.coordinate_check_out = str;
 
+    // 🟢 Kirim ke parent agar Map ikut update
+    emit("update:coordinate", [lat, lng]);
   } catch (err) {
     console.error("Gagal mendapatkan lokasi:", err);
     alert("Gagal mendapatkan lokasi: " + (err?.message || "Tidak diketahui"));
   }
 }
 
-
-/**
- * Menangani perubahan file (foto) dan menampilkan preview.
- */
+// --- FILE HANDLER ---
 function onFileChange(e) {
-    errors.value.picture = null;
-    const f = e.target.files?.[0] ?? null;
-    if (!f) {
-        form.value.picture = null;
-        clearPreview();
-        return;
-    }
-    form.value.picture = f;
-    clearPreview();
-    previewUrl.value = URL.createObjectURL(f);
-}
-
-/**
- * Menghapus preview foto dan mereset file.
- */
-function clearPreview() {
-    if (previewUrl.value) {
-        URL.revokeObjectURL(previewUrl.value);
-        previewUrl.value = null;
-    }
+  errors.value.picture = null;
+  const f = e.target.files?.[0] ?? null;
+  if (!f) {
     form.value.picture = null;
-    // Reset input file agar bisa memilih file yang sama lagi
-    const fileInput = document.getElementById('picture');
-    if(fileInput) fileInput.value = '';
-}
-
-/**
- * Mereset form setelah submit atau saat dibutuhkan.
- */
-function resetForm() {
-    form.value = {
-        date: new Date().toISOString().split('T')[0],
-        check_in: "",
-        check_out: "",
-        coordinate_check_in: "",
-        coordinate_check_out: "",
-        type_customer_id: "",
-        customer_name: "",
-        type_project_id: "",
-        project_name: "",
-        pic_name: "",
-        pic_phone: "",
-        pic_position: "",
-        type_report_id: "",
-        report_notes: "",
-        equipment_needs: "",
-        items_purchase_order: "",
-        nominal_purchase_order: null,
-        picture: null,
-    };
-    selectedCustomer.value = null;
-    errors.value = {};
     clearPreview();
+    return;
+  }
+  form.value.picture = f;
+  clearPreview();
+  previewUrl.value = URL.createObjectURL(f);
 }
 
-/**
- * Fungsi utama untuk mengirimkan form.
- */
+function clearPreview() {
+  if (previewUrl.value) {
+    URL.revokeObjectURL(previewUrl.value);
+    previewUrl.value = null;
+  }
+  form.value.picture = null;
+  const fileInput = document.getElementById("picture");
+  if (fileInput) fileInput.value = "";
+}
+
+// --- RESET & SUBMIT ---
+function resetForm() {
+  form.value = {
+    date: new Date().toISOString().split("T")[0],
+    check_in: "",
+    check_out: "",
+    coordinate_check_in: "",
+    coordinate_check_out: "",
+    type_customer_id: "",
+    customer_name: "",
+    type_project_id: "",
+    project_name: "",
+    pic_name: "",
+    pic_phone: "",
+    pic_position: "",
+    type_report_id: "",
+    report_notes: "",
+    equipment_needs: "",
+    items_purchase_order: "",
+    nominal_purchase_order: null,
+    picture: null,
+  };
+  selectedCustomer.value = null;
+  errors.value = {};
+  clearPreview();
+}
+
 async function submitForm() {
-    errors.value = {};
-    if (submitting.value) return;
-    submitting.value = true;
+  errors.value = {};
+  if (submitting.value) return;
+  submitting.value = true;
 
-    try {
-        const fd = new FormData();
-        for (const key in form.value) {
-            if (form.value[key] !== null && form.value[key] !== undefined && form.value[key] !== '') {
-                fd.append(key, form.value[key]);
-            }
-        }
-        
-        // Jika customer BCI dipilih dari list, sertakan id-nya juga
-        if (selectedCustomer.value?.id) {
-            fd.append("customer_id", selectedCustomer.value.id);
-        }
-
-        const headers = {
-            "Content-Type": "multipart/form-data",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        };
-
-        const res = await axios.post(`${apiBase}/sales-reports`, fd, { headers });
-        alert(res.data?.message ?? "Laporan berhasil disimpan");
-        resetForm();
-        window.location.href = "/"; // Ganti dengan logika redirect yang sesuai
-    } catch (err) {
-        const r = err?.response;
-        if (r && r.status === 422 && r.data?.errors) {
-            errors.value = r.data.errors;
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-            console.error("submit error", err);
-            alert(r?.data?.message ?? "Gagal menyimpan laporan");
-        }
-    } finally {
-        submitting.value = false;
+  try {
+    const fd = new FormData();
+    for (const key in form.value) {
+      if (form.value[key] !== null && form.value[key] !== undefined && form.value[key] !== "") {
+        fd.append(key, form.value[key]);
+      }
     }
+
+    if (selectedCustomer.value?.id) {
+      fd.append("customer_id", selectedCustomer.value.id);
+    }
+
+    const headers = {
+      "Content-Type": "multipart/form-data",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await axios.post(`${apiBase}/sales-reports`, fd, { headers });
+    alert(res.data?.message ?? "Laporan berhasil disimpan");
+    resetForm();
+    window.location.href = "/";
+  } catch (err) {
+    const r = err?.response;
+    if (r && r.status === 422 && r.data?.errors) {
+      errors.value = r.data.errors;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      console.error("submit error", err);
+      alert(r?.data?.message ?? "Gagal menyimpan laporan");
+    }
+  } finally {
+    submitting.value = false;
+  }
 }
 
 // --- WATCHERS ---
-
-// Mengisi customer_name di form saat customer dipilih dari VueSelect
 watch(selectedCustomer, (val) => {
-    if (val) {
-        form.value.customer_name = displayCustomerName(val);
-    } else {
-        form.value.customer_name = "";
-    }
+  form.value.customer_name = val ? displayCustomerName(val) : "";
 });
 
-// Mereset field customer_name dan selectedCustomer saat Type Customer berubah
 watch(() => form.value.type_customer_id, () => {
-    form.value.customer_name = "";
-    selectedCustomer.value = null;
+  form.value.customer_name = "";
+  selectedCustomer.value = null;
 });
 
+// 🟢 Sinkronisasi dari parent → form
+watch(
+  () => props.coordinate,
+  (newVal) => {
+    if (Array.isArray(newVal) && newVal.length === 2) {
+      form.value.coordinate_check_in = `${newVal[0]}, ${newVal[1]}`;
+    }
+  }
+);
 
-// --- LIFECYCLE HOOKS ---
+// --- LIFECYCLE ---
 onMounted(() => {
-    fetchAllDropdowns();
-    fetchCustomersFromServer(""); // Muat data awal customer database
+  fetchAllDropdowns();
+  fetchCustomersFromServer("");
 });
 </script>
+
 <style scoped>
 .vue3-select {
   --vs-border: #d1d5db;
