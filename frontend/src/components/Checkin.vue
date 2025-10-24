@@ -30,21 +30,21 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Nama Perusahaan</label>
 
-        <template v-if="form.type_customer_id == BCI_TYPE_ID">
-          <VueSelect
-            v-model="selectedCustomer"
-            :options="customers"
-            :get-option-label="option => option.isNew ? option.company_name : formatCustomerLabel(option)"
-            placeholder="Pilih atau cari customer database..."
-            :loading="loadingCustomers"
-            searchable
-            clearable
-            taggable
-            @tag="handleTag"
-            @search="onSearch"
-            class="w-full"
-            :class="{'border border-red-500 rounded-md': errors.customer_name}"
-          />
+        <template v-if="form.type_customer_id == BCI_TYPE_ID" class=" h-11">
+        <VueSelect
+          v-model="selectedCustomer"
+          :options="customers"
+          :get-option-label="option => option.isNew ? option.company_name : formatCustomerLabel(option)"
+          placeholder="Pilih atau cari customer database..."
+          :loading="loadingCustomers"
+          searchable
+          clearable
+          taggable
+          @tag="handleTag"
+          @search="onSearch"
+          class="w-full  rounded-md"
+          :class="{'border border-red-500': errors.customer_name}"
+        />
         </template>
 
         <template v-else-if="form.type_customer_id">
@@ -289,7 +289,8 @@ function displayCustomerName(c) {
 }
 
 function formatCustomerLabel(option) {
-  return option.company_name ?? option.customer_name ?? option.name ?? "-";
+  const parts = [option.company_name, option.project_name, option.project_id].filter(Boolean);
+  return parts.join(" - ");
 }
 
 // --- FETCH DATA DROPDOWNS ---
@@ -350,12 +351,14 @@ async function fetchCustomersFromServer(search = "") {
     if (search) params.search = search;
     if (role >= 5 && branch) params.branch = branch;
 
-    const res = await axios.get(`${apiBase}/customerdatabase`, { headers, params });
+    const res = await axios.get(`${apiBase}/allcustomerdatabase`, { headers, params });
     const data = (res.data && (res.data.data || res.data)) || [];
 
     customers.value = data.map((item) => ({
       ...item,
       company_name: item.company_name ?? item.customer_name ?? item.company ?? item.name ?? "",
+      project_name: item.project_name,
+      project_id: item.project_id,
     }));
   } catch (err) {
     console.error("Gagal fetch customers:", err);
@@ -560,26 +563,39 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.vue3-select {
-  --vs-border: #d1d5db;
-  --vs-border-radius: 0.375rem;
-  --vs-color: #374151;
-  --vs-border-active: #f97316;
+/* Pastikan teks wrap dan tinggi input bisa menyesuaikan */
+:deep(.vs__dropdown-toggle) {
+  min-height: 48px !important;
+  height: auto !important;
+  align-items: flex-start !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  flex-wrap: wrap !important; /* penting agar teks panjang pindah baris */
 }
 
-/* Tambahan agar teks dalam opsi bisa multi-baris (wrap) */
-.vue3-select .vs__dropdown-option,
-.vue3-select .vs__selected {
+/* Pastikan label yang dipilih bisa multiline */
+:deep(.vs__selected) {
   white-space: normal !important;
-  word-wrap: break-word !important;
-  line-height: 1.3;
-  font-size: 0.875rem; /* opsional: sedikit kecil biar muat */
+  word-break: break-word !important;
+  line-height: 1.3 !important;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
 }
 
-/* Tambahan opsional: agar padding tetap rapi saat teks panjang */
-.vue3-select .vs__dropdown-option {
-  padding-top: 6px;
-  padding-bottom: 6px;
+/* Atur opsi dropdown tetap rapi */
+:deep(.vs__dropdown-option) {
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.3 !important;
+  padding: 6px 10px !important;
+}
+
+/* Dropdown menu biar tidak bikin scroll aneh */
+:deep(.vs__dropdown-menu) {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  max-height: 300px !important;
 }
 </style>
+
 

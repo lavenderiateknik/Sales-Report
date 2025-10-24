@@ -31,14 +31,14 @@ class CustomerDatabaseController extends Controller
     {
         $user = $request->user();
 
-        // Pastikan gunakan kolom integer, bukan relasi
-        $role = is_object($user->role) ? $user->role->id : $user->role; 
+        // Ambil role id dengan aman
+        $role = is_object($user->role) ? $user->role->id : $user->role;
 
-        // Filter data sesuai peran
+        // Filter berdasarkan role dan cabang
         if (in_array($role, [5, 6, 7, 8])) {
             $data = CustomerDatabase::where('id_branch', $user->branch_id)
-                    ->orderBy('project_id', 'asc')
-                    ->get();
+                ->orderBy('project_id', 'asc')
+                ->get();
         } else {
             $data = CustomerDatabase::orderBy('project_id', 'asc')->get();
         }
@@ -46,11 +46,29 @@ class CustomerDatabaseController extends Controller
         // Kelompokkan berdasarkan project_id
         $grouped = $data->groupBy('project_id')->map(function ($items) {
             $first = $items->first();
+
             return [
-                'project_id' => $first->project_id,
-                'project_name' => $first->project_name,
+                'project_id'    => $first->project_id,
+                'project_name'  => $first->project_name,
                 'project_stage' => $first->project_stage,
-                'project_town' => $first->project_town, 
+                'project_town'  => $first->project_town,
+                'project_start' => $first->construction_start_text,
+                'project_end'   => $first->construction_end_text,
+
+                // Tambahkan semua company yang terlibat
+                'item' => $items->map(function ($item) {
+                    return [
+                        'company_name'      => $item->company_name,
+                        'id_branch'         => $item->id_branch,
+                        'local_value'       => $item->local_value,
+                        'development_type'  => $item->development_type,
+                        'project_stage'     => $item->project_stage,
+                        'contact_person'    => $item->contact_person,
+                        'phone'             => $item->phone,
+                        'email'             => $item->email,
+                        // tambahkan kolom lain sesuai kebutuhan
+                    ];
+                })->values()
             ];
         })->values();
 
@@ -59,6 +77,7 @@ class CustomerDatabaseController extends Controller
             'data' => $grouped,
         ]);
     }
+
 
     public function detailByProject($project_id, Request $request)
     {

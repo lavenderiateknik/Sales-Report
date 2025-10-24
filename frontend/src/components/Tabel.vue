@@ -64,6 +64,9 @@ const computedHeaders = computed(() =>
     text: col.title || col.text || "—",
     value: col.field || col.value || "",
     sortable: col.sortable ?? false,
+    align: col.align || "left",
+    minWidth: col.minWidth || null, // 🟢 tambahkan ini
+    width: col.width || null,       // (opsional)
   }))
 );
 
@@ -77,4 +80,6 @@ function getValue(obj, path) {
     return "-";
   }
 }
+
+
 </script>

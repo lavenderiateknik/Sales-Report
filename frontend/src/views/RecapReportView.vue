@@ -64,7 +64,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 Columns data
 =========================== */
 const colsData = ref([
-  { field: 'no', title: 'No', align: 'center', minWidth: '60px', filter: false },
+  { field: 'no', title: 'No', align: 'center', filter: false },
   {
     field: 'date',
     title: 'Date',
@@ -73,7 +73,7 @@ const colsData = ref([
     align: 'center',
     render: (value) => (value ? formatDate(value) : '-'),
   },
-  { field: 'customer_name', title: 'Name Customer', render: (value) => value ?? '-' },
+  { field: 'customer_name', title: 'Name Customer', width: 200, render: (value) => value ?? '-' },
   { field: 'user.name', title: 'Sales Name', render: (value, row) => value ?? row?.user?.name ?? '-' },
   { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer?.name ?? '-' },
   { field: 'type_project.name', title: 'Type Project', render: (value, row) => value ?? row?.type_project?.name ?? '-' },
@@ -82,12 +82,13 @@ const colsData = ref([
   { field: 'pic_phone', title: 'PIC Phone', filter: false, render: (value) => value ?? '-' },
   { field: 'pic_position', title: 'PIC Position', filter: false, render: (value) => value ?? '-' },
   { field: 'type_report.name', title: 'Type Report', filter: false, render: (value, row) => value ?? row?.type_report?.name ?? '-' },
-  { field: 'report_notes', title: 'Report Notes', filter: false, cellClass: 'wrap-cell', minWidth: '200px', render: (value) => value ?? '-' },
+  { field: 'report_notes', title: 'Report Notes', filter: false, cellClass: 'wrap-cell', width: 200, render: (value) => value ?? '-' },
   { field: 'equipment_needs', title: 'Equipments Needs', render: (value) => value ?? '-' },
   { field: 'items_purchase_order', title: 'Items Purchase Order', filter: false, render: (value) => value ?? '-' },
   {
   field: 'nominal_purchase_order',
   title: 'Estimated Nominal Purchase',
+  width:150,
   align: 'right',
   filter: false,
   cell: (row) => {
