@@ -46,6 +46,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //salesreport
     Route::get('/allsalesreports', [SalesReportController::class, 'index']);
     Route::get('/salesreports/{id}', [SalesReportController::class, 'salesreports']);
+    Route::get('/salesreport/{id}', [SalesReportController::class, 'salesreport']);
+    Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
+    Route::post('/sales-reports', [SalesReportController::class, 'store']);
+    Route::put('/checkout/{id}', [SalesReportController::class, 'update']);
     Route::get('/branchsalesreports/{branch}', [SalesReportController::class, 'branchsalesreports']);
 
     Route::get('/typecustomers/{id}', [SalesReportController::class, 'typecustomerbysales']);
@@ -69,8 +73,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/branches/{id}', [BranchController::class, 'destroy']);
 
 
-    Route::post('/sales-reports', [SalesReportController::class, 'store']);
-    Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
 
     Route::get('/allcustomerdatabase', [CustomerDatabaseController::class, 'index']);
     Route::get('/customerdatabase', [CustomerDatabaseController::class, 'indexGrouped']);

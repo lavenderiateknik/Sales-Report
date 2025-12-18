@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
 
             // check-in
-            $table->time('check_in');
+            $table->time('check_in')->nullable();
             $table->string('coordinate_check_in')->nullable(); // lat,lng
 
             // relasi ke type_customers
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('customer_name');
 
             // relasi ke type_projects
-            $table->foreignId('type_project_id')->constrained('type_projects')->onDelete('cascade');
+            $table->string('type_project', 255)->nullable();
             $table->string('project_name');
 
             // PIC (person in charge)

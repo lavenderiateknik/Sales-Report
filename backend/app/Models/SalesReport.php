@@ -19,19 +19,20 @@ class SalesReport extends Model
         'coordinate_check_in',
         'type_customer_id',
         'customer_name',
-        'type_project_id',
+        'type_project',
         'project_name',
         'pic_name',
         'pic_phone',
         'pic_position',
-        'type_report_id',
+        'type_report',
         'report_notes',
         'equipment_needs',
         'items_purchase_order',
         'nominal_purchase_order',
         'check_out',
         'coordinate_check_out',
-        'picture', // 👈 ini ditambahkan
+        'picture',
+        'type_report_id'
     ];
 
     public function typeCustomer()
@@ -39,10 +40,6 @@ class SalesReport extends Model
         return $this->belongsTo(TypeCustomer::class, 'type_customer_id');
     }
 
-    public function typeProject()
-    {
-        return $this->belongsTo(TypeProject::class, 'type_project_id');
-    }
 
     public function typeReport()
     {

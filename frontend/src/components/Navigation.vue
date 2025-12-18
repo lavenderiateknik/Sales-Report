@@ -78,7 +78,7 @@
         <div class="text-[#10375C] ">
           <span class="text-sm px-2 font-semibold">FUNCTION</span>
           <RouterLink 
-            to="/checkin" 
+            to="/optionreport" 
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
             @click="closeMobileMenu"

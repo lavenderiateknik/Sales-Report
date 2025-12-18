@@ -10,6 +10,11 @@ import UserView from '@/views/UserView.vue'
 import BranchesView from '@/views/BranchesView.vue'
 import CustomerDatabaseView from '@/views/CustomerDatabaseView.vue'
 import RecapReportView from '@/views/RecapReportView.vue'
+import OptionReport from '@/views/OptionReport.vue'
+import FollowUp from '@/components/FollowUp.vue'
+import PhoneCall from '@/components/PhoneCall.vue'
+import OptionVisit from '@/views/OptionVisit.vue'
+import Checkout from '@/components/Checkout.vue'
 
 
 
@@ -55,6 +60,11 @@ const router = createRouter({
       component: CheckinView,
     },
     {
+      path: '/checkout/:id',
+      name: 'Checkout',
+      component: Checkout,
+    },
+    {
       path: '/adduser',
       name: 'Add User',
       component: UserView,
@@ -73,6 +83,26 @@ const router = createRouter({
       path: '/recapreport',
       name: 'Recap Report ',
       component: RecapReportView,
+    },
+    {
+      path: '/optionreport',
+      name: 'Option Report ',
+      component: OptionReport,
+    },
+    {
+      path: '/followup',
+      name: 'Follow Up',
+      component: FollowUp,
+    },
+    {
+      path: '/phonecall',
+      name: 'Phone Call',
+      component: PhoneCall,
+    },
+    {
+      path: '/optionvisit',
+      name: 'Option Visit',
+      component: OptionVisit,
     }
   ],
 })

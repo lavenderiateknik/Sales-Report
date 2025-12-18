@@ -32,10 +32,21 @@ class SalesReportController extends Controller
     public function salesreports($id)
     {
         $reports = SalesReport::where('user_id', $id)
-        ->with(['typeCustomer', 'typeProject', 'typeReport', 'user'])
         ->orderBy('created_at', 'desc')
         ->get()
         ->makeHidden(['picture']);
+        return response()->json([
+            "success" => true,
+            "message" => "Data Found",
+            "data" => $reports
+        ], 200);
+    }
+
+    public function salesreport($id)
+    {
+        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
+        ->where('id', $id)
+        ->first();
         return response()->json([
             "success" => true,
             "message" => "Data Found",
@@ -340,21 +351,19 @@ class SalesReportController extends Controller
     {
         try {
             $validated = $request->validate([
+                'type_report_id' => 'required',
                 'date' => 'required|date',
-                'check_in' => 'required|date_format:H:i',
-                'coordinate_check_in' => 'nullable|string',
                 'type_customer_id' => 'required|exists:type_customers,id',
                 'customer_name' => 'required|string|max:255',
-                'type_project_id' => 'required|exists:type_projects,id',
+                'type_project' => 'nullable',
+                'check_in' => 'nullable|date_format:H:i',
+                'coordinate_check_in' => 'nullable|string',
                 'project_name' => 'required|string|max:255',
                 'pic_name' => 'required|string|max:255',
                 'pic_phone' => 'required|string|max:20',
                 'pic_position' => 'required|string|max:255',
-                'type_report_id' => 'required|exists:type_reports,id',
                 'report_notes' => 'nullable|string',
                 'equipment_needs' => 'nullable|string',
-                'items_purchase_order' => 'nullable|string',
-                'nominal_purchase_order' => 'nullable|numeric',
                 'check_out' => 'nullable|date_format:H:i',
                 'coordinate_check_out' => 'nullable|string',
                 'picture' => 'nullable|image|max:5120',
@@ -377,7 +386,7 @@ class SalesReportController extends Controller
         $report->save();
 
     return response()->json([
-            'message' => 'Sales report berhasil disimpan',
+            'message' => 'Berhasil Tersimpan',
             'data' => [
                 'id' => $report->id,
                 'date' => $report->date,
@@ -405,10 +414,37 @@ class SalesReportController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, SalesReport $salesReport)
+    public function update(Request $request, $id)
     {
-        //
+        $report = SalesReport::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'report_notes' => 'nullable|string',
+            'equipment_needs' => 'nullable|string',
+            'items_purchase_order' => 'nullable|string',
+            'nominal_purchase_order' => 'nullable|numeric',
+            'check_out' => 'required|date_format:H:i',
+            'coordinate_check_out' => 'required|string',
+            'picture' => 'nullable|image|max:5120',
+        ]);
+
+        $report->fill($validated);
+
+        if ($request->hasFile('picture')) {
+            $report->picture = file_get_contents(
+                $request->file('picture')->getRealPath()
+            );
+        }
+
+        $report->save();
+
+        return response()->json([
+            'message' => 'Sales report berhasil dikirim'
+        ]);
     }
+
 
     /**
      * Remove the specified resource from storage.

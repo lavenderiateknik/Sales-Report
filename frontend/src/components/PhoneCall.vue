@@ -1,6 +1,6 @@
 <template>
   <div class="bg-gray-100 mx-auto max-w-lg p-6 rounded-2xl border border-gray-300 shadow-xl/50 shadow-gray-400">
-    <form @submit.prevent="updateForm" enctype="multipart/form-data" class="space-y-4">
+    <form @submit.prevent="submitForm" enctype="multipart/form-data" class="space-y-4">
       <h1 class="text-3xl font-bold text-center text-orange-600 mb-1">
         Report <strong class="text-orange-900">Sales</strong> 📊
       </h1>
@@ -13,7 +13,7 @@
           <option value="" disabled>
             {{ loading.typeReports ? 'Memuat...' : (errorsFetch.typeReports ? 'Gagal memuat' : 'Pilih Tipe Laporan') }}
           </option>
-          <option v-for="tr in typeReports.filter(t => t.id === 1)" :key="tr.id" :value="tr.id">{{ tr.name }}</option>
+          <option v-for="tr in typeReports.filter(t => t.id === 6)" :value="tr.id">{{ tr.name }}</option>
         </select>
         <p v-if="errors.type_report_id" class="text-red-600 text-sm mt-1">{{ errors.type_report_id[0] }}</p>
       </div>
@@ -35,7 +35,8 @@
           <option value="" disabled>
             {{ loading.typeCustomers ? 'Memuat...' : (errorsFetch.typeCustomers ? 'Gagal memuat' : 'Pilih Tipe Pelanggan') }}
           </option>
-          <option v-for="tc in typeCustomers" :key="tc.id" :value="tc.id">{{ tc.name }}</option>
+          <option v-for="tc in typeCustomers.filter(tc => tc.id === 2)" :key="tc.id" :value="tc.id">{{ tc.name }}</option>
+          
         </select>
         <p v-if="errors.type_customer_id" class="text-red-600 text-sm mt-1">{{ errors.type_customer_id[0] }}</p>
       </div>
@@ -83,16 +84,16 @@
       </div>
       <!-- Type Project -->
       <div>
-        <label for="type_project" class="block text-sm font-medium text-gray-700 mb-1">Tipe Proyek</label>
+        <label for="type_project_id" class="block text-sm font-medium text-gray-700 mb-1">Tipe Proyek</label>
 
       <!-- BCI: show select built from customers.project_type -->
       <select
         v-if="form.type_customer_id == BCI_TYPE_ID"
-        id="type_project"
-        v-model="form.type_project"
+        id="type_project_id"
+        v-model="form.type_project_id"
         :disabled="loadingCustomers" 
         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"
-        :class="{ 'border-red-500': errors.type_project }"
+        :class="{ 'border-red-500': errors.type_project_id }"
         >
         <option value="" disabled>
         {{ loadingCustomers ? 'Memuat...' : (errorsFetch.typeProjects ? 'Gagal memuat' : 'Pilih Tipe Proyek') }}
@@ -103,12 +104,12 @@
       <!-- Non-BCI: manual input -->
       <input
         v-else-if="form.type_customer_id"
-        id="type_project"
+        id="type_project_id"
         type="text"
-        v-model="form.type_project"
+        v-model="form.type_project_id"
         placeholder="Masukkan tipe proyek"
         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"
-        :class="{ 'border-red-500': errors.type_project }"
+        :class="{ 'border-red-500': errors.type_project_id }"
       />
 
       <!-- not selected customer type yet -->
@@ -116,8 +117,31 @@
         Pilih Tipe Pelanggan terlebih dahulu di atas.
       </div>
 
-      <p v-if="errors.type_project" class="text-red-600 text-sm mt-1">{{ errors.type_project[0] }}</p>
+      <p v-if="errors.type_project_id" class="text-red-600 text-sm mt-1">{{ errors.type_project_id[0] }}</p>
       </div>
+
+      <!-- Check In -->
+      <!-- <div>
+        <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">Time Check In</label>
+        <div class="flex gap-2">
+          <input id="check_in" type="time" v-model="form.check_in" readonly
+            class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" />
+          <button type="button" @click="setCheckIn"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Check In</button>
+        </div>
+        <p v-if="errors.check_in" class="text-red-600 text-sm mt-1">{{ errors.check_in[0] }}</p>
+      </div> -->
+
+      <!-- Coordinates Check In -->
+      <!-- <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Koordinat Check In</label>
+        <div class="flex flex-col lg:flex-row gap-2">
+          <input type="text" v-model="form.coordinate_check_in" readonly
+            class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
+          <button type="button" @click="getLocation('check_in')"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Dapatkan Lokasi 📍</button>
+        </div>
+      </div> -->
 
       <!-- Project Name -->
       <div>
@@ -151,26 +175,26 @@
         <p v-if="errors.pic_position" class="text-red-600 text-sm mt-1">{{ errors.pic_position[0] }}</p>
       </div>
 
-      <!-- Check In -->
+      <!-- Notes & Equipment -->
       <div>
-        <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">Time Check In</label>
-        <div class="flex gap-2">
-          <input id="check_in" type="time" v-model="form.check_in" readonly
-            class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" />
-          <button type="button" @click="setCheckIn"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Check In</button>
-        </div>
-        <p v-if="errors.check_in" class="text-red-600 text-sm mt-1">{{ errors.check_in[0] }}</p>
+        <label for="report_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan Laporan</label>
+        <textarea id="report_notes" v-model="form.report_notes" rows="4"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200 resize-none"></textarea>
       </div>
-      <!-- Coordinates Check In -->
+
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Koordinat Check In</label>
-        <div class="flex flex-col lg:flex-row gap-2">
-          <input type="text" v-model="form.coordinate_check_in" readonly
-            class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
-          <button type="button" @click="getLocation('check_in')"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Dapatkan Lokasi 📍</button>
-        </div>
+        <label for="equipment_needs" class="block text-sm font-medium text-gray-700 mb-1">Kebutuhan Alat</label>
+        <textarea id="equipment_needs" v-model="form.equipment_needs" rows="3"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"></textarea>
+      </div>
+
+
+      <!-- Submit -->
+      <div class="text-center">
+        <button type="submit" :disabled="submitting"
+          class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition duration-200">
+          {{ submitting ? 'Menyimpan...' : 'Kirim Laporan' }}
+        </button>
       </div>
     </form>
   </div>
@@ -183,10 +207,8 @@ import { Geolocation } from "@capacitor/geolocation";
 import VueSelect from "vue3-select";
 import "vue3-select/dist/vue3-select.css";
 
+
 const today = new Date().toISOString().split("T")[0];
-
-
-
 // --- 🔸 PROPS & EMIT UNTUK SINKRONISASI DENGAN PARENT ---
 const props = defineProps({
   coordinate: {
@@ -212,7 +234,7 @@ const form = ref({
   coordinate_check_out: "",
   type_customer_id: "",
   customer_name: "",
-  type_project: "",
+  type_project_id: "",
   project_name: "",
   pic_name: "",
   pic_phone: "",
@@ -223,7 +245,6 @@ const form = ref({
   items_purchase_order: "",
   nominal_purchase_order: null,
   picture: null,
-  date: today
 });
 
 // --- UI STATE ---
@@ -243,8 +264,6 @@ const customers = ref([]);
 const loadingCustomers = ref(false);
 const selectedCustomer = ref(null);
 let searchTimer = null;
-
-const reportId = ref(null);
 
 // --- HELPER FUNGI ---
 function displayCustomerName(c) {
@@ -378,10 +397,9 @@ async function getLocation(type = "check_in") {
       });
       lat = pos.coords.latitude;
       lng = pos.coords.longitude;
-      
     } else {
       if (!("geolocation" in navigator)) {
-        alert("Geolocation tidak didukung.");
+        alert("Geolocation tidak didukung di browser ini.");
         return;
       }
       await new Promise((resolve, reject) => {
@@ -403,11 +421,24 @@ async function getLocation(type = "check_in") {
 
     // 🟢 Kirim ke parent agar Map ikut update
     emit("update:coordinate", [lat, lng]);
-    await submitForm();
   } catch (err) {
     console.error("Gagal mendapatkan lokasi:", err);
     alert("Gagal mendapatkan lokasi: " + (err?.message || "Tidak diketahui"));
   }
+}
+
+// --- FILE HANDLER ---
+function onFileChange(e) {
+  errors.value.picture = null;
+  const f = e.target.files?.[0] ?? null;
+  if (!f) {
+    form.value.picture = null;
+    clearPreview();
+    return;
+  }
+  form.value.picture = f;
+  clearPreview();
+  previewUrl.value = URL.createObjectURL(f);
 }
 
 function clearPreview() {
@@ -430,7 +461,7 @@ function resetForm() {
     coordinate_check_out: "",
     type_customer_id: "",
     customer_name: "",
-    type_project: "",
+    type_project_id: "",
     project_name: "",
     pic_name: "",
     pic_phone: "",
@@ -463,93 +494,31 @@ async function submitForm() {
     if (selectedCustomer.value?.id) {
       fd.append("customer_id", selectedCustomer.value.id);
     }
-    console.log(form.value);
+
     const headers = {
       "Content-Type": "multipart/form-data",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
     const res = await axios.post(`${apiBase}/sales-reports`, fd, { headers });
-    reportId.value = res.data.data.id;
     alert(res.data?.message ?? "Laporan berhasil disimpan");
     resetForm();
-    window.location.href = "/optionvisit";
+    window.location.href = "/optionreport";
   } catch (err) {
     const r = err?.response;
     if (r && r.status === 422 && r.data?.errors) {
+      console.log("Validation Errors:", err.response.data.errors);
       errors.value = r.data.errors;
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       console.error("submit error", err);
+      console.log("Validation Errors:", err.response.data.errors);
       alert(r?.data?.message ?? "Gagal menyimpan laporan");
     }
   } finally {
     submitting.value = false;
   }
 }
-
-async function updateForm() {
-  errors.value = {};
-  if (submitting.value) return;
-
-  if (!reportId.value) {
-    alert("Draft laporan belum tersimpan.");
-    return;
-  }
-
-  submitting.value = true;
-
-  try {
-    const fd = new FormData();
-
-    // append semua field form
-    for (const key in form.value) {
-      const val = form.value[key];
-      if (val !== null && val !== undefined && val !== "") {
-        fd.append(key, val);
-      }
-    }
-
-    // customer dari VueSelect (jika ada)
-    if (selectedCustomer.value?.id) {
-      fd.append("customer_id", selectedCustomer.value.id);
-    }
-
-    // Laravel PUT via POST
-    fd.append("_method", "PUT");
-
-    const headers = {
-      "Content-Type": "multipart/form-data",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    };
-
-    const res = await axios.post(
-      `${apiBase}/sales-reports/${reportId.value}`,
-      fd,
-      { headers }
-    );
-
-    alert(res.data?.message ?? "Laporan berhasil dikirim");
-
-    resetForm();
-    reportId.value = null;
-
-    window.location.href = "/";
-  } catch (err) {
-    const r = err?.response;
-
-    if (r && r.status === 422 && r.data?.errors) {
-      errors.value = r.data.errors;
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      console.error("Update error:", err);
-      alert(r?.data?.message ?? "Gagal mengirim laporan");
-    }
-  } finally {
-    submitting.value = false;
-  }
-}
-
 
 // --- WATCHERS ---
 watch(selectedCustomer, (val) => {
@@ -587,12 +556,12 @@ const filteredProjectTypes = computed(() => {
 
 watch(selectedCustomer, (val) => {
   if (val && (val.project_type ?? "").toString().trim() !== "") {
-    // isi form.type_project dengan project_type dari customer
-    form.value.type_project = val.project_type;
+    // isi form.type_project_id dengan project_type dari customer
+    form.value.type_project_id = val.project_type;
   } else {
     // jika tidak ada project_type pada customer, kosongkan (BIAR JELAS)
     if (form.value.type_customer_id == BCI_TYPE_ID) {
-      form.value.type_project = "";
+      form.value.type_project_id = "";
     }
   }
 });
@@ -602,13 +571,13 @@ watch(() => form.value.type_customer_id, (val) => {
   // jika bukan BCI, biarkan pengguna mengetik; jika BCI, reset dan pastikan kita punya daftar
   if (Number(val) === BCI_TYPE_ID) {
     // kosongkan agar user memilih dari select (kecuali selectedCustomer sudah mengisi watch di atas)
-    if (!form.value.type_project) {
-      form.value.type_project = "";
+    if (!form.value.type_project_id) {
+      form.value.type_project_id = "";
     }
     // pastikan customers sudah ter-load (fetchCustomersFromServer dipanggil di onMounted)
   } else {
     // non BCI -> gunakan input manual, kosongkan nilai select
-    form.value.type_project = "";
+    form.value.type_project_id = "";
   }
 });
 
