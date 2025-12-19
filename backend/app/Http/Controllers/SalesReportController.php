@@ -345,8 +345,6 @@ class SalesReportController extends Controller
     /**
      * Store a newly created resource in storage.
      */
- 
-
     public function store(Request $request)
     {
         try {
@@ -401,6 +399,32 @@ class SalesReportController extends Controller
     public function show(SalesReport $salesReport)
     {
         //
+    }
+
+    /**
+     * Display visited customers.
+     */
+    public function visited($id)
+    {
+        // 1. Ambil data dari database
+        $allvisited = SalesReport::where('user_id', $id)->get();
+
+        // 2. Bersihkan data dari karakter non-UTF8 yang rusak
+        $cleanData = $allvisited->map(function ($item) {
+            return collect($item->toArray())->map(function ($value) {
+                if (is_string($value)) {
+                    // Mengonversi string ke UTF-8 dan mengabaikan karakter yang tidak valid
+                    return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+                }
+                return $value;
+            });
+        });
+
+        // 3. Kembalikan response
+        return response()->json([
+            'message' => 'Data Found',
+            'data' => $cleanData
+        ], 200);
     }
 
     /**

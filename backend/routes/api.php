@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/alltypereports', [TypeReportController::class, 'index']);
     //salesreport
     Route::get('/allsalesreports', [SalesReportController::class, 'index']);
+    Route::get('/allvisitedcustomers/{id}', [SalesReportController::class, 'visited']);
     Route::get('/salesreports/{id}', [SalesReportController::class, 'salesreports']);
     Route::get('/salesreport/{id}', [SalesReportController::class, 'salesreport']);
     Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
