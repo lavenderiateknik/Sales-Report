@@ -8,6 +8,11 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
+import 'chart.js/auto'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
+import { Chart } from 'chart.js'
+Chart.register(ChartDataLabels)
+
 const app = createApp(App)
 
 app.use(router)

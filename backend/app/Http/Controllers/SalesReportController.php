@@ -31,7 +31,8 @@ class SalesReportController extends Controller
 
     public function salesreports($id)
     {
-        $reports = SalesReport::where('user_id', $id)
+        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
+        ->where('user_id', $id)
         ->orderBy('created_at', 'desc')
         ->get()
         ->makeHidden(['picture']);
@@ -364,6 +365,8 @@ class SalesReportController extends Controller
                 'equipment_needs' => 'nullable|string',
                 'check_out' => 'nullable|date_format:H:i',
                 'coordinate_check_out' => 'nullable|string',
+                'nominal_purchase_order' => 'nullable',
+                'items_purchase_order' => 'nullable',
                 'picture' => 'nullable|image|max:5120',
             ]);
         } catch (ValidationException $e) {

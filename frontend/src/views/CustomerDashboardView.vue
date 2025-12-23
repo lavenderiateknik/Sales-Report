@@ -3,7 +3,7 @@
     <!-- ===== HEADER ===== -->
     <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
       <span>Customer</span>
-      <strong class="ml-2">Dashboard</strong>
+      <strong class="ml-2">History</strong>
     </div>
 
     <!-- ===== SEARCH ===== -->
@@ -94,7 +94,7 @@
                   <th class="px-4 py-2 border">Tanggal Report</th>
                   <th class="px-4 py-2 border">Type Report</th>
                   <th class="px-4 py-2 border">Report Notes</th>
-                  <th class="px-4 py-2 border">User</th>
+                  <th class="px-4 py-2 border">Report By</th>
                 </tr>
               </thead>
               <tbody>
@@ -209,7 +209,7 @@ const fetchSalesReports = async () => {
   try {
     const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
     const data = Array.isArray(res.data.data) ? res.data.data : [];
-
+    console.log(data);
     // Group by customer_name
     const grouped = {};
     data.forEach((item) => {
@@ -223,7 +223,7 @@ const fetchSalesReports = async () => {
         pic_name: item.pic_name ?? "-",
         pic_phone: item.pic_phone ?? "-",
         nominal_purchase_order: formatCurrency(item.nominal_purchase_order),
-        user_id: item.user?.id ?? null,
+        user_id: item.user_id?? null,
         user_name: item.user?.name ?? "-", 
       });
     });
@@ -243,7 +243,7 @@ const fetchSalesReports = async () => {
       };
     });
 
-    console.log(customersProject.value);
+    // console.log(customersProject.value);
   } catch (err) {
     console.error("❌ Gagal ambil sales reports:", err);
   } finally {

@@ -6,22 +6,13 @@
         <CalendarDays class="h-8 w-8 mr-3"/>{{ DateNow }}
       </span>
     </span>
+
     <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
       <span>Report</span>
       <strong class="ml-2">Dashboard</strong>
     </div>
-     <div class="grid grid-cols-1 lg:grid-cols-2">
-      <!-- Nominal monthly -->
-      <Tabel
-        :rows-data="monthRecap"
-        :cols="colsDataNominalMonthRecap"
-        title1="Recap"
-        title2="Nominal Monthly"
-        :pageable="true"
-        :per-page="10"
-        :loading="loading"
-      />
-      <!-- Type report recap -->
+
+    <div class="grid grid-cols-1 lg:grid-cols-2">
       <Tabel
         :rows-data="typeRecap"
         :cols="colsDataTypeRecap"
@@ -31,9 +22,28 @@
         :per-page="10"
         :loading="loading"
       />
+
+      <Tabel
+        :rows-data="monthRecap"
+        :cols="colsDataNominalMonthRecap"
+        title1="Recap"
+        title2="Nominal Monthly"
+        :pageable="true"
+        :per-page="10"
+        :loading="loading"
+      />
     </div>
+
+    <div class="grid grid-cols-1">
+      <Chart
+        v-if="monthRecapChart.labels.length"
+        :chart-data="monthRecapChart"
+        title1="Recap"
+        title2="Nominal Monthly"
+      />
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2">
-      <!-- Tabel Type Customer -->
       <Tabel
         :rows-data="typecustomers"
         :cols="colsDataTypeCustomer"
@@ -43,8 +53,9 @@
         :per-page="10"
         :loading="loading"
       />
-      <!-- Month recap offering vs po -->
+
       <Tabel
+        v-if="role === 1"
         :rows-data="monthreports"
         :cols="colsDataMonthRecap"
         title1="Recap"
@@ -54,8 +65,9 @@
         :loading="loading"
       />
     </div>
-    <!-- Recap per customer -->
+
     <Tabel
+      v-if="role === 1"
       :rows-data="customerreports"
       :cols="colsDataCustomerRecap"
       title1="Recap"
@@ -63,17 +75,17 @@
       :pageable="true"
       :per-page="10"
       :loading="loading"
-    />  
+    />
   </div>
 </template>
 
 <script setup>
 import Tabel from '@/components/Tabel.vue';
-import { ref, onMounted, computed } from 'vue';
-import {CalendarDays} from 'lucide-vue-next'
+import Chart from '@/components/Chart.vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { CalendarDays } from 'lucide-vue-next';
 import axios from 'axios';
 import currency from 'currency.js';
-
 
 /* ===========================
    Helpers
@@ -85,47 +97,33 @@ function formatCurrency(value, options = { symbol: 'Rp ', separator: '.', decima
   return currency(num, options).format();
 }
 
-function formatDate(value) {
-  if (!value) return '-';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-}
 /* ===========================
    State
 =========================== */
-const customers = ref([]);
 const typecustomers = ref([]);
 const monthreports = ref([]);
 const customerreports = ref([]);
 const monthRecap = ref([]);
 const typeRecap = ref([]);
 const loading = ref(false);
-const url = ref('');
 const DateNow = ref('');
 
-const getDate = () => {
-  const now = new Date();
+const monthRecapChart = ref({
+  labels: [],
+  datasets: [
+    {
+      label: 'Nominal Purchase',
+      data: [],
+      backgroundColor: '#F59E0B',
+      borderRadius: 10,
+      barThickness: 40,
+    }
+  ]
+});
 
-  // Buat nama hari dalam bahasa Inggris
-  const options = { weekday: 'long' };
-  const dayName = now.toLocaleDateString('en-US', options);
-
-  // Ambil tanggal, bulan, dan tahun
-  const day = String(now.getDate()).padStart(2, '0');
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const year = now.getFullYear();
-
-  // Gabungkan jadi format yang diinginkan
-  DateNow.value = `${dayName}, ${day}/${month}/${year}`;
-
-  
-};
-
+/* ===========================
+   Auth & Config
+=========================== */
 const token = localStorage.getItem('api_token');
 const id = localStorage.getItem('id');
 const role = parseInt(localStorage.getItem('role'));
@@ -133,62 +131,57 @@ const branch = localStorage.getItem('branch');
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 /* ===========================
-   Fetch Functions
+   Date
 =========================== */
+const getDate = () => {
+  const now = new Date();
+  const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  DateNow.value = `${dayName}, ${day}/${month}/${year}`;
+};
 
-
+/* ===========================
+   Fetch
+=========================== */
 const fetchTypeReports = async () => {
-  if (role === 8) {
-    url.value = `${apiBaseUrl}/api/typecustomers/${id}`;
-  } else if ([7, 6, 5].includes(role)) {
-    url.value = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
-  } else {
-    url.value = `${apiBaseUrl}/api/optiontypecustomers`;
-  }
+  let url;
+  if (role === 8) url = `${apiBaseUrl}/api/typecustomers/${id}`;
+  else if ([7, 6, 5].includes(role)) url = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
+  else url = `${apiBaseUrl}/api/optiontypecustomers`;
 
   loading.value = true;
   try {
-    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
-    const data = res.data.data ?? res.data;
-    typecustomers.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
-  } catch (err) {
-    console.error('Gagal ambil type customers:', err);
+    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    typecustomers.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
   } finally {
     loading.value = false;
   }
 };
 
 const fetchMonthReports = async () => {
-  if (role === 8) {
-    url.value = `${apiBaseUrl}/api/recap-reports/${id}`;
-  } else if ([7, 6, 5].includes(role)) {
-    url.value = `${apiBaseUrl}/api/recap-reports-branch/${branch}`;
-  } else {
-    url.value = `${apiBaseUrl}/api/recap-reports`;
-  }
+  let url;
+  if (role === 8) url = `${apiBaseUrl}/api/recap-reports/${id}`;
+  else if ([7, 6, 5].includes(role)) url = `${apiBaseUrl}/api/recap-reports-branch/${branch}`;
+  else url = `${apiBaseUrl}/api/recap-reports`;
 
   loading.value = true;
   try {
-    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
-    const data = res.data.data ?? res.data;
-    monthreports.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
-  } catch (err) {
-    console.error('Gagal ambil month recap :', err);
+    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    monthreports.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
   } finally {
     loading.value = false;
   }
 };
 
 const fetchCustomerRecap = async () => {
-  url.value = `${apiBaseUrl}/api/recap-reports-customer`;
   loading.value = true;
   try {
-    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
-    const data = res.data.data ?? res.data;
-    customerreports.value = (data || []).map((item, idx) => ({ ...item, no: idx + 1 }));
-    
-  } catch (err) {
-    console.error('Gagal ambil customer recap:', err);
+    const res = await axios.get(`${apiBaseUrl}/api/recap-reports-customer`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    customerreports.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
   } finally {
     loading.value = false;
   }
@@ -201,45 +194,56 @@ const fetchMonthRecap = async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
 
-    const rows = (res.data.data || []).map((item, idx) => ({
+    const raw = res.data.data || [];
+
+    monthRecap.value = raw.map((i, idx) => ({
       no: idx + 1,
-      month: item.month,
-      total: formatCurrency(Number(item.total) || 0), // <-- ubah ke format currency
+      month: i.month,
+      total: formatCurrency(i.total),
     }));
 
-    const grand = formatCurrency(Number(res.data.grand_total) || 0); // <-- ubah ke currency
-    monthRecap.value = [...rows, { no: '', month: 'Grand Total', total: grand }];
-  } catch (err) {
-    console.error('Gagal ambil data rekap nominal monthly:', err);
+    monthRecapChart.value = {
+      labels: raw.map(i => i.month),
+      datasets: [
+        {
+          label: 'Nominal Purchase',
+          data: raw.map(i => Number(i.total) || 0),
+          backgroundColor: '#F59E0B',
+          borderRadius: 10,
+          barThickness: 40,
+        }
+      ]
+    };
   } finally {
     loading.value = false;
   }
 };
 
-
 const fetchTypeRecap = async () => {
-  try {
-    const res = await axios.get(`${apiBaseUrl}/api/recap-reports-type`, { headers: { Authorization: `Bearer ${token}` } });
-    const rows = (res.data.data || []).map((item, idx) => ({
-      no: idx + 1,
-      report_type: item.report_type,
-      total: Number(item.total) || 0,
-    }));
-    const grand = Number(res.data.grand_total) || 0;
-    typeRecap.value = [...rows, { no: '', report_type: 'Grand Total', total: grand }];
-  } catch (err) {
-    console.error('Gagal ambil recap type:', err);
-  }
+  const res = await axios.get(`${apiBaseUrl}/api/recap-reports-type`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const rows = (res.data.data || []).map((i, idx) => ({
+    no: idx + 1,
+    report_type: i.report_type,
+    total: Number(i.total) || 0,
+  }));
+
+  typeRecap.value = [...rows, {
+    no: '',
+    report_type: 'Grand Total',
+    total: Number(res.data.grand_total) || 0,
+  }];
 };
 
 /* ===========================
-   Kolom Tabel
+   Columns (TIDAK DIUBAH)
 =========================== */
-
 const colsDataTypeCustomer = ref([
   { field: 'no', title: 'No', align: 'center' },
-  { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer_id?.name ?? '-' },
-  { field: 'total', title: 'Total', align: 'center', render: (value) => (Number(value) ? value : 0) },
+  { field: 'type_customer.name', title: 'Type Customer' },
+  { field: 'total', title: 'Total', align: 'center' },
 ]);
 
 const colsDataMonthRecap = ref([
@@ -261,61 +265,40 @@ const colsDataCustomerRecap = ref([
 ]);
 
 const colsDataNominalMonthRecap = ref([
-  { field: 'no', title: 'No', align: 'center', filter: false },
-  { field: 'month', title: 'Month', align: 'center', filter: false },
-  { field: 'total', title: 'Purchase Total', align: 'right', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
+  { field: 'no', title: 'No', align: 'center' },
+  { field: 'month', title: 'Month', align: 'center' },
+  { field: 'total', title: 'Purchase Total', align: 'right' },
 ]);
 
 const colsDataTypeRecap = ref([
-  { field: 'no', title: 'No', align: 'center', filter: false },
-  { field: 'report_type', title: 'Report Type', align: 'center', filter: false },
-  { field: 'total', title: 'Total', align: 'center', filter: false, render: (value) => (value === null || value === undefined ? '-' : formatCurrency(value)) },
+  { field: 'no', title: 'No', align: 'center' },
+  { field: 'report_type', title: 'Report Type', align: 'center' },
+  { field: 'total', title: 'Total', align: 'center' },
 ]);
 
 /* ===========================
    Lifecycle
 =========================== */
+let timer = null;
+
 onMounted(() => {
-  
+  getDate();
   fetchTypeReports();
   fetchMonthReports();
   fetchCustomerRecap();
   fetchMonthRecap();
   fetchTypeRecap();
-  getDate();
 
-  // auto-refresh setiap 5 menit
-  setInterval(() => {
-    fetchSalesReports();
+  timer = setInterval(() => {
     fetchTypeReports();
     fetchMonthReports();
     fetchCustomerRecap();
     fetchMonthRecap();
     fetchTypeRecap();
   }, 5 * 60 * 1000);
+});
 
-  
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
 });
 </script>
-
-<!-- <style scoped>
-::deep(.bh-table) {
-  table-layout: fixed;
-  width: 100%;
-}
-::deep(.bh-items-center) {
-  white-space: normal !important;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-::deep(.bh-table td) {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-::deep(.bh-table td.wrap-cell) {
-  white-space: normal !important;
-  word-break: break-word;
-  overflow-wrap: break-word;
-}
-</style> -->

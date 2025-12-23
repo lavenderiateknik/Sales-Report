@@ -16,7 +16,7 @@
 
       <div>
         <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-        <input id="date" type="date" v-model="form.date" required
+        <input id="date" type="date" v-model="form.date" required :max="today" 
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
       </div>
 
@@ -78,21 +78,37 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
         </div>
       </div>
-
-      <div class="grid md:grid-cols-2 md:gap-6">
+      <div class="grid md:grid-cols-1 md:gap-6">
         <div>
-          <label for="pic_name" class="block text-sm font-medium text-gray-700 mb-1">Catatan Laporan</label>
-          <input id="pic_name" type="text" v-model="form.report_notes" required
+          <label for="pic_position" class="block text-sm font-medium text-gray-700 mb-1">Posisi</label>
+          <input id="pic_position" type="text" v-model="form.pic_position" required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
+        </div>
+      </div>
+      <div class="grid md:grid-cols-1 md:gap-6">
+        <div>
+          <label for="report_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan Laporan</label>
+          <textarea rows="6" id="pic_name" type="text" v-model="form.report_notes" required
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
         </div>
         <div>
-          <label for="pic_phone" class="block text-sm font-medium text-gray-700 mb-1">Kebutuhan alat</label>
-          <textarea col id="equipment_needs" type="tel" v-model="form.equipment_needs" required
+          <label for="equipment_needs" class="block text-sm font-medium text-gray-700 mb-1">Kebutuhan alat</label>
+          <textarea rows="6" col id="equipment_needs" type="text" v-model="form.equipment_needs" required
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
         </div>
       </div>
       <!-- PURCHASE ORDER (HANYA JIKA TYPE REPORT = 5) -->
       <div v-if="form.type_report_id === 5">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Items Purchase Order
+        </label>
+        <textarea
+          rows="6"
+          type="text"
+          v-model="form.items_purchase_order"
+          placeholder="Masukkan Items Order"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
         <label class="block text-sm font-medium text-gray-700 mb-1">
           Nominal Purchase Order
         </label>
@@ -128,6 +144,8 @@
 import { ref, onMounted, watch  } from "vue";
 import axios from "axios";
 
+
+const today = new Date().toISOString().split("T")[0];
 
 const previewUrl = ref(null);
 
@@ -190,7 +208,8 @@ const form = ref({
   pic_phone: "",
   pic_position: "",
   report_notes: "",
-  nominal_purchase_order: null,
+  nominal_purchase_order: "",
+  items_purchase_order:"",
   picture: null,
 });
 
@@ -202,6 +221,9 @@ function selectItem(customer) {
   form.value.customer_name = customer.company_name ?? customer.customer_name;
   form.value.project_name = customer.project_name;
   form.value.type_project_id = customer.project_type ?? customer.type_project;
+  form.value.pic_name = customer.pic_name ?? customer.pic_name;
+  form.value.pic_phone = customer.pic_phone ?? customer.pic_phone;
+  form.value.pic_position = customer.pic_position ?? customer.pic_position;
   
   isOpen.value = false;
 }
