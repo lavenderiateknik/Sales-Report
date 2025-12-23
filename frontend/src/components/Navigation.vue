@@ -73,6 +73,60 @@
           >
             <ScrollText /> SPV Rekap
           </RouterLink>
+          <!-- RECAP TYPE CUSTOMER (PARENT - TANPA LINK) -->
+          <div
+            class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
+            @click="isRecapOpen = !isRecapOpen"
+          >
+            <div class="flex items-center gap-1">
+              <ClipboardList />
+              <span>Recap Type Customer</span>
+            </div>
+
+            <ChevronDown
+              v-if="isRecapOpen"
+              class="w-4 h-4 transition-transform"
+            />
+            <ChevronRight
+              v-else
+              class="w-4 h-4 transition-transform"
+            />
+          </div>
+
+<!-- CHILD MENU -->
+<transition name="fade">
+  <div v-show="isRecapOpen" class="ml-8 flex flex-col gap-1">
+    
+    <RouterLink
+        to="/recap-customer/bci"
+        class="text-sm pl-3 py-1 rounded
+              flex items-center gap-2
+              whitespace-nowrap
+              hover:bg-blue-200 hover:bg-opacity-10"
+        exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+        @click="closeMobileMenu"
+      >
+        <ChartBarIncreasing class="w-4 h-4" />
+        <span>BCI Customer</span>
+      </RouterLink>
+
+   <RouterLink
+      to="/recap-customer/reg"
+      class="text-sm pl-3 py-1 rounded
+            flex items-center gap-2
+            whitespace-nowrap
+            hover:bg-blue-200 hover:bg-opacity-10"
+      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+      @click="closeMobileMenu"
+    >
+      <ChartBarDecreasing class="w-4 h-4" />
+      <span>REG Customer</span>
+    </RouterLink>
+
+  </div>
+</transition>
+
+
         </div>
 
         <div class="text-[#10375C] ">
@@ -113,7 +167,7 @@
             <Database /> Customer Database
           </RouterLink>
         </div>
-
+        
         <!-- Logout -->
         <div class="text-[#10375C] cursor-pointer" @click="handleLogout">
           <span class="text-sm px-2 font-semibold flex flex-row gap-1">
@@ -140,7 +194,12 @@ import {
   UserRoundPlus,
   GitBranch,
   Database,
-  BookOpenText
+  BookOpenText,
+  ChevronDown, 
+  ChevronRight,
+  ClipboardList,
+  ChartBarDecreasing,
+  ChartBarIncreasing
 } from "lucide-vue-next";
 import axios from 'axios';
 
@@ -151,6 +210,8 @@ const userRoleId = ref(null);   // simpan id role
 const userRoleName = ref('');   // simpan nama role
 const userBranch = ref('');
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const isRecapOpen = ref(false);
+
 
 const fetchUserData = async () => {
   try {

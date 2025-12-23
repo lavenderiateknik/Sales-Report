@@ -15,6 +15,8 @@ import FollowUp from '@/components/FollowUp.vue'
 import PhoneCall from '@/components/PhoneCall.vue'
 import OptionVisit from '@/views/OptionVisit.vue'
 import Checkout from '@/components/Checkout.vue'
+import RecapREGCustomer from '@/components/RecapREGCustomer.vue'
+import RecapBCICustomer from '@/components/RecapBCICustomer.vue'
 
 
 
@@ -103,7 +105,17 @@ const router = createRouter({
       path: '/optionvisit',
       name: 'Option Visit',
       component: OptionVisit,
-    }
+    },
+    {
+      path: "/recap-customer/bci",
+      name: "RecapBCI",
+      component: RecapBCICustomer,
+    },
+    {
+      path: "/recap-customer/reg",
+      name: "RecapREG",
+      component: RecapREGCustomer,
+    },
   ],
 })
 
