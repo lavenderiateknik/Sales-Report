@@ -20,7 +20,9 @@ class CustomerDatabase extends Model
         'company_town','company_state','company_phone','company_email','contact_first_name',
         'contact_surname','contact_position','contact_landline','contact_email','contact_remark',
         'company_region','mobile','role_status','construction_start_text','construction_end_text',
-        'id_branch', "hash" 
+        'id_branch', 
+        'assigned_to_user', // 🟢 Tambahkan ini
+        'hash' 
     ];
 
     /**
@@ -29,5 +31,11 @@ class CustomerDatabase extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class, 'id_branch');
+    }
+
+   
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_user');
     }
 }

@@ -57,4 +57,8 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Branch::class, 'branch_id');
     }
+    public function customers()
+    {
+        return $this->hasMany(CustomerDatabase::class, 'assigned_to_user');
+    }
 }

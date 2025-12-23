@@ -104,7 +104,7 @@ class DatabaseSeeder extends Seeder
 
         for ($i = 0; $i < 160; $i++) {
     SalesReport::create([
-        'date' => $faker->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
+        'date' => $faker->dateTimeBetween('-120 days', 'now')->format('Y-m-d'),
 
         // check in/out
         'check_in' => $faker->time('H:i:s'),

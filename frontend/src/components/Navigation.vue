@@ -73,6 +73,15 @@
           >
             <ScrollText /> SPV Rekap
           </RouterLink>
+          <RouterLink 
+            v-if="userRoleId !== 8"
+            to="/assignment" 
+            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+            @click="closeMobileMenu"
+          >
+            <Handshake /> Assignment
+          </RouterLink>
           <!-- RECAP TYPE CUSTOMER (PARENT - TANPA LINK) -->
           <div
             class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
@@ -199,7 +208,8 @@ import {
   ChevronRight,
   ClipboardList,
   ChartBarDecreasing,
-  ChartBarIncreasing
+  ChartBarIncreasing,
+  Handshake
 } from "lucide-vue-next";
 import axios from 'axios';
 

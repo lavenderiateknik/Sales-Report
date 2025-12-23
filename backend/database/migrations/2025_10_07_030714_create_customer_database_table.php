@@ -7,11 +7,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('customer_database', function (Blueprint $table) { // 🟢 gunakan underscore (konvensi Laravel)
+        Schema::create('customer_database', function (Blueprint $table) { 
             $table->id();
 
             // Relasi ke branches
             $table->foreignId('id_branch')->nullable()->constrained('branches')->nullOnDelete();
+            $table->foreignId('assigned_to_user')->nullable()->constrained('users')->onDelete('cascade');//kolom baru
 
             // Data proyek
             $table->string('project_id')->nullable();

@@ -38,6 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/allusers', [UserController::class, 'index']);
     Route::get('/user/{id}', [UserController::class, 'edit']);
     Route::put('/updateuser/{id}',[UserController::class,'update']);
+    Route::get('/sales-by-branch',[UserController::class,'getSalesByBranch']);
     Route::delete('/deleteuser/{id}', [UserController::class, 'destroy']);
     
     Route::get('/alltypecustomers', [TypeCustomerController::class, 'index']);

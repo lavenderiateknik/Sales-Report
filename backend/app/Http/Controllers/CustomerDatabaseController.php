@@ -10,23 +10,32 @@ use Illuminate\Support\Facades\Validator;
 class CustomerDatabaseController extends Controller
 {
     public function index(Request $request)
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
+    
+    // Ambil role_id langsung dari kolom di tabel users (lebih aman & cepat)
+    $roleId = $user->role_id; 
 
-        // Pastikan gunakan kolom integer, bukan relasi
-        $role = is_object($user->role) ? $user->role->id : $user->role; 
-
-        if (in_array($role, [5, 6, 7, 8])) {
-            $data = CustomerDatabase::where('id_branch', $user->branch_id)->get();
-        } else {
-            $data = CustomerDatabase::all();
-        }
-
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-        ]);
+    // Contoh logika: Role 5-8 lihat semua, role lain hanya yang di-assign ke mereka
+    if (in_array($roleId, [5, 6, 7, 8])) {
+        $data = CustomerDatabase::with('assignedUser', 'branch')->get();
+    } else {
+        
+        $data = CustomerDatabase::where('assigned_to_user', $user->id)
+                ->with('branch')
+                ->get();
     }
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data retrieved successfully',
+        'role_debug' => $roleId, 
+        'count' => $data->count(),
+        'data' => $data,
+    ]);
+}
+
+    
     public function indexGrouped(Request $request)
     {
         $user = $request->user();

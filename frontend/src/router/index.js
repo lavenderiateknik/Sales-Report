@@ -17,6 +17,7 @@ import OptionVisit from '@/views/OptionVisit.vue'
 import Checkout from '@/components/Checkout.vue'
 import RecapREGCustomer from '@/components/RecapREGCustomer.vue'
 import RecapBCICustomer from '@/components/RecapBCICustomer.vue'
+import Assignment from '@/components/Assignment.vue'
 
 
 
@@ -115,6 +116,11 @@ const router = createRouter({
       path: "/recap-customer/reg",
       name: "RecapREG",
       component: RecapREGCustomer,
+    },
+    {
+      path: "/assignment",
+      name: "Assignment",
+      component: Assignment,
     },
   ],
 })

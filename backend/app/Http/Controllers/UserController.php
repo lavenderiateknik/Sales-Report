@@ -105,18 +105,32 @@ class UserController extends Controller
 
     // app/Http/Controllers/Api/UserController.php
 
-public function destroy($id)
-{
-    $user = User::find($id);
+    public function destroy($id)
+    {
+        $user = User::find($id);
 
-    if (!$user) {
-        return response()->json(['message' => 'User not found'], 404);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully']);
     }
 
-    $user->delete();
+    public function getSalesByBranch(Request $request)
+    {
+        $user = $request->user();
+        
+        // Ambil user yang rolenya 8 DAN branch_id nya sama dengan user yang login
+        $sales = User::where('role_id', 8)
+                    ->where('branch_id', $user->branch_id)
+                    ->select('id', 'name')
+                    ->get();
 
-    return response()->json(['message' => 'User deleted successfully']);
-}
+        return response()->json($sales);
+    }
+
 
 
 }
