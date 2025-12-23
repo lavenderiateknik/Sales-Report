@@ -295,7 +295,7 @@ onMounted(() => {
     fetchCustomerRecap();
     fetchMonthRecap();
     fetchTypeRecap();
-  }, 5 * 60 * 1000);
+  }, 10 * 60 * 1000);
 });
 
 onUnmounted(() => {

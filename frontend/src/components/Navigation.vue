@@ -61,7 +61,7 @@
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
             @click="closeMobileMenu"
           >
-            <BookOpenText /> Recap Report
+            <BookOpenText /> Daily Visit
           </RouterLink>
 
           <RouterLink 

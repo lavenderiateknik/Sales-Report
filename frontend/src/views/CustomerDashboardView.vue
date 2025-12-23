@@ -209,7 +209,7 @@ const fetchSalesReports = async () => {
   try {
     const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
     const data = Array.isArray(res.data.data) ? res.data.data : [];
-    console.log(data);
+   
     // Group by customer_name
     const grouped = {};
     data.forEach((item) => {

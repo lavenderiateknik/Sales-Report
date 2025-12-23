@@ -3,8 +3,8 @@
         <Tabel
       :rows-data="customers"
       :cols="colsData"
-      title1="Visit"
-      title2="Daily"
+      title1="Daily"
+      title2="Visit"
       :pageable="true"
       :per-page="10"
       :loading="loading"

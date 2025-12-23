@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SalesReport;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,7 @@ class SalesReportController extends Controller
      */
     public function index()
     {
-        $allTypeReport = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport','user'])
+        $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user'])
                         ->orderBy('date', 'desc')
                         ->get()
                         ->makeHidden(['picture']);
@@ -45,18 +46,25 @@ class SalesReportController extends Controller
 
     public function salesreport($id)
     {
-        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
-        ->where('id', $id)
-        ->first();
+        $user = User::where('id', $id);
+        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user']);
+        if ($user->role_id == 8) {
+            $reports->where('id', $id)->first();
+        } elseif (in_array($user->role_id, [7, 6, 5])) {
+            $reports->where('users.branch_id', $user->branch_id);
+        } elseif (in_array($user->role_id, [8])){
+            $reports->get();
+        }
         return response()->json([
             "success" => true,
             "message" => "Data Found",
             "data" => $reports
         ], 200);
     }
+    
     public function branchsalesreports($id)
     {
-        $branchreports = SalesReport::with(['typeCustomer', 'typeProject', 'typeReport', 'user'])
+        $branchreports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
             ->select('sales_reports.*')
