@@ -39,6 +39,7 @@
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vue/babel-plugin-jsx": "^1.5.0",
+    "esbuild": "^0.27.2",
     "vite": "npm:rolldown-vite@latest",
     "vite-plugin-vue-devtools": "^8.0.0"
   }

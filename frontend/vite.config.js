@@ -1,6 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import fs from 'fs'
-import path from 'path'
+
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -9,13 +8,16 @@ import vueJsx from "@vitejs/plugin-vue-jsx";
 
 
 export default defineConfig({
-  base: './', // <--- jika ingin di convert ke mobile app ubah menjadi "./" untuk web /frontend/dist/
+  base: '/frontend/dist/', // <--- jika ingin di convert ke mobile app ubah menjadi "./" untuk web /frontend/dist/
   plugins: [
     vue(),
     vueDevTools(),
     tailwindcss(),
     vueJsx(),
   ],
+  build: {
+    cssMinify: 'esbuild'
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

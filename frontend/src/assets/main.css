@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.expand-icon {
+  border-color: var(--easy-table-body-row-font-color) !important;
+}
