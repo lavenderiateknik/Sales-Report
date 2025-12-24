@@ -79,7 +79,7 @@
               </td>
 
               <td class="px-4 py-4 text-center bg-amber-50/20">
-                <div class="flex flex-col items-center gap-1 min-h-[50px] justify-center">
+                <div class="flex flex-col items-center gap-1 min-h-12.5 justify-center">
                   <select 
                     v-if="salesList.length > 0"
                     @change="handleAssign(row.id, $event.target.value)"

@@ -156,7 +156,7 @@
         <label for="check_in" class="block text-sm font-medium text-gray-700 mb-1">Time Check In</label>
         <div class="flex gap-2">
           <input id="check_in" type="time" v-model="form.check_in" readonly
-            class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" />
+            class="grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50 cursor-not-allowed" />
           <button type="button" @click="setCheckIn"
             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Check In</button>
         </div>
@@ -167,7 +167,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Koordinat Check In</label>
         <div class="flex flex-col lg:flex-row gap-2">
           <input type="text" v-model="form.coordinate_check_in" readonly
-            class="flex-grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
+            class="grow px-3 py-2 border border-gray-300 rounded-md bg-gray-50" />
           <button type="button" @click="getLocation('check_in')"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Dapatkan Lokasi 📍</button>
         </div>
