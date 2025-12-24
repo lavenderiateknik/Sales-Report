@@ -10,30 +10,29 @@ use Illuminate\Support\Facades\Validator;
 class CustomerDatabaseController extends Controller
 {
     public function index(Request $request)
-{
-    $user = $request->user();
-    
-    // Ambil role_id langsung dari kolom di tabel users (lebih aman & cepat)
-    $roleId = $user->role_id; 
-
-    // Contoh logika: Role 5-8 lihat semua, role lain hanya yang di-assign ke mereka
-    if (in_array($roleId, [5, 6, 7, 8])) {
-        $data = CustomerDatabase::with('assignedUser', 'branch')->get();
-    } else {
-        
-        $data = CustomerDatabase::where('assigned_to_user', $user->id)
-                ->with('branch')
-                ->get();
+    {
+        $user = $request->user();
+        $roleId = (int) $user->role_id; 
+        $query = CustomerDatabase::with(['assignedUser', 'branch']);
+        if ($roleId === 8) {
+            $data = $query->where('assigned_to_user', $user->id)->get();     
+        } elseif (in_array($roleId, [5, 6, 7])) {
+            $data = $query->where('id_branch', $user->branch_id)->get();
+        } elseif (in_array($roleId, [1, 2, 3, 4])) { // Misal Role 1 adalah Super Admin
+            // Super Admin: Melihat semua data tanpa filter
+            $data = $query->get();
+        } else {
+            // Default: Jika role tidak dikenali, kembalikan array kosong agar aman
+            $data = collect([]);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Data retrieved successfully',
+            'role_debug' => $roleId, 
+            'count' => $data->count(),
+            'data' => $data,
+        ]);
     }
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Data retrieved successfully',
-        'role_debug' => $roleId, 
-        'count' => $data->count(),
-        'data' => $data,
-    ]);
-}
 
     
     public function indexGrouped(Request $request)
@@ -153,5 +152,37 @@ class CustomerDatabaseController extends Controller
         Excel::import(new CustomerDatabaseImport($request->id_branch), $request->file('file'));
 
         return response()->json(['message' => 'Data berhasil diimpor ke database!']);
+    }
+
+
+    public function assign(Request $request)
+    {
+        // 1. Validasi input
+        $request->validate([
+            'customer_id' => 'required|exists:customer_database,id',
+            'user_id'     => 'required|exists:users,id',
+        ]);
+
+        try {
+            // 2. Cari data customer
+            $customer = CustomerDatabase::findOrFail($request->customer_id);
+
+            // 3. Update kolom assigned_to_user
+            $customer->update([
+                'assigned_to_user' => $request->user_id
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer berhasil ditugaskan.',
+                'data'    => $customer->load('assignedUser') // Load relasi untuk dikembalikan ke frontend
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan penugasan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

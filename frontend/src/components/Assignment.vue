@@ -51,7 +51,7 @@
               </td>
 
               <td class="px-4 py-4">
-                <div class="font-bold text-slate-800 truncate whitespace-break-spaces" :title="row.company_name">
+                <div class="font-bold text-slate-800 truncate whitespace-pre-wrap" :title="row.company_name">
                   {{ row.company_name }}
                 </div>
                 <div class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
@@ -79,15 +79,16 @@
               </td>
 
               <td class="px-4 py-4 text-center bg-amber-50/20">
-                <div class="flex flex-col items-center gap-1">
+                <div class="flex flex-col items-center gap-1 min-h-[50px] justify-center">
                   <select 
+                    v-if="salesList.length > 0"
                     @change="handleAssign(row.id, $event.target.value)"
                     :disabled="loadingAssignment === row.id"
                     :class="[
-                      'text-xs rounded-lg border px-2 py-1.5 outline-none transition-all w-full select-custom',
+                      'text-xs rounded-lg border px-2 py-1.5 outline-none transition-all w-full select-custom shadow-sm',
                       row.assigned_to_user 
                         ? 'border-emerald-200 bg-emerald-50 text-emerald-700 font-semibold' 
-                        : 'border-slate-300 bg-white text-slate-500 focus:border-amber-400'
+                        : 'border-slate-300 bg-white text-slate-500 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
                     ]"
                     :value="row.assigned_to_user || ''"
                   >
@@ -96,12 +97,16 @@
                       {{ sales.name }}
                     </option>
                   </select>
+
+                  <div v-else class="text-[10px] text-rose-500 font-medium italic">
+                    Cabang tidak memiliki sales
+                  </div>
                   
-                  <span v-if="row.assigned_user" class="text-[9px] font-bold text-emerald-500 flex items-center gap-1">
+                  <span v-if="row.assigned_to_user" class="text-[9px] font-bold text-emerald-500 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                     TERTUGASKAN
                   </span>
-                  <span v-else class="text-[9px] font-bold text-slate-400 italic">
+                  <span v-else-if="salesList.length > 0" class="text-[9px] font-bold text-slate-400 italic">
                     BELUM DIPILIH
                   </span>
                 </div>
@@ -159,6 +164,8 @@ import axios from "axios";
 /* ================= ENV & AUTH ================= */
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem("api_token");
+// Konversi ke Number agar perbandingan role < 5 akurat
+const role = Number(localStorage.getItem("role"));
 
 /* ================= STATE ================= */
 const loading = ref(false);
@@ -173,17 +180,23 @@ const pageSize = 10;
 const fetchData = async () => {
   loading.value = true;
   try {
+    const salesUrl = role < 5 
+      ? `${apiBaseUrl}/api/allusers` 
+      : `${apiBaseUrl}/api/sales-by-branch`;
+
     const [resCustomers, resSales] = await Promise.all([
       axios.get(`${apiBaseUrl}/api/allcustomerdatabase`, {
         headers: { Authorization: `Bearer ${token}` }
       }),
-      axios.get(`${apiBaseUrl}/api/sales-by-branch`, { // Endpoint baru Anda
+      axios.get(salesUrl, {
         headers: { Authorization: `Bearer ${token}` }
       })
     ]);
 
     customers.value = resCustomers.data.data || resCustomers.data;
-    salesList.value = resSales.data;
+    // Pastikan data sales berupa array
+    salesList.value = Array.isArray(resSales.data) ? resSales.data : (resSales.data.data || []);
+
   } catch (err) {
     console.error("Fetch Error:", err);
   } finally {
@@ -204,16 +217,19 @@ const handleAssign = async (customerId, userId) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     
-    // Update local state agar UI tidak perlu reload full
+    // Update local state secara manual agar tidak perlu refresh API full
     const index = customers.value.findIndex(c => c.id === customerId);
     if (index !== -1) {
       customers.value[index].assigned_to_user = userId;
-      // Opsional: Jika backend mengirim data user lengkap, update row.assigned_user
+      // Update object assigned_user jika ada di data row
       const sales = salesList.value.find(s => s.id == userId);
-      customers.value[index].assigned_user = sales;
+      if (sales) {
+        customers.value[index].assigned_user = sales;
+      }
     }
   } catch (err) {
-    alert("Gagal memperbarui penugasan.");
+    console.error(err);
+    alert("Gagal memperbarui penugasan. Periksa koneksi atau role anda.");
   } finally {
     loadingAssignment.value = null;
   }
@@ -226,7 +242,8 @@ const filteredData = computed(() => {
   return customers.value.filter(item => 
     (item.project_name?.toLowerCase().includes(s)) ||
     (item.company_name?.toLowerCase().includes(s)) ||
-    (item.project_id?.toLowerCase().includes(s))
+    (item.project_id?.toLowerCase().includes(s)) ||
+    (item.project_town?.toLowerCase().includes(s))
   );
 });
 
