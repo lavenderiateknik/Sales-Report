@@ -22,7 +22,7 @@
       </select>
     </div>
 
-    <!-- Recap Type Report + Recap Nominal Monthly -->
+    <!-- Recap Type Report + Recap Type Customer -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
       <!-- LEFT: Type Report -->
@@ -36,7 +36,23 @@
         :loading="loadingTypeRecap"
       />
 
-      <!-- RIGHT: Nominal Monthly (Dynamic) -->
+      <!-- RIGHT: Type Customer -->
+      <Tabel
+        :rows-data="typeCustomerRecap"
+        :cols="colsDataTypeCustomer"
+        title1="Recap"
+        title2="Type Customer"
+        :pageable="false"
+        :per-page="10"
+        :loading="loadingTypeCustomer"
+      />
+
+    </div>
+
+    <!-- Nominal Monthly + Chart -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+
+      <!-- Nominal Monthly -->
       <Tabel
         :rows-data="monthlyRecap"
         :cols="colsDataMonthlyRecap"
@@ -46,20 +62,22 @@
         :per-page="10"
         :loading="loadingMonthly"
       />
-    </div>
 
-    <!-- Chart Nominal Monthly -->
-    <div class="mt-4" v-if="monthRecapChart.labels.length">
-      <Chart
-        :chart-data="monthRecapChart"
-        title1="Recap"
-        title2="Nominal Monthly"
-      />
+      <!-- Chart Nominal Monthly -->
+      <div v-if="monthRecapChart.labels.length" class="mt-0">
+        <Chart
+          :chart-data="monthRecapChart"
+          title1="Recap"
+          title2="Nominal Monthly"
+        />
+      </div>
+
     </div>
 
     <div class="p-4 text-xs italic text-gray-400">
       Statistik lain belum dihubungkan API — ⭐ next step
     </div>
+
   </div>
 </template>
 
@@ -91,11 +109,14 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 =========================== */
 const loadingTypeRecap = ref(false);
 const loadingMonthly = ref(false);
+const loadingTypeCustomer = ref(false);
+
 const salesList = ref([]);
 const selectedSales = ref("");
 
 const typeRecap = ref([]);
 const monthlyRecap = ref([]);
+const typeCustomerRecap = ref([]);
 const monthRecapChart = ref({
   labels: [],
   datasets: [
@@ -114,6 +135,12 @@ const monthRecapChart = ref({
 =========================== */
 const colsDataTypeRecap = [
   { field: "report_type", title: "Report Type" },
+  { field: "total", title: "Total", align: "center" },
+];
+
+const colsDataTypeCustomer = [
+  { field: "no", title: "No", align: "center" },
+  { field: "type_customer.name", title: "Type Customer" },
   { field: "total", title: "Total", align: "center" },
 ];
 
@@ -138,34 +165,62 @@ const fetchSales = async () => {
 };
 
 /* ===========================
-   Fetch Recap Type + Monthly + Chart
+   Fetch Type Report
 =========================== */
-const fetchRecapData = async () => {
-  // Type Recap
+const fetchTypeRecap = async () => {
   loadingTypeRecap.value = true;
-  let urlType = `${apiBaseUrl}/api/recap-reports-type`;
-  if (selectedSales.value) urlType += `?user_id=${selectedSales.value}`;
+  let url = `${apiBaseUrl}/api/recap-reports-type`;
+  if (selectedSales.value) url += `?user_id=${selectedSales.value}`;
+
   try {
-    const resType = await axios.get(urlType, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    typeRecap.value = resType.data.data;
+    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    typeRecap.value = res.data.data || [];
   } catch (error) {
     console.error("Fetch Recap Type Error:", error);
   } finally {
     loadingTypeRecap.value = false;
   }
+};
 
-  // Monthly Recap
-  loadingMonthly.value = true;
-  let urlMonthly = `${apiBaseUrl}/api/recap-nominal-monthly`;
-  if (selectedSales.value) urlMonthly += `?user_id=${selectedSales.value}`;
+/* ===========================
+   Fetch Type Customer
+=========================== */
+const fetchTypeCustomerRecap = async () => {
+  loadingTypeCustomer.value = true;
+
   try {
-    const resMonthly = await axios.get(urlMonthly, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    let url = selectedSales.value
+      ? `${apiBaseUrl}/api/typecustomers/${selectedSales.value}`
+      : `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
 
-    const raw = resMonthly.data.data || [];
+    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+
+    // Handle API dengan tipe berbeda
+    typeCustomerRecap.value = (res.data.data || []).map((i, idx) => ({
+      no: idx + 1,
+      type_customer: i.type_customer || { name: i.type_customer_name || "-" },
+      total: Number(i.total) || 0,
+    }));
+
+  } catch (error) {
+    console.error("Fetch Type Customer Recap Error:", error);
+  } finally {
+    loadingTypeCustomer.value = false;
+  }
+};
+
+/* ===========================
+   Fetch Monthly Recap + Chart
+=========================== */
+const fetchMonthlyRecapAndChart = async () => {
+  loadingMonthly.value = true;
+  let url = `${apiBaseUrl}/api/recap-nominal-monthly`;
+  if (selectedSales.value) url += `?user_id=${selectedSales.value}`;
+
+  try {
+    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    const raw = res.data.data || [];
+
     monthlyRecap.value = raw.map((item, idx) => ({
       no: idx + 1,
       month: item.month,
@@ -189,6 +244,17 @@ const fetchRecapData = async () => {
   } finally {
     loadingMonthly.value = false;
   }
+};
+
+/* ===========================
+   Fetch All Recap Data
+=========================== */
+const fetchRecapData = async () => {
+  await Promise.all([
+    fetchTypeRecap(),
+    fetchTypeCustomerRecap(),
+    fetchMonthlyRecapAndChart(),
+  ]);
 };
 
 /* ===========================
