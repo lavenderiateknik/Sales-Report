@@ -1,5 +1,5 @@
 <template>
-  <div class="px-3 ">
+  <div class="px-3 py-3 ">
     <div class="px-4 grid grid-cols-1 gap-4  bg-white rounded-3xl shadow-md">
       <!-- Title -->
       <h1 class="text-lg font-bold text-left text-orange-600 px-4 pt-5">

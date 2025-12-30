@@ -3,8 +3,7 @@
  
     <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
       <span>Report</span>
-      <strong class="ml-2">{{ role_name }}</strong>
-      
+      <strong class="ml-2 uppercase">{{ role_name }}</strong> 
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2">
@@ -73,7 +72,6 @@ function formatCurrency(value, options = { symbol: 'Rp ', separator: '.', decima
    State
 =========================== */
 const typecustomers = ref([]);
-const monthreports = ref([]);
 const customerreports = ref([]);
 const monthRecap = ref([]);
 const typeRecap = ref([]);
@@ -135,7 +133,7 @@ const fetchTypeReports = async () => {
 const fetchCustomerRecap = async () => {
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/api/recap-reports-customer`, {
+    const res = await axios.get(`${apiBaseUrl}/api/recap-reports-customer-spv`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     customerreports.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
@@ -147,7 +145,7 @@ const fetchCustomerRecap = async () => {
 const fetchMonthRecap = async () => {
   loading.value = true;
   try {
-    const res = await axios.get(`${apiBaseUrl}/api/recap-nominal-monthly`, {
+    const res = await axios.get(`${apiBaseUrl}/api/recap-nominal-monthly-spv`, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -177,7 +175,7 @@ const fetchMonthRecap = async () => {
 };
 
 const fetchTypeRecap = async () => {
-  const res = await axios.get(`${apiBaseUrl}/api/recap-reports-type`, {
+  const res = await axios.get(`${apiBaseUrl}/api/recap-reports-type-spv`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 

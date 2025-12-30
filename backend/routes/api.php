@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'user']);
     Route::post('/createuser',[UserController::class, 'store']);
     Route::get('/allusers', [UserController::class, 'index']);
+    Route::get('/usersbranch/{id}', [UserController::class, 'userPerBranch']);
     Route::get('/user/{id}', [UserController::class, 'edit']);
     Route::put('/updateuser/{id}',[UserController::class,'update']);
     Route::get('/sales-by-branch',[UserController::class,'getSalesByBranch']);
@@ -62,9 +63,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/recap-reports-branch/{branch}', [SalesReportController::class, 'recapByMonthBranch']);
     Route::get('/recap-reports/{id}', [SalesReportController::class, 'recapByMonthUser']);
     Route::get('/recap-reports-customer', [SalesReportController::class, 'recapByCustomer']);
+    Route::get('/recap-reports-customer-spv', [SalesReportController::class, 'recapByCustomerSpv']);
     Route::get('/recap-reports-date', [SalesReportController::class, 'recapByDate']);
     Route::get('/recap-nominal-monthly', [SalesReportController::class, 'recapNominalMontly']);
+    Route::get('/recap-nominal-monthly-spv', [SalesReportController::class, 'recapNominalMontlySpv']);
+    
     Route::get('/recap-reports-type', [SalesReportController::class, 'recapByType']);
+    Route::get('/recap-reports-type-spv', [SalesReportController::class, 'recapByTypeSpv']);
     Route::get('/recap-report-by-customer', [SalesReportController::class, 'recapByCustomerName']);
 
     Route::get('/allroles', [RoleController::class, 'index']);

@@ -20,6 +20,16 @@ class UserController extends Controller
         ]);
     }
 
+    public function userPerBranch($branch)
+    {
+        $users = User::where('branch_id', $branch)->get();
+        return response()->json([
+            "success" => true,
+            "message" => "Data Found",
+            "data" => $users
+        ],200);
+    }
+
     public function user(Request $request)
     {
         $user = $request->user()->load(['role', 'branch']);

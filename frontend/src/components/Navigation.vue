@@ -109,12 +109,15 @@
                 </div>
 
                 <div v-show="isTeamOpen" class="ml-6 flex flex-col gap-1">
-                  <RouterLink to="#" class="link flex gap-1" @click="closeMobileMenu">
+                  <RouterLink to="/group-report/recap" 
+                  class="link flex gap-1" 
+                  exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+                  @click="closeMobileMenu">
                     <ListChecksIcon/>
-                    Recap Type
+                    Recapitulation
                   </RouterLink>
 
-                  <RouterLink to="#" class="link flex gap-1" @click="closeMobileMenu">
+                  <RouterLink to="#" class="link flex gap-1"  @click="closeMobileMenu">
                     <Medal/> Achievement
                   </RouterLink>
 
@@ -302,6 +305,7 @@ const logout = async () => {
     localStorage.removeItem("branch");
     localStorage.removeItem("role");
     localStorage.removeItem("name");
+    localStorage.removeItem("role_name");
     router.push({ name: "Login" });
   } catch (error) {
     console.error("Logout gagal:", error);
