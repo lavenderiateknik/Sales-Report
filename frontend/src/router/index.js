@@ -18,6 +18,8 @@ import Checkout from '@/components/Checkout.vue'
 import RecapREGCustomer from '@/components/RecapREGCustomer.vue'
 import RecapBCICustomer from '@/components/RecapBCICustomer.vue'
 import Assignment from '@/components/Assignment.vue'
+import RecapSpv from '@/components/RecapSpv.vue'
+import Achievement from '@/components/Achievement.vue'
 
 
 
@@ -122,6 +124,18 @@ const router = createRouter({
       name: "Assignment",
       component: Assignment,
     },
+    {
+      path: "/personal-report/recaptype",
+      name: "personal-report recap type",
+      component: RecapSpv,
+    },
+    {
+      path: "/personal-report/achivement",
+      name: "personal-report achivement",
+      component: Achievement,
+    },
+    
+    
   ],
 })
 

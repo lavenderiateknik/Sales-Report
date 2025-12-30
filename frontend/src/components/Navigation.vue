@@ -32,151 +32,180 @@
     <transition name="fade" class="shadow-md/60 shadow-slate-50">
       <nav v-show="isOpen || isDesktop"
         class="flex flex-col gap-2 bg-[#F4F6FF] mx-2 rounded-lg mb-3 py-3 border-2 border-[#EB8317]">
-        
+
         <div class="text-[#10375C] ">
-          <span class="text-sm px-2 font-semibold">DASHBOARD</span>
-          <RouterLink 
-            to="/" 
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
-            <Home />Dashboard
-          </RouterLink>
 
-          <!-- Hanya tampil jika role_id ≠ 8 -->
-          <RouterLink 
-            
-            to="/customer"  
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
-            <NotebookTabs /> Customer History
-          </RouterLink>
-          <RouterLink 
-            v-if="userRoleId !== 8"
-            to="/recapreport"  
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
-            <BookOpenText /> Daily Visit
-          </RouterLink>
+          <div class="text-[#10375C] ">
+            <span class="text-sm px-2 font-semibold">DASHBOARD</span>
 
-          <RouterLink 
-            v-if="userRoleId !== 8"
-            to="/spvdashboard" 
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
-            <ScrollText /> SPV Rekap
-          </RouterLink>
-          <RouterLink 
-            v-if="userRoleId !== 8"
-            to="/assignment" 
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
-            <Handshake /> Assignment
-          </RouterLink>
+            <!-- Dashboard basic -->
+            <RouterLink to="/" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <Home />Dashboard
+            </RouterLink>
+
+            <RouterLink to="/customer" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <NotebookTabs /> Customer History
+            </RouterLink>
+
+            <RouterLink v-if="userRoleId !== 8" to="/recapreport"
+              class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <BookOpenText /> Daily Visit
+            </RouterLink>
+
+            <RouterLink v-if="userRoleId !== 8" to="/assignment"
+              class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <Handshake /> Assignment
+            </RouterLink>
+
+            <!-- SPV Dashboard Parent -->
+            <div v-if="userRoleId !== 8"
+              class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
+              @click="isSpvOpen = !isSpvOpen">
+              <div class="flex items-center gap-">
+                <ScrollText />
+                <span>SPV Dashboard</span>
+              </div>
+              <ChevronDown v-if="isSpvOpen" class="w-4 h-4" />
+              <ChevronRight v-else class="w-4 h-4" />
+            </div>
+
+            <transition name="fade">
+              <div v-show="isSpvOpen" class="ml-8 flex flex-col gap-2">
+
+                <!-- PERSONAL REPORT -->
+                <div class="flex items-center justify-between cursor-pointer pl-1 gap-1 hover:font-semibold"
+                  @click="isPersonalOpen = !isPersonalOpen">
+                  <span class="flex gap-2" >
+                    <BookUser/>
+                    Personal Report
+                  </span>
+                  <ChevronDown v-if="isPersonalOpen" class="w-4 h-4" />
+                  <ChevronRight v-else class="w-4 h-4" />
+                </div>
+
+                <div v-show="isPersonalOpen" class="ml-6 flex flex-col gap-1">
+                  <RouterLink to="/personal-report/recaptype"
+                    class="link flex gap-2"
+                    exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+                    @click="closeMobileMenu">
+                     <ListChecksIcon/>Recapitulation
+                  </RouterLink>
+                 
+                </div>
+
+                <!-- TEAM REPORT -->
+                <div class="flex items-center justify-between cursor-pointer pl-1 gap-1 hover:font-semibold"
+                  @click="isTeamOpen = !isTeamOpen">
+                  <span class="flex gap-2">
+                    <Users2/>
+                    Grup Report
+                  </span>
+                  <ChevronDown v-if="isTeamOpen" class="w-4 h-4" />
+                  <ChevronRight v-else class="w-4 h-4" />
+                </div>
+
+                <div v-show="isTeamOpen" class="ml-6 flex flex-col gap-1">
+                  <RouterLink to="#" class="link flex gap-1" @click="closeMobileMenu">
+                    <ListChecksIcon/>
+                    Recap Type
+                  </RouterLink>
+
+                  <RouterLink to="#" class="link flex gap-1" @click="closeMobileMenu">
+                    <Medal/> Achievement
+                  </RouterLink>
+
+                  <!-- Report Data nested -->
+                  <div class="flex items-center justify-between cursor-pointer pl-0 gap-1 hover:font-semibold"
+                    @click="isReportDataOpen = !isReportDataOpen">
+                    <span class="flex gap-2">
+                      <ClipboardListIcon/>Report Data
+                    </span>
+                    <ChevronDown v-if="isReportDataOpen" class="w-4 h-4" />
+                    <ChevronRight v-else class="w-4 h-4" />
+                  </div>
+
+                  <div v-show="isReportDataOpen" class="ml-6 flex flex-col gap-1">
+                    <RouterLink to="#" class="link" @click="closeMobileMenu">
+                      BCI
+                    </RouterLink>
+                    <RouterLink to="#" class="link" @click="closeMobileMenu">
+                      REGULER
+                    </RouterLink>
+                  </div>
+
+                </div>
+
+              </div>
+            </transition>
+
+          </div>
+
           <!-- RECAP TYPE CUSTOMER (PARENT - TANPA LINK) -->
-          <div
-            class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
-            @click="isRecapOpen = !isRecapOpen"
-          >
+          <!-- <div class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
+            @click="isRecapOpen = !isRecapOpen">
             <div class="flex items-center gap-1">
               <ClipboardList />
               <span>Recap Type Customer</span>
             </div>
 
-            <ChevronDown
-              v-if="isRecapOpen"
-              class="w-4 h-4 transition-transform"
-            />
-            <ChevronRight
-              v-else
-              class="w-4 h-4 transition-transform"
-            />
-          </div>
+            <ChevronDown v-if="isRecapOpen" class="w-4 h-4 transition-transform" />
+            <ChevronRight v-else class="w-4 h-4 transition-transform" />
+          </div> -->
+          <!-- CHILD MENU -->
+          <!-- <transition name="fade">
+            <div v-show="isRecapOpen" class="ml-8 flex flex-col gap-1">
 
-<!-- CHILD MENU -->
-<transition name="fade">
-  <div v-show="isRecapOpen" class="ml-8 flex flex-col gap-1">
-    
-    <RouterLink
-        to="/recap-customer/bci"
-        class="text-sm pl-3 py-1 rounded
-              flex items-center gap-2
-              whitespace-nowrap
-              hover:bg-blue-200 hover:bg-opacity-10"
-        exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-        @click="closeMobileMenu"
-      >
-        <ChartBarIncreasing class="w-4 h-4" />
-        <span>BCI Customer</span>
-      </RouterLink>
+              <RouterLink to="/recap-customer/bci" class="text-sm pl-3 py-1 rounded
+                        flex items-center gap-2
+                        whitespace-nowrap
+                        hover:bg-blue-200 hover:bg-opacity-10"
+                exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                <ChartBarIncreasing class="w-4 h-4" />
+                <span>BCI Customer</span>
+              </RouterLink>
 
-   <RouterLink
-      to="/recap-customer/reg"
-      class="text-sm pl-3 py-1 rounded
-            flex items-center gap-2
-            whitespace-nowrap
-            hover:bg-blue-200 hover:bg-opacity-10"
-      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-      @click="closeMobileMenu"
-    >
-      <ChartBarDecreasing class="w-4 h-4" />
-      <span>REG Customer</span>
-    </RouterLink>
+              <RouterLink to="/recap-customer/reg" class="text-sm pl-3 py-1 rounded
+                      flex items-center gap-2
+                      whitespace-nowrap
+                      hover:bg-blue-200 hover:bg-opacity-10"
+                exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                <ChartBarDecreasing class="w-4 h-4" />
+                <span>REG Customer</span>
+              </RouterLink>
 
-  </div>
-</transition>
+            </div>
+          </transition> -->
 
 
         </div>
 
         <div class="text-[#10375C] ">
           <span class="text-sm px-2 font-semibold">MENU</span>
-          <RouterLink 
-            to="/optionreport" 
-            class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
+          <RouterLink to="/optionreport" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <LandPlot /> Report Sales
           </RouterLink>
-          <RouterLink 
-          v-if="![4,5,6,7,8].includes(userRoleId)"
-            to="/adduser" 
+          <RouterLink v-if="![4, 5, 6, 7, 8].includes(userRoleId)" to="/adduser"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <UserRoundPlus /> Add User
           </RouterLink>
-          <RouterLink 
-          v-if="![4,5,6,7,8].includes(userRoleId)"
-            to="/branches" 
+          <RouterLink v-if="![4, 5, 6, 7, 8].includes(userRoleId)" to="/branches"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <GitBranch /> Branches
           </RouterLink>
-          <RouterLink 
-          v-if="![4,5,6,7,8].includes(userRoleId)"
-            to="/customerdata" 
+          <RouterLink v-if="![4, 5, 6, 7, 8].includes(userRoleId)" to="/customerdata"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-            @click="closeMobileMenu"
-          >
+            exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <Database /> Customer Database
           </RouterLink>
         </div>
-        
+
         <!-- Logout -->
         <div class="text-[#10375C] cursor-pointer" @click="handleLogout">
           <span class="text-sm px-2 font-semibold flex flex-row gap-1">
@@ -204,12 +233,15 @@ import {
   GitBranch,
   Database,
   BookOpenText,
-  ChevronDown, 
+  ChevronDown,
   ChevronRight,
-  ClipboardList,
-  ChartBarDecreasing,
-  ChartBarIncreasing,
-  Handshake
+  Handshake,
+  BookUser,
+  ListChecksIcon,
+  Medal,
+  Users2,
+
+  ClipboardListIcon
 } from "lucide-vue-next";
 import axios from 'axios';
 
@@ -221,6 +253,10 @@ const userRoleName = ref('');   // simpan nama role
 const userBranch = ref('');
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const isRecapOpen = ref(false);
+const isSpvOpen = ref(false);
+const isPersonalOpen = ref(false);
+const isTeamOpen = ref(false);
+const isReportDataOpen = ref(false);
 
 
 const fetchUserData = async () => {
