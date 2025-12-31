@@ -43,17 +43,20 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Home />Dashboard
             </RouterLink>
-
-            <RouterLink to="/customer" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
-              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
-              <NotebookTabs /> Customer History
-            </RouterLink>
-
-            <RouterLink v-if="userRoleId !== 8" to="/recapreport"
+            <RouterLink to="/recapreport"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <BookOpenText /> Daily Visit
             </RouterLink>
+            
+            <RouterLink 
+              to="/customer" 
+              v-if="userRoleId == 4|userRoleId == 3|userRoleId == 1|userRoleId == 1" 
+              class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <NotebookTabs /> Customer History
+            </RouterLink>
+
 
             <RouterLink v-if="userRoleId !== 8" to="/assignment"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
@@ -62,7 +65,7 @@
             </RouterLink>
 
             <!-- SPV Dashboard Parent -->
-            <div v-if="userRoleId !== 8"
+            <div v-if="userRoleId == 7|userRoleId == 6|userRoleId == 5|userRoleId == 3|userRoleId == 1|userRoleId == 1"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isSpvOpen = !isSpvOpen">
               <div class="flex items-center gap-">
@@ -117,10 +120,6 @@
                     Recapitulation
                   </RouterLink>
 
-                  <RouterLink to="#" class="link flex gap-1"  @click="closeMobileMenu">
-                    <Medal/> Achievement
-                  </RouterLink>
-
                   <!-- Report Data nested -->
                   <div class="flex items-center justify-between cursor-pointer pl-0 gap-1 hover:font-semibold"
                     @click="isReportDataOpen = !isReportDataOpen">
@@ -132,10 +131,15 @@
                   </div>
 
                   <div v-show="isReportDataOpen" class="ml-6 flex flex-col gap-1">
-                    <RouterLink to="#" class="link" @click="closeMobileMenu">
+                    <RouterLink to="/recap-customer/bci" 
+                      class="link" 
+                      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
+                      @click="closeMobileMenu">
                       BCI
                     </RouterLink>
-                    <RouterLink to="#" class="link" @click="closeMobileMenu">
+                    <RouterLink to="/recap-customer/reg"
+                      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" 
+                      class="link" @click="closeMobileMenu">
                       REGULER
                     </RouterLink>
                   </div>
@@ -303,6 +307,7 @@ const logout = async () => {
     localStorage.removeItem("id");
     localStorage.removeItem("email");
     localStorage.removeItem("branch");
+    localStorage.removeItem("branch_name");
     localStorage.removeItem("role");
     localStorage.removeItem("name");
     localStorage.removeItem("role_name");

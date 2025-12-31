@@ -28,16 +28,13 @@
       />
     </div>
 
-    <div class="grid grid-cols-1">
+    <div class="grid grid-cols-1 md:grid-cols-2">
       <Chart
         v-if="monthRecapChart.labels.length"
         :chart-data="monthRecapChart"
         title1="Recap"
         title2="Nominal Monthly"
       />
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2">
       <Tabel
         :rows-data="typecustomers"
         :cols="colsDataTypeCustomer"
