@@ -1,18 +1,16 @@
 <template>
   <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
 
-    <!-- Header -->
     <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
       <span>Report</span>
       <strong class="ml-2 uppercase">{{ role_name }}</strong>
     </div>
 
-    <!-- Filter Sales -->
     <div class="flex flex-row items-center gap-3 px-4 pb-4">
       <label class="text-sm font-medium text-slate-600">Nama Sales</label>
       <select
         v-model="selectedSales"
-        @change="fetchRecapData"
+        @change="handleFilterChange"
         class="border rounded-lg px-3 py-1 text-sm bg-white shadow-sm"
       >
         <option value="">Semua Sales</option>
@@ -22,62 +20,47 @@
       </select>
     </div>
 
-    <!-- Recap Type Report + Recap Type Customer -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-      <!-- LEFT: Type Report -->
       <Tabel
         :rows-data="typeRecap"
         :cols="colsDataTypeRecap"
-        title1="Recap"
-        title2="Type Report"
-        :pageable="false"
-        :per-page="10"
-        :loading="loadingTypeRecap"
+        title1="Recap" title2="Type Report"
+        :pageable="false" :per-page="10" :loading="loadingTypeRecap"
       />
 
-      <!-- RIGHT: Type Customer -->
       <Tabel
         :rows-data="typeCustomerRecap"
         :cols="colsDataTypeCustomer"
-        title1="Recap"
-        title2="Type Customer"
-        :pageable="false"
-        :per-page="10"
-        :loading="loadingTypeCustomer"
+        title1="Recap" title2="Type Customer"
+        :pageable="false" :per-page="10" :loading="loadingTypeCustomer"
       />
-
     </div>
 
-    <!-- Nominal Monthly + Chart -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-
-      <!-- Nominal Monthly -->
       <Tabel
         :rows-data="monthlyRecap"
         :cols="colsDataMonthlyRecap"
-        title1="Recap"
-        title2="Nominal Monthly"
-        :pageable="false"
-        :per-page="10"
-        :loading="loadingMonthly"
+        title1="Recap" title2="Nominal Monthly"
+        :pageable="false" :per-page="10" :loading="loadingMonthly"
       />
 
-      <!-- Chart Nominal Monthly -->
-      <div v-if="monthRecapChart.labels.length" class="mt-0">
+      <div class="mt-0">
         <Chart
+          v-if="!loadingMonthly && monthRecapChart.labels.length"
+          :key="chartKey" 
           :chart-data="monthRecapChart"
           title1="Recap"
           title2="Nominal Monthly"
         />
+        <div v-else-if="loadingMonthly" class="h-[400px] flex items-center justify-center bg-white rounded-3xl shadow-md">
+           <p class="text-slate-400">Memproses data...</p>
+        </div>
       </div>
-
     </div>
 
     <div class="p-4 text-xs italic text-gray-400">
       Statistik lain belum dihubungkan API — ⭐ next step
     </div>
-
   </div>
 </template>
 
@@ -88,51 +71,23 @@ import Tabel from "@/components/Tabel.vue";
 import Chart from "@/components/Chart.vue";
 import currency from "currency.js";
 
-/* ===========================
-   Helpers
-=========================== */
-function formatCurrency(value, options = { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }) {
-  if (!value) return '-';
-  return currency(Number(value), options).format();
-}
-
-/* ===========================
-   Auth & Config
-=========================== */
 const token = localStorage.getItem("api_token");
 const role_name = localStorage.getItem("role_name");
 const branch = localStorage.getItem("branch");
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
-/* ===========================
-   State
-=========================== */
 const loadingTypeRecap = ref(false);
 const loadingMonthly = ref(false);
 const loadingTypeCustomer = ref(false);
-
 const salesList = ref([]);
 const selectedSales = ref("");
+const chartKey = ref(0); // Key tambahan untuk force re-render
 
 const typeRecap = ref([]);
 const monthlyRecap = ref([]);
 const typeCustomerRecap = ref([]);
-const monthRecapChart = ref({
-  labels: [],
-  datasets: [
-    {
-      label: 'Nominal Purchase',
-      data: [],
-      backgroundColor: '#F59E0B',
-      borderRadius: 10,
-      barThickness: 40,
-    }
-  ]
-});
+const monthRecapChart = ref({ labels: [], datasets: [] });
 
-/* ===========================
-   Columns
-=========================== */
 const colsDataTypeRecap = [
   { field: "report_type", title: "Report Type" },
   { field: "total", title: "Total", align: "center" },
@@ -150,116 +105,88 @@ const colsDataMonthlyRecap = [
   { field: "nominal", title: "Purchase Total", align: "right" },
 ];
 
-/* ===========================
-   Fetch Sales
-=========================== */
+function formatCurrency(value) {
+  if (!value || value == 0) return '-';
+  return currency(Number(value), { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }).format();
+}
+
 const fetchSales = async () => {
   try {
     const res = await axios.get(`${apiBaseUrl}/api/usersbranch/${branch}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     salesList.value = res.data.data;
-  } catch (error) {
-    console.error("Fetch Sales Error:", error);
-  }
+  } catch (error) { console.error("Sales Error:", error); }
 };
 
-/* ===========================
-   Fetch Type Report
-=========================== */
-const fetchTypeRecap = async () => {
+const handleFilterChange = async () => {
+  // Reset key setiap kali ganti filter untuk "menghancurkan" chart lama segera
+  chartKey.value++; 
+  await fetchRecapData();
+};
+
+const fetchRecapData = async () => {
   loadingTypeRecap.value = true;
-  let url = `${apiBaseUrl}/api/recap-reports-type`;
-  if (selectedSales.value) url += `?user_id=${selectedSales.value}`;
-
-  try {
-    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-    typeRecap.value = res.data.data || [];
-  } catch (error) {
-    console.error("Fetch Recap Type Error:", error);
-  } finally {
-    loadingTypeRecap.value = false;
-  }
-};
-
-/* ===========================
-   Fetch Type Customer
-=========================== */
-const fetchTypeCustomerRecap = async () => {
   loadingTypeCustomer.value = true;
+  loadingMonthly.value = true;
 
   try {
-    let url = selectedSales.value
-      ? `${apiBaseUrl}/api/typecustomers/${selectedSales.value}`
-      : `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
+    // Jalankan semua API
+    const [resType, resCust, resMonthly] = await Promise.all([
+      axios.get(`${apiBaseUrl}/api/recap-reports-type${selectedSales.value ? '?user_id='+selectedSales.value : ''}`, { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get(selectedSales.value ? `${apiBaseUrl}/api/typecustomers/${selectedSales.value}` : `${apiBaseUrl}/api/typecustomersbybranch/${branch}`, { headers: { Authorization: `Bearer ${token}` } }),
+      axios.get(`${apiBaseUrl}/api/recap-nominal-monthly-detail${selectedSales.value ? '?user_id='+selectedSales.value : ''}`, { headers: { Authorization: `Bearer ${token}` } })
+    ]);
 
-    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+    // 1. Process Type Recap
+    typeRecap.value = resType.data.data || [];
 
-    // Handle API dengan tipe berbeda
-    typeCustomerRecap.value = (res.data.data || []).map((i, idx) => ({
+    // 2. Process Customer Recap
+    typeCustomerRecap.value = (resCust.data.data || []).map((i, idx) => ({
       no: idx + 1,
       type_customer: i.type_customer || { name: i.type_customer_name || "-" },
       total: Number(i.total) || 0,
     }));
 
-  } catch (error) {
-    console.error("Fetch Type Customer Recap Error:", error);
-  } finally {
+    // 3. Process Monthly & Chart
+    const rawData = resMonthly.data.data || [];
+    const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6', '#06B6D4', '#F472B6'];
+    
+    let datasets = [];
+    if (selectedSales.value) {
+      const salesName = salesList.value.find(s => s.id == selectedSales.value)?.name || "";
+      datasets = [{
+        label: salesName,
+        data: rawData.map(m => (m.sales.find(x => x.name === salesName)?.total || 0)),
+        backgroundColor: colors[0], borderRadius: 8, barThickness: 50
+      }];
+    } else {
+      const salesSet = new Set();
+      rawData.forEach(m => m.sales.forEach(s => { if (s.total > 0) salesSet.add(s.name) }));
+      datasets = Array.from(salesSet).map((name, idx) => ({
+        label: name,
+        data: rawData.map(m => (m.sales.find(x => x.name === name)?.total || 0)),
+        backgroundColor: colors[idx % colors.length], borderRadius: 5, barThickness: 30
+      }));
+    }
+
+    monthRecapChart.value = { labels: rawData.map(m => m.month), datasets };
+
+    monthlyRecap.value = rawData.map((item, idx) => {
+      const total = selectedSales.value 
+        ? (item.sales.find(x => x.name === salesList.value.find(s => s.id == selectedSales.value)?.name)?.total || 0)
+        : item.sales.reduce((sum, s) => sum + Number(s.total), 0);
+      return { no: idx + 1, month: item.month, nominal: formatCurrency(total) };
+    });
+
+  } catch (e) { console.error("Recap Error:", e); }
+  finally {
+    loadingTypeRecap.value = false;
     loadingTypeCustomer.value = false;
-  }
-};
-
-/* ===========================
-   Fetch Monthly Recap + Chart
-=========================== */
-const fetchMonthlyRecapAndChart = async () => {
-  loadingMonthly.value = true;
-  let url = `${apiBaseUrl}/api/recap-nominal-monthly`;
-  if (selectedSales.value) url += `?user_id=${selectedSales.value}`;
-
-  try {
-    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-    const raw = res.data.data || [];
-
-    monthlyRecap.value = raw.map((item, idx) => ({
-      no: idx + 1,
-      month: item.month,
-      nominal: formatCurrency(item.total),
-    }));
-
-    monthRecapChart.value = {
-      labels: raw.map(i => i.month),
-      datasets: [
-        {
-          label: 'Nominal Purchase',
-          data: raw.map(i => Number(i.total) || 0),
-          backgroundColor: '#F59E0B',
-          borderRadius: 10,
-          barThickness: 40,
-        }
-      ]
-    };
-  } catch (error) {
-    console.error("Fetch Monthly Recap Error:", error);
-  } finally {
     loadingMonthly.value = false;
   }
 };
 
-/* ===========================
-   Fetch All Recap Data
-=========================== */
-const fetchRecapData = async () => {
-  await Promise.all([
-    fetchTypeRecap(),
-    fetchTypeCustomerRecap(),
-    fetchMonthlyRecapAndChart(),
-  ]);
-};
-
-/* ===========================
-   Mounted
-=========================== */
 onMounted(async () => {
   await fetchSales();
   await fetchRecapData();

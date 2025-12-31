@@ -277,6 +277,43 @@ class SalesReportController extends Controller
     }
 
     public function recapNominalMontly()
+    {
+        $user = auth()->user();
+
+        // Query dasar
+        $baseQuery = DB::table('sales_reports')
+            ->join('users', 'sales_reports.user_id', '=', 'users.id');
+
+        // Filter default berdasarkan role
+        if ($user->role_id == 8) {
+            $baseQuery->where('sales_reports.user_id', $user->id);
+        } elseif (in_array($user->role_id, [7, 6, 5])) {
+            $baseQuery->where('users.branch_id', $user->branch_id);
+        }
+
+        // Jika memilih 1 user di dropdown → override filter
+        if (request()->has('user_id') && request('user_id') != '') {
+            $baseQuery->where('sales_reports.user_id', request('user_id'));
+        }
+
+        // Rekap per bulan
+        $reports = (clone $baseQuery)
+            ->selectRaw("MONTHNAME(sales_reports.date) as month, SUM(sales_reports.nominal_purchase_order) as total")
+            ->groupByRaw("MONTH(sales_reports.date), MONTHNAME(sales_reports.date)")
+            ->orderByRaw("MONTH(sales_reports.date)")
+            ->get();
+
+        // Grand total
+        $grandTotal = (clone $baseQuery)
+            ->sum('sales_reports.nominal_purchase_order');
+
+        return response()->json([
+            'data' => $reports,
+            'grand_total' => $grandTotal,
+        ]);
+    }
+
+    public function recapNominalMontlyDetail()
 {
     $user = auth()->user();
 
@@ -296,22 +333,45 @@ class SalesReportController extends Controller
         $baseQuery->where('sales_reports.user_id', request('user_id'));
     }
 
-    // Rekap per bulan
-    $reports = (clone $baseQuery)
-        ->selectRaw("MONTHNAME(sales_reports.date) as month, SUM(sales_reports.nominal_purchase_order) as total")
-        ->groupByRaw("MONTH(sales_reports.date), MONTHNAME(sales_reports.date)")
-        ->orderByRaw("MONTH(sales_reports.date)")
-        ->get();
+    // Ambil semua sales yang termasuk di filter
+    $salesList = $baseQuery->select('users.id', 'users.name')->distinct()->get();
+
+    // Ambil data per bulan per sales
+    $reports = [];
+
+    $months = DB::table('sales_reports')
+        ->selectRaw('MONTH(sales_reports.date) as month_number, MONTHNAME(sales_reports.date) as month_name')
+        ->groupByRaw('MONTH(sales_reports.date), MONTHNAME(sales_reports.date)')
+        ->orderByRaw('MONTH(sales_reports.date)')
+        ->pluck('month_name', 'month_number');
+
+    foreach ($months as $monthNumber => $monthName) {
+        $monthData = ['month' => $monthName, 'sales' => []];
+
+        foreach ($salesList as $sales) {
+            $total = (clone $baseQuery)
+                ->whereMonth('sales_reports.date', $monthNumber)
+                ->where('sales_reports.user_id', $sales->id)
+                ->sum('sales_reports.nominal_purchase_order');
+
+            $monthData['sales'][] = [
+                'name' => $sales->name,
+                'total' => $total
+            ];
+        }
+
+        $reports[] = $monthData;
+    }
 
     // Grand total
-    $grandTotal = (clone $baseQuery)
-        ->sum('sales_reports.nominal_purchase_order');
+    $grandTotal = (clone $baseQuery)->sum('sales_reports.nominal_purchase_order');
 
     return response()->json([
         'data' => $reports,
         'grand_total' => $grandTotal,
     ]);
 }
+
 
 
     public function recapNominalMontlySpv()
