@@ -21,6 +21,7 @@ import Assignment from '@/components/Assignment.vue'
 import RecapSpv from '@/components/RecapSpv.vue'
 import Achievement from '@/components/Achievement.vue'
 import RecapGroup from '@/components/RecapGroup.vue'
+import Revenue from '@/components/Revenue.vue'
 
 
 
@@ -139,6 +140,11 @@ const router = createRouter({
       path: "/group-report/recap",
       name: "group-report recap",
       component: RecapGroup,
+    },
+     {
+      path: "/revenue",
+      name: "revenue",
+      component: Revenue,
     },
     
     

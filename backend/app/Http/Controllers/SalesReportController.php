@@ -314,63 +314,130 @@ class SalesReportController extends Controller
     }
 
     public function recapNominalMontlyDetail()
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    // Query dasar
-    $baseQuery = DB::table('sales_reports')
-        ->join('users', 'sales_reports.user_id', '=', 'users.id');
+        // Query dasar
+        $baseQuery = DB::table('sales_reports')
+            ->join('users', 'sales_reports.user_id', '=', 'users.id');
 
-    // Filter default berdasarkan role
-    if ($user->role_id == 8) {
-        $baseQuery->where('sales_reports.user_id', $user->id);
-    } elseif (in_array($user->role_id, [7, 6, 5])) {
-        $baseQuery->where('users.branch_id', $user->branch_id);
-    }
-
-    // Jika memilih 1 user di dropdown → override filter
-    if (request()->has('user_id') && request('user_id') != '') {
-        $baseQuery->where('sales_reports.user_id', request('user_id'));
-    }
-
-    // Ambil semua sales yang termasuk di filter
-    $salesList = $baseQuery->select('users.id', 'users.name')->distinct()->get();
-
-    // Ambil data per bulan per sales
-    $reports = [];
-
-    $months = DB::table('sales_reports')
-        ->selectRaw('MONTH(sales_reports.date) as month_number, MONTHNAME(sales_reports.date) as month_name')
-        ->groupByRaw('MONTH(sales_reports.date), MONTHNAME(sales_reports.date)')
-        ->orderByRaw('MONTH(sales_reports.date)')
-        ->pluck('month_name', 'month_number');
-
-    foreach ($months as $monthNumber => $monthName) {
-        $monthData = ['month' => $monthName, 'sales' => []];
-
-        foreach ($salesList as $sales) {
-            $total = (clone $baseQuery)
-                ->whereMonth('sales_reports.date', $monthNumber)
-                ->where('sales_reports.user_id', $sales->id)
-                ->sum('sales_reports.nominal_purchase_order');
-
-            $monthData['sales'][] = [
-                'name' => $sales->name,
-                'total' => $total
-            ];
+        // Filter default berdasarkan role
+        if ($user->role_id == 8) {
+            $baseQuery->where('sales_reports.user_id', $user->id);
+        } elseif (in_array($user->role_id, [7, 6, 5])) {
+            $baseQuery->where('users.branch_id', $user->branch_id);
         }
 
-        $reports[] = $monthData;
+        // Jika memilih 1 user di dropdown → override filter
+        if (request()->has('user_id') && request('user_id') != '') {
+            $baseQuery->where('sales_reports.user_id', request('user_id'));
+        }
+
+        // Ambil semua sales yang termasuk di filter
+        $salesList = $baseQuery->select('users.id', 'users.name')->distinct()->get();
+
+        // Ambil data per bulan per sales
+        $reports = [];
+
+        $months = DB::table('sales_reports')
+            ->selectRaw('MONTH(sales_reports.date) as month_number, MONTHNAME(sales_reports.date) as month_name')
+            ->groupByRaw('MONTH(sales_reports.date), MONTHNAME(sales_reports.date)')
+            ->orderByRaw('MONTH(sales_reports.date)')
+            ->pluck('month_name', 'month_number');
+
+        foreach ($months as $monthNumber => $monthName) {
+            $monthData = ['month' => $monthName, 'sales' => []];
+
+            foreach ($salesList as $sales) {
+                $total = (clone $baseQuery)
+                    ->whereMonth('sales_reports.date', $monthNumber)
+                    ->where('sales_reports.user_id', $sales->id)
+                    ->sum('sales_reports.nominal_purchase_order');
+
+                $monthData['sales'][] = [
+                    'name' => $sales->name,
+                    'total' => $total
+                ];
+            }
+
+            $reports[] = $monthData;
+        }
+
+        // Grand total
+        $grandTotal = (clone $baseQuery)->sum('sales_reports.nominal_purchase_order');
+
+        return response()->json([
+            'data' => $reports,
+            'grand_total' => $grandTotal,
+        ]);
     }
 
-    // Grand total
-    $grandTotal = (clone $baseQuery)->sum('sales_reports.nominal_purchase_order');
+   public function recapNominalMonthlyBranches(Request $request)
+    {
+        $year = $request->query('year', date('Y'));
 
-    return response()->json([
-        'data' => $reports,
-        'grand_total' => $grandTotal,
-    ]);
-}
+        $data = DB::table('sales_reports')
+            ->join('users', 'sales_reports.user_id', '=', 'users.id')
+            ->join('branches', 'users.branch_id', '=', 'branches.id')
+            ->select(
+                DB::raw('branches.id as branch_id'),
+                DB::raw('branches.name as branch'),
+                DB::raw('MONTH(sales_reports.date) as month_num'),
+                DB::raw('MONTHNAME(sales_reports.date) as month'),
+                DB::raw('SUM(sales_reports.nominal_purchase_order) as total')
+            )
+            ->whereYear('sales_reports.date', $year)
+            ->groupBy(
+                'branches.id',
+                'branches.name',
+                DB::raw('MONTH(sales_reports.date)'),
+                DB::raw('MONTHNAME(sales_reports.date)')
+            )
+            ->orderBy('branches.id')
+            ->orderBy(DB::raw('MONTH(sales_reports.date)'))
+            ->get();
+
+        return response()->json($data);
+    }
+
+
+    public function recapNominalMonthlyBranch($branchId)
+    {
+        $year = request('year', date('Y'));
+
+        $reports = DB::table('sales_reports')
+            ->join('users', 'sales_reports.user_id', '=', 'users.id')
+            ->selectRaw("
+                MONTH(sales_reports.date) as month_num,
+                MONTHNAME(sales_reports.date) as month,
+                SUM(sales_reports.nominal_purchase_order) as total
+            ")
+            ->where('users.branch_id', $branchId)
+            ->whereYear('sales_reports.date', $year)
+            ->groupBy(
+                DB::raw('MONTH(sales_reports.date)'),
+                DB::raw('MONTHNAME(sales_reports.date)')
+            )
+            ->orderBy(DB::raw("MONTH(sales_reports.date)"))
+            ->get();
+
+        return response()->json($reports);
+    }
+
+    public function availableYears()
+    {
+        $years = DB::table('sales_reports')
+            ->select(DB::raw("DISTINCT(YEAR(date)) as year"))
+            ->orderBy('year', 'ASC')
+            ->pluck('year');
+
+        return response()->json([
+            "years" => $years
+        ]);
+    }
+
+
+
 
 
 

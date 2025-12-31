@@ -68,6 +68,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/recap-nominal-monthly', [SalesReportController::class, 'recapNominalMontly']);
     Route::get('/recap-nominal-monthly-detail', [SalesReportController::class, 'recapNominalMontlyDetail']);
     Route::get('/recap-nominal-monthly-spv', [SalesReportController::class, 'recapNominalMontlySpv']);
+    Route::get('/recap-nominal-monthly-branches', [SalesReportController::class, 'recapNominalMonthlyBranches']);
+    Route::get('/recap-nominal-monthly-branch/{id}', [SalesReportController::class, 'recapNominalMonthlyBranch']);
+    Route::get('/available-years', [SalesReportController::class, 'availableYears']);
     
     Route::get('/recap-reports-type', [SalesReportController::class, 'recapByType']);
     Route::get('/recap-reports-type-spv', [SalesReportController::class, 'recapByTypeSpv']);

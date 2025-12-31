@@ -38,7 +38,7 @@
           <div class="text-[#10375C] ">
             <span class="text-sm px-2 font-semibold">DASHBOARD</span>
 
-            <!-- Dashboard basic -->
+            <!-- Dashboard basic start -->
             <RouterLink to="/" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Home />Dashboard
@@ -48,7 +48,8 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <BookOpenText /> Daily Visit
             </RouterLink>
-            
+            <!-- Dashboard basic end -->
+            <!-- Dashboard Sales Manager Start -->
             <RouterLink 
               to="/customer" 
               v-if="userRoleId == 4|userRoleId == 3|userRoleId == 1|userRoleId == 1" 
@@ -56,7 +57,13 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <NotebookTabs /> Customer History
             </RouterLink>
-
+            <RouterLink 
+              to="revenue" 
+              v-if="userRoleId == 4|userRoleId == 3|userRoleId == 1|userRoleId == 1" 
+              class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <Medal /> Revenue
+            </RouterLink>
 
             <RouterLink v-if="userRoleId !== 8" to="/assignment"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
