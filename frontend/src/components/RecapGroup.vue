@@ -52,7 +52,7 @@
           title1="Recap"
           title2="Nominal Monthly"
         />
-        <div v-else-if="loadingMonthly" class="h-[400px] flex items-center justify-center bg-white rounded-3xl shadow-md">
+        <div v-else-if="loadingMonthly" class="h-100 flex items-center justify-center bg-white rounded-3xl shadow-md">
            <p class="text-slate-400">Memproses data...</p>
         </div>
       </div>

@@ -6,7 +6,7 @@
         <strong class="text-orange-900">{{ title2 }}</strong>
       </h1>
 
-      <div class="pb-4 h-[400px]"> <BarChart
+      <div class="pb-4 h-100"> <BarChart
           :chart-data="chartData"
           :options="options"
         />
