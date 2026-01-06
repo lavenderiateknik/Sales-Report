@@ -33,7 +33,8 @@ class SalesReport extends Model
         'coordinate_check_out',
         'picture',
         'type_report_id',
-        'user_id'
+        'user_id',
+        'is_new_customer'
     ];
 
     public function typeCustomer()

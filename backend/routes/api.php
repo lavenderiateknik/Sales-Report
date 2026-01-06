@@ -12,6 +12,8 @@ use App\Http\Controllers\TypeReportController;
 use App\Http\Controllers\TypeProjectController;
 use App\Http\Controllers\TypeCustomerController;
 use App\Http\Controllers\CustomerDatabaseController;
+use App\Http\Controllers\AttendanceSummaryController;
+use App\Http\Controllers\KpiController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -91,6 +93,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/import-customer-database', [CustomerDatabaseController::class, 'import']);
     Route::get('/customer-database/project/{project_id}', [CustomerDatabaseController::class, 'detailByProject']);
     Route::post('/customer/assign', [CustomerDatabaseController::class, 'assign']);
+
+    // KPI
+    Route::post('/attendance-summaries', [AttendanceSummaryController::class, 'store']);
+    Route::get('/kpi/user/{userId}', [KpiController::class, 'userMonthly']);
+    Route::get('/kpi/{user}/{month}/{year}', [KpiController::class, 'show']);
+    
+
 
 
     Route::post('/logout', [AuthController::class, 'logout']);

@@ -19,21 +19,25 @@ class SalesReportController extends Controller
     public function index()
     {
         $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user'])
-                        ->orderBy('date', 'desc')
-                        ->get()
-                        ->makeHidden(['picture']);
-                        
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $allTypeReport
-        ], 200);
+        ->select([
+            'id','date','user_id','type_customer_id','customer_name',
+            'is_new_customer','type_project','project_name',
+            'pic_name','pic_phone','pic_position',
+            'type_report_id','report_notes','equipment_needs',
+            'items_purchase_order','nominal_purchase_order',
+            'check_in','check_out','coordinate_check_in','coordinate_check_out',
+            'created_at'
+        ])
+        ->orderBy('date','desc')
+        ->get();
+
     }
 
     public function salesreports($id)
     {
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
         ->where('user_id', $id)
+        ->where('type_report_id', '1')
         ->orderBy('created_at', 'desc')
         ->get()
         ->makeHidden(['picture']);
@@ -491,38 +495,38 @@ class SalesReportController extends Controller
     }
 
     public function recapByType(Request $request)
-{
-    $user = auth()->user();
-    $selectedUserId = $request->user_id; // optional filter user
+    {
+        $user = auth()->user();
+        $selectedUserId = $request->user_id; // optional filter user
 
-    $query = DB::table('sales_reports')
-        ->join('users', 'sales_reports.user_id', '=', 'users.id')
-        ->join('type_reports', 'sales_reports.type_report_id', '=', 'type_reports.id')
-        ->selectRaw("type_reports.name as report_type, COUNT(sales_reports.id) as total");
+        $query = DB::table('sales_reports')
+            ->join('users', 'sales_reports.user_id', '=', 'users.id')
+            ->join('type_reports', 'sales_reports.type_report_id', '=', 'type_reports.id')
+            ->selectRaw("type_reports.name as report_type, COUNT(sales_reports.id) as total");
 
-    // Jika ada filter sales di frontend
-    if ($selectedUserId) {
-        $query->where('sales_reports.user_id', $selectedUserId);
+        // Jika ada filter sales di frontend
+        if ($selectedUserId) {
+            $query->where('sales_reports.user_id', $selectedUserId);
 
-    } else {
-        // Default hirarki existing
-        if ($user->role_id == 8) {
-            $query->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [7, 6, 5])) {
-            $query->where('users.branch_id', $user->branch_id);
+        } else {
+            // Default hirarki existing
+            if ($user->role_id == 8) {
+                $query->where('sales_reports.user_id', $user->id);
+            } elseif (in_array($user->role_id, [7, 6, 5])) {
+                $query->where('users.branch_id', $user->branch_id);
+            }
         }
+
+        $reports = $query
+            ->groupBy('type_reports.name')
+            ->orderBy('type_reports.name')
+            ->get();
+
+        return response()->json([
+            'data' => $reports,
+            'grand_total' => $reports->sum('total'),
+        ]);
     }
-
-    $reports = $query
-        ->groupBy('type_reports.name')
-        ->orderBy('type_reports.name')
-        ->get();
-
-    return response()->json([
-        'data' => $reports,
-        'grand_total' => $reports->sum('total'),
-    ]);
-}
 
 
     public function recapByCustomerName()
@@ -572,7 +576,7 @@ class SalesReportController extends Controller
                 'date' => 'required|date',
                 'type_customer_id' => 'required|exists:type_customers,id',
                 'customer_name' => 'required|string|max:255',
-                'type_project' => 'nullable',
+                'type_project' => 'nullable|string',
                 'check_in' => 'nullable|date_format:H:i',
                 'coordinate_check_in' => 'nullable|string',
                 'project_name' => 'required|string|max:255',
@@ -583,8 +587,9 @@ class SalesReportController extends Controller
                 'equipment_needs' => 'nullable|string',
                 'check_out' => 'nullable|date_format:H:i',
                 'coordinate_check_out' => 'nullable|string',
-                'nominal_purchase_order' => 'nullable',
-                'items_purchase_order' => 'nullable',
+                'nominal_purchase_order' => 'nullable|numeric',
+                'items_purchase_order' => 'nullable|string',
+                'is_new_customer' => 'nullable',
                 'picture' => 'nullable|image|max:5120',
             ]);
         } catch (ValidationException $e) {
@@ -594,17 +599,21 @@ class SalesReportController extends Controller
             ], 422);
         }
 
-        // ✅ Simpan ke database
+        // 🔐 paksa boolean supaya konsisten
+        $validated['is_new_customer'] = $request->boolean('is_new_customer');
+
         $report = new SalesReport($validated);
         $report->user_id = Auth::id();
 
         if ($request->hasFile('picture')) {
-            $report->picture = file_get_contents($request->file('picture')->getRealPath());
+            $report->picture = file_get_contents(
+                $request->file('picture')->getRealPath()
+            );
         }
 
         $report->save();
 
-    return response()->json([
+        return response()->json([
             'message' => 'Berhasil Tersimpan',
             'data' => [
                 'id' => $report->id,
@@ -612,6 +621,7 @@ class SalesReportController extends Controller
             ]
         ], 201);
     }
+
 
 
     /**
@@ -628,7 +638,12 @@ class SalesReportController extends Controller
     public function visited($id)
     {
         // 1. Ambil data dari database
-        $allvisited = SalesReport::where('user_id', $id)->get();
+        $allvisited = SalesReport::where('user_id', $id)
+        ->select([
+            'id','date','customer_name','project_name',
+            'type_report_id','is_new_customer'
+        ])
+        ->get();
 
         // 2. Bersihkan data dari karakter non-UTF8 yang rusak
         $cleanData = $allvisited->map(function ($item) {
@@ -673,6 +688,7 @@ class SalesReportController extends Controller
             'check_out' => 'required|date_format:H:i',
             'coordinate_check_out' => 'required|string',
             'picture' => 'nullable|image|max:5120',
+            'is_new_customer' => 'nullable|boolean'
         ]);
 
         $report->fill($validated);

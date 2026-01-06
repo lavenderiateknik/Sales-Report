@@ -97,6 +97,16 @@
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
         </div>
       </div>
+      <div class="flex items-center gap-2 mt-2">
+        <input
+          type="checkbox"
+          v-model="form.is_new_customer"
+          class="w-4 h-4"
+        />
+        <label class="text-sm font-medium">
+          Customer Baru
+        </label>
+      </div>
       <!-- PURCHASE ORDER (HANYA JIKA TYPE REPORT = 5) -->
       <div v-if="form.type_report_id === 5">
         <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -210,6 +220,7 @@ const form = ref({
   report_notes: "",
   nominal_purchase_order: "",
   items_purchase_order:"",
+  is_new_customer: false,
   picture: null,
 });
 

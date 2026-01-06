@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col w-full pt-4">
     <!-- Header -->
-    <div class="flex items-center justify-between p-3">
+    <div class="flex items-center justify-between p-3 ">
       <div class="p-2 rounded-2xl bg-[#F4F6FF] flex items-center gap-2 shadow-md shadow-[#EB8317]">
         <img src="../assets/img/flat version.png" class="w-12" alt="">
         <span class="text-base sm:text-lg md:text-xl lg:text-base text-slate-600">
-          System <strong>Report Sales</strong>
+          System <br /><strong>Report Sales</strong>
         </span>
       </div>
 
@@ -43,36 +43,71 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Home />Dashboard
             </RouterLink>
-            <RouterLink to="/recapreport"
-              class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+            <RouterLink to="/recapreport" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <BookOpenText /> Daily Visit
             </RouterLink>
             <!-- Dashboard basic end -->
             <!-- Dashboard Sales Manager Start -->
-            <RouterLink 
-              to="/customer" 
-              v-if="userRoleId == 4|userRoleId == 3|userRoleId == 1|userRoleId == 1" 
+            <RouterLink to="/customer" v-if="userRoleId == 4 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <NotebookTabs /> Customer History
             </RouterLink>
-            <RouterLink 
-              to="revenue" 
-              v-if="userRoleId == 4|userRoleId == 3|userRoleId == 1|userRoleId == 1" 
+            <RouterLink to="revenue" v-if="userRoleId == 4 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Medal /> Revenue
             </RouterLink>
 
-            <RouterLink v-if="userRoleId !== 8" to="/assignment"
+            <RouterLink v-if="userRoleId == 4 | userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
+              to="/assignmentprecentage" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <ChartPie /> Assignment Precentage
+            </RouterLink>
+
+
+
+            <!-- KPI Parent -->
+            <div v-if="[4, 5, 6, 7].includes(userRoleId)"
+              class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
+              @click="isKpiOpen = !isKpiOpen">
+              <div class="flex items-center gap-2">
+                <ScrollText />
+                <span>KPI</span>
+              </div>
+              <ChevronDown v-if="isKpiOpen" class="w-4 h-4" />
+              <ChevronRight v-else class="w-4 h-4" />
+            </div>
+
+            <!-- KPI Child -->
+            <transition name="fade">
+              <div v-show="isKpiOpen" class="ml-8 flex flex-col gap-2">
+                <RouterLink to="/kpi" class="link flex gap-2"
+                  exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                  <ListChecksIcon />
+                  Target KPI
+                </RouterLink>
+
+                <RouterLink to="/kpi/achievement" class="link flex gap-2"
+                  exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                  <FileChartColumnIncreasing />
+                  Achievement KPI
+                </RouterLink>
+              </div>
+            </transition>
+
+
+
+
+            <RouterLink v-if="userRoleId == 5 | userRoleId == 6 | userRoleId == 7" to="/assignment"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Handshake /> Assignment
             </RouterLink>
 
             <!-- SPV Dashboard Parent -->
-            <div v-if="userRoleId == 7|userRoleId == 6|userRoleId == 5|userRoleId == 3|userRoleId == 1|userRoleId == 1"
+            <div v-if="userRoleId == 7 | userRoleId == 6 | userRoleId == 5 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isSpvOpen = !isSpvOpen">
               <div class="flex items-center gap-">
@@ -82,15 +117,13 @@
               <ChevronDown v-if="isSpvOpen" class="w-4 h-4" />
               <ChevronRight v-else class="w-4 h-4" />
             </div>
-
             <transition name="fade">
               <div v-show="isSpvOpen" class="ml-8 flex flex-col gap-2">
-
                 <!-- PERSONAL REPORT -->
                 <div class="flex items-center justify-between cursor-pointer pl-1 gap-1 hover:font-semibold"
                   @click="isPersonalOpen = !isPersonalOpen">
-                  <span class="flex gap-2" >
-                    <BookUser/>
+                  <span class="flex gap-2">
+                    <BookUser />
                     Personal Report
                   </span>
                   <ChevronDown v-if="isPersonalOpen" class="w-4 h-4" />
@@ -98,105 +131,51 @@
                 </div>
 
                 <div v-show="isPersonalOpen" class="ml-6 flex flex-col gap-1">
-                  <RouterLink to="/personal-report/recaptype"
-                    class="link flex gap-2"
-                    exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-                    @click="closeMobileMenu">
-                     <ListChecksIcon/>Recapitulation
+                  <RouterLink to="/personal-report/recaptype" class="link flex gap-2"
+                    exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                    <ListChecksIcon />Recapitulation
                   </RouterLink>
-                 
                 </div>
-
                 <!-- TEAM REPORT -->
                 <div class="flex items-center justify-between cursor-pointer pl-1 gap-1 hover:font-semibold"
                   @click="isTeamOpen = !isTeamOpen">
                   <span class="flex gap-2">
-                    <Users2/>
+                    <Users2 />
                     Grup Report
                   </span>
                   <ChevronDown v-if="isTeamOpen" class="w-4 h-4" />
                   <ChevronRight v-else class="w-4 h-4" />
                 </div>
-
                 <div v-show="isTeamOpen" class="ml-6 flex flex-col gap-1">
-                  <RouterLink to="/group-report/recap" 
-                  class="link flex gap-1" 
-                  exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-                  @click="closeMobileMenu">
-                    <ListChecksIcon/>
+                  <RouterLink to="/group-report/recap" class="link flex gap-1"
+                    exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                    <ListChecksIcon />
                     Recapitulation
                   </RouterLink>
-
                   <!-- Report Data nested -->
                   <div class="flex items-center justify-between cursor-pointer pl-0 gap-1 hover:font-semibold"
                     @click="isReportDataOpen = !isReportDataOpen">
                     <span class="flex gap-2">
-                      <ClipboardListIcon/>Report Data
+                      <ClipboardListIcon />Report Data
                     </span>
                     <ChevronDown v-if="isReportDataOpen" class="w-4 h-4" />
                     <ChevronRight v-else class="w-4 h-4" />
                   </div>
-
                   <div v-show="isReportDataOpen" class="ml-6 flex flex-col gap-1">
-                    <RouterLink to="/recap-customer/bci" 
-                      class="link" 
-                      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
-                      @click="closeMobileMenu">
+                    <RouterLink to="/recap-customer/bci" class="link"
+                      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
                       BCI
                     </RouterLink>
-                    <RouterLink to="/recap-customer/reg"
-                      exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" 
+                    <RouterLink to="/recap-customer/reg" exact-active-class="bg-blue-200 bg-opacity-10 font-semibold"
                       class="link" @click="closeMobileMenu">
                       REGULER
                     </RouterLink>
                   </div>
-
                 </div>
-
               </div>
             </transition>
-
           </div>
-
-          <!-- RECAP TYPE CUSTOMER (PARENT - TANPA LINK) -->
-          <!-- <div class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
-            @click="isRecapOpen = !isRecapOpen">
-            <div class="flex items-center gap-1">
-              <ClipboardList />
-              <span>Recap Type Customer</span>
-            </div>
-
-            <ChevronDown v-if="isRecapOpen" class="w-4 h-4 transition-transform" />
-            <ChevronRight v-else class="w-4 h-4 transition-transform" />
-          </div> -->
-          <!-- CHILD MENU -->
-          <!-- <transition name="fade">
-            <div v-show="isRecapOpen" class="ml-8 flex flex-col gap-1">
-
-              <RouterLink to="/recap-customer/bci" class="text-sm pl-3 py-1 rounded
-                        flex items-center gap-2
-                        whitespace-nowrap
-                        hover:bg-blue-200 hover:bg-opacity-10"
-                exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
-                <ChartBarIncreasing class="w-4 h-4" />
-                <span>BCI Customer</span>
-              </RouterLink>
-
-              <RouterLink to="/recap-customer/reg" class="text-sm pl-3 py-1 rounded
-                      flex items-center gap-2
-                      whitespace-nowrap
-                      hover:bg-blue-200 hover:bg-opacity-10"
-                exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
-                <ChartBarDecreasing class="w-4 h-4" />
-                <span>REG Customer</span>
-              </RouterLink>
-
-            </div>
-          </transition> -->
-
-
         </div>
-
         <div class="text-[#10375C] ">
           <span class="text-sm px-2 font-semibold">MENU</span>
           <RouterLink to="/optionreport" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
@@ -254,8 +233,9 @@ import {
   ListChecksIcon,
   Medal,
   Users2,
-
-  ClipboardListIcon
+  ClipboardListIcon,
+  ChartPie,
+  FileChartColumnIncreasing
 } from "lucide-vue-next";
 import axios from 'axios';
 
@@ -266,8 +246,8 @@ const userRoleId = ref(null);   // simpan id role
 const userRoleName = ref('');   // simpan nama role
 const userBranch = ref('');
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-const isRecapOpen = ref(false);
 const isSpvOpen = ref(false);
+const isKpiOpen = ref(false);
 const isPersonalOpen = ref(false);
 const isTeamOpen = ref(false);
 const isReportDataOpen = ref(false);

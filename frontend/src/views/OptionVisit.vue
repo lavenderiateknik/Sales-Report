@@ -2,15 +2,15 @@
   <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 px-2 py-2 rounded-md gap-1">
 
     <RouterLink
+      to="/optionreport" class="flex gap-2 place-items-center">
+      <ArrowLeftFromLineIcon class="w-4"/> Back
+    </RouterLink> 
+    <RouterLink
       to="/checkin"
       class="bg-blue-400 hover:bg-blue-700 w-36 px-2 py-2 text-center rounded-md shadow-2xl cursor-pointer text-slate-900 hover:text-white"
     >
       Checkin
     </RouterLink>
-    <RouterLink
-      to="/optionreport" class="flex gap-2 place-items-center">
-      <ArrowLeftFromLineIcon class="w-4"/> Back
-    </RouterLink> 
     
     <div class="py-8">
       <h2 class="text-2xl font-semibold leading-tight">Visit History</h2>

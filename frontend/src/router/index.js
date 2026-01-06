@@ -22,6 +22,8 @@ import RecapSpv from '@/components/RecapSpv.vue'
 import Achievement from '@/components/Achievement.vue'
 import RecapGroup from '@/components/RecapGroup.vue'
 import Revenue from '@/components/Revenue.vue'
+import AssigmentProgress from '@/components/AssigmentProgress.vue'
+import Kpi from '@/components/Kpi.vue'
 
 
 
@@ -141,12 +143,21 @@ const router = createRouter({
       name: "group-report recap",
       component: RecapGroup,
     },
-     {
+    {
       path: "/revenue",
       name: "revenue",
       component: Revenue,
     },
-    
+    {
+      path: "/assignmentprecentage",
+      name: "assigment progress",
+      component: AssigmentProgress,
+    },
+    {
+      path: "/kpi",
+      name: "KPI Sales",
+      component: Kpi,
+    },
     
   ],
 })

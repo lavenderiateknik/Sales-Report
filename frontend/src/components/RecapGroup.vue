@@ -36,7 +36,7 @@
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
       <Tabel
         :rows-data="monthlyRecap"
         :cols="colsDataMonthlyRecap"
@@ -73,6 +73,7 @@ import currency from "currency.js";
 
 const token = localStorage.getItem("api_token");
 const role_name = localStorage.getItem("role_name");
+const role = localStorage.getItem("role");
 const branch = localStorage.getItem("branch");
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -109,12 +110,13 @@ function formatCurrency(value) {
   if (!value || value == 0) return '-';
   return currency(Number(value), { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }).format();
 }
-
 const fetchSales = async () => {
+  const endpoint = role == 1 ? '/api/allusers' : `/api/usersbranch/${branch}`;
   try {
-    const res = await axios.get(`${apiBaseUrl}/api/usersbranch/${branch}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(`${apiBaseUrl}${endpoint}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+    
     salesList.value = res.data.data;
   } catch (error) { console.error("Sales Error:", error); }
 };

@@ -34,6 +34,8 @@ return new class extends Migration
             $table->string('pic_name');
             $table->string('pic_phone');
             $table->string('pic_position');
+            // untuk membedakan customer baru atau lama
+            $table->boolean('is_new_customer')->default(false);
 
             // relasi ke type_reports
             $table->foreignId('type_report_id')->constrained('type_reports')->onDelete('cascade');
