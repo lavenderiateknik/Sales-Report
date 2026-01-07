@@ -125,7 +125,7 @@ const branch = localStorage.getItem("branch")
 const users  = ref([])
 const userId = ref('')
 const year   = ref(new Date().getFullYear())
-const years  = [2024, 2025, 2026]
+const years  = [2024, 2025, 2026, 2027, 2028]
 const kpi    = ref(null)
 const months = [
   { value: 1,  label: 'Januari' },

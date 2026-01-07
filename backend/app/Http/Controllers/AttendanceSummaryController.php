@@ -76,6 +76,30 @@ class AttendanceSummaryController extends Controller
         //
     }
 
+    public function showByUser($user, $month, $year)
+    {
+        $data = AttendanceSummary::where('user_id', $user)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
+    public function listByMonth($month, $year)
+    {
+        $data = AttendanceSummary::with('user:id,name')
+            ->where('month', $month)
+            ->where('year', $year)
+            ->get();
+
+        return response()->json([
+            'data' => $data
+        ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */

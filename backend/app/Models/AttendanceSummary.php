@@ -12,6 +12,14 @@ class AttendanceSummary extends Model
         'created_by'
     ];
 
+    protected $casts = [
+    'month' => 'integer',
+    'year' => 'integer',
+    'working_days' => 'integer',
+    'present_days' => 'integer',
+    'absent_days' => 'integer',
+    ];
+    
     public function user()
     {
         return $this->belongsTo(User::class);

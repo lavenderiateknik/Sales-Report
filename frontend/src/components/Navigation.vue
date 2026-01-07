@@ -69,11 +69,12 @@
 
 
             <!-- KPI Parent -->
-            <div v-if="[4, 5, 6, 7].includes(userRoleId)"
+             <!-- v-if="[4, 5, 6, 7] -->
+            <div v-if="userRoleId != 8"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isKpiOpen = !isKpiOpen">
               <div class="flex items-center gap-2">
-                <ScrollText />
+                <Ruler />
                 <span>KPI</span>
               </div>
               <ChevronDown v-if="isKpiOpen" class="w-4 h-4" />
@@ -85,14 +86,21 @@
               <div v-show="isKpiOpen" class="ml-8 flex flex-col gap-2">
                 <RouterLink to="/kpi" class="link flex gap-2"
                   exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+                  
+                  <FileChartColumnIncreasing />
+                  Sales KPI
+                </RouterLink>
+
+                <RouterLink to="/targetkpilist" class="link flex gap-2"
+                  exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
                   <ListChecksIcon />
                   Target KPI
                 </RouterLink>
 
-                <RouterLink to="/kpi/achievement" class="link flex gap-2"
+                <RouterLink to="/attendance" class="link flex gap-2"
                   exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
-                  <FileChartColumnIncreasing />
-                  Achievement KPI
+                  <CalendarCheck />
+                  Attendance
                 </RouterLink>
               </div>
             </transition>
@@ -235,7 +243,9 @@ import {
   Users2,
   ClipboardListIcon,
   ChartPie,
-  FileChartColumnIncreasing
+  FileChartColumnIncreasing,
+  Ruler,
+  CalendarCheck
 } from "lucide-vue-next";
 import axios from 'axios';
 

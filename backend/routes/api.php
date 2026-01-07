@@ -14,6 +14,7 @@ use App\Http\Controllers\TypeCustomerController;
 use App\Http\Controllers\CustomerDatabaseController;
 use App\Http\Controllers\AttendanceSummaryController;
 use App\Http\Controllers\KpiController;
+use App\Http\Controllers\SalesTargetController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -95,10 +96,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/customer/assign', [CustomerDatabaseController::class, 'assign']);
 
     // KPI
-    Route::post('/attendance-summaries', [AttendanceSummaryController::class, 'store']);
     Route::get('/kpi/user/{userId}', [KpiController::class, 'userMonthly']);
     Route::get('/kpi/{user}/{month}/{year}', [KpiController::class, 'show']);
-    
+    Route::get('/sales-targets/{userId}/{month}/{year}',[SalesTargetController::class,'showTarget']);
+    Route::post('/sales-targets',[SalesTargetController::class,'store']);
+    Route::get('/sales-targets/{user}/{month}/{year}', [KpiController::class, 'getTarget']);
+    //attendants
+    Route::post('/attendance-summaries', [AttendanceSummaryController::class, 'store']);
+    Route::get('/attendance-summaries/{user}/{month}/{year}',[AttendanceSummaryController::class, 'showByUser']);
+    Route::get('/attendance-summaries/month/{month}/{year}',[AttendanceSummaryController::class, 'listByMonth']);
 
 
 

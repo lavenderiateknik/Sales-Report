@@ -24,6 +24,10 @@ import RecapGroup from '@/components/RecapGroup.vue'
 import Revenue from '@/components/Revenue.vue'
 import AssigmentProgress from '@/components/AssigmentProgress.vue'
 import Kpi from '@/components/Kpi.vue'
+import TargetKpi from '@/components/TargetKpi.vue'
+import TargetKpiList from '@/components/TargetKpiList.vue'
+import AttendanceList from '@/components/AttendanceList.vue'
+import AttendanceForm from '@/components/AttendanceForm.vue'
 
 
 
@@ -158,6 +162,28 @@ const router = createRouter({
       name: "KPI Sales",
       component: Kpi,
     },
+    {
+      path: "/targetkpilist",
+      name: "kpi target list",
+      component: TargetKpiList,
+    },
+    {
+      path: "/targetkpi/:userId",
+      name: "kpi target",
+      component: TargetKpi,
+      props: true
+    },
+    {
+      path:'/attendance',
+      name:'attendance-list',
+      component: AttendanceList
+    },
+    {
+      path:'/attendance/input/:userId',
+      name:'attendance-form',
+      component: AttendanceForm,
+      props:true
+    }
     
   ],
 })
