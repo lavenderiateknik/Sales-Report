@@ -54,13 +54,13 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <NotebookTabs /> Customer History
             </RouterLink>
-            <RouterLink to="revenue" v-if="userRoleId == 4 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
+            <RouterLink to="revenue" v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Medal /> Revenue
             </RouterLink>
 
-            <RouterLink v-if="userRoleId == 4 | userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
+            <RouterLink v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
               to="/assignmentprecentage" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <ChartPie /> Assignment Precentage
@@ -69,8 +69,8 @@
 
 
             <!-- KPI Parent -->
-             <!-- v-if="[4, 5, 6, 7] -->
-            <div v-if="userRoleId != 8"
+             <!-- v-if="[4, 5, 6,] -->
+            <div v-if="userRoleId == 3|userRoleId == 2|userRoleId == 1"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isKpiOpen = !isKpiOpen">
               <div class="flex items-center gap-2">
@@ -108,14 +108,14 @@
 
 
 
-            <RouterLink v-if="userRoleId == 5 | userRoleId == 6 | userRoleId == 7" to="/assignment"
+            <RouterLink v-if="userRoleId !== 7" to="/assignment"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Handshake /> Assignment
             </RouterLink>
 
             <!-- SPV Dashboard Parent -->
-            <div v-if="userRoleId == 7 | userRoleId == 6 | userRoleId == 5 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
+            <div v-if="userRoleId == 6 | userRoleId == 5 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isSpvOpen = !isSpvOpen">
               <div class="flex items-center gap-">

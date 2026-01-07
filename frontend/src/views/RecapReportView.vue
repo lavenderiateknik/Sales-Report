@@ -102,9 +102,9 @@ const colsData = ref([
 Function
 =========================== */
 const fetchSalesReports = async () => {
-  if (role === 8) {
+  if (role === 7) {
     url.value = `${apiBaseUrl}/api/salesreports/${id}`;
-  } else if ([7, 6, 5].includes(role)) {
+  } else if ([6, 5, 4].includes(role)) {
     url.value = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
   } else {
     url.value = `${apiBaseUrl}/api/allsalesreports`;

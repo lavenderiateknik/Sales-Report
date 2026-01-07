@@ -30,6 +30,11 @@ class SalesReportController extends Controller
         ])
         ->orderBy('date','desc')
         ->get();
+         return response()->json([
+            "success" => true,
+            "message" => "Data Found",
+            "data" => $allTypeReport
+        ], 200);
 
     }
 
