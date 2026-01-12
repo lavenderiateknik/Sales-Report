@@ -104,7 +104,7 @@ const monthLabel = computed(() => months[month.value-1])
 const loadDetail = async () => {
   try {
     // ambil nama sales
-    const u = await api.get(`/api/users/${userId.value}`)
+    const u = await api.get(`/api/user/${userId.value}`)
     salesName.value = u.data.name
 
     // ambil attendance jika ada

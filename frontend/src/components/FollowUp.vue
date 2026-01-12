@@ -16,7 +16,7 @@
 
       <div>
         <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-        <input id="date" type="date" v-model="form.date" required :max="today" 
+        <input id="date" type="date" v-model="form.date" required :max="today" :min="today"
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
       </div>
 
@@ -110,7 +110,8 @@
           </label>
         </div>
         <label class="block text-sm font-medium text-gray-700 mb-1">
-          Items Purchase Order
+          Items Purchase Order 
+          <span class=" text-red-600">(Please input your quotation number)</span>
         </label>
         <textarea
           rows="6"

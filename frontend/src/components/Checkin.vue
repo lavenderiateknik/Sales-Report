@@ -89,6 +89,7 @@
       <select
         v-if="form.type_customer_id == BCI_TYPE_ID"
         id="type_project"
+        disabled
         v-model="form.type_project"
         :disabled="loadingCustomers" 
         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"
