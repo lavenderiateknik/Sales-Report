@@ -70,7 +70,7 @@
 
             <!-- KPI Parent -->
              <!-- v-if="[4, 5, 6,] -->
-            <div v-if="userRoleId == 3|userRoleId == 2|userRoleId == 1"
+            <div v-if="userRoleId != 7"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isKpiOpen = !isKpiOpen">
               <div class="flex items-center gap-2">
@@ -84,7 +84,8 @@
             <!-- KPI Child -->
             <transition name="fade">
               <div v-show="isKpiOpen" class="ml-8 flex flex-col gap-2">
-                <RouterLink to="/kpi" class="link flex gap-2"
+                <RouterLink to="/kpi"
+                  class="link flex gap-2"
                   exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
                   
                   <FileChartColumnIncreasing />

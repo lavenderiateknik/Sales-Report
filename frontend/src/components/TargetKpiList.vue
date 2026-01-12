@@ -75,7 +75,7 @@ const router = useRouter()
 /* =====================
    STATE
 ===================== */
-const years  = [2024, 2025, 2026]
+const years  = [2024, 2025, 2026,2027]
 const year   = ref(new Date().getFullYear())
 const month  = ref(new Date().getMonth() + 1)
 
@@ -115,12 +115,12 @@ const loadTargets = async () => {
     let users = []
 
     // 🔐 filter sales sesuai role
-    if ([1,2,3,4].includes(role)) {
+    if ([1,2,3].includes(role)) {
       const res = await api.get('/api/allusers')
       users = res.data.data.filter(u => u.role_id === 7)
     } else {
       const res = await api.get(`/api/usersbranch/${branch}`)
-      users = res.data.filter(u => u.role_id === 7)
+      users = res.data.data.filter(u => u.role_id === 7)
     }
 
     // ambil target tiap sales sesuai BULAN + TAHUN

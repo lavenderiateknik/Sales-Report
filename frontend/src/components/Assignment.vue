@@ -180,9 +180,11 @@ const pageSize = 10;
 const fetchData = async () => {
   loading.value = true;
   try {
-    const salesUrl = role < 5 
+    const salesUrl = role < 4 
       ? `${apiBaseUrl}/api/allusers` 
       : `${apiBaseUrl}/api/sales-by-branch`;
+
+    console.log(salesUrl);
 
     const [resCustomers, resSales] = await Promise.all([
       axios.get(`${apiBaseUrl}/api/allcustomerdatabase`, {

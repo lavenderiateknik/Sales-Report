@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Offering'],
             ['name' => 'Negotiation'],
             ['name' => 'Purchase Order'],
+            ['name' => 'Phone Call'],
         ]);
 
         // ❗ TANPA ROLE ADMIN

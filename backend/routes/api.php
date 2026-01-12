@@ -52,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/allsalesreports', [SalesReportController::class, 'index']);
     Route::get('/allvisitedcustomers/{id}', [SalesReportController::class, 'visited']);
     Route::get('/salesreports/{id}', [SalesReportController::class, 'salesreports']);
-    Route::get('/salesreport/{id}', [SalesReportController::class, 'salesreport']);
+    Route::get('/salesreport/{reportsid}', [SalesReportController::class, 'salesreport']);
     Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
     Route::post('/sales-reports', [SalesReportController::class, 'store']);
     Route::put('/checkout/{id}', [SalesReportController::class, 'update']);

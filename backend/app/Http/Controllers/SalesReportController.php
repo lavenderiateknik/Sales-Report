@@ -53,17 +53,12 @@ class SalesReportController extends Controller
         ], 200);
     }
 
-    public function salesreport($id)
+    public function salesreport($reportsid)
     {
-        $user = User::where('id', $id);
-        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user']);
-        if ($user->role_id == 8) {
-            $reports->where('id', $id)->first();
-        } elseif (in_array($user->role_id, [7, 6, 5])) {
-            $reports->where('users.branch_id', $user->branch_id);
-        } elseif (in_array($user->role_id, [8])){
-            $reports->get();
-        }
+        $user = Auth::user();
+        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
+        ->where('id',$reportsid)
+        ->first();
         return response()->json([
             "success" => true,
             "message" => "Data Found",
@@ -207,7 +202,7 @@ class SalesReportController extends Controller
             ->groupBy('customer_name');
 
         // 🔹 Filter sesuai role
-        if ($user->role_id == 8) {
+        if ($user->role_id == 7) {
             // Sales → hanya data miliknya
             $query->where('sales_reports.user_id', $user->id);
         } elseif (in_array($user->role_id, [7, 6, 5])) {
@@ -267,10 +262,10 @@ class SalesReportController extends Controller
             ->groupBy('date');
 
         // 🔹 Filter sesuai role
-        if ($user->role_id == 8) {
+        if ($user->role_id == 7) {
             // Sales → hanya data miliknya
             $query->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [7, 6, 5])) {
+        } elseif (in_array($user->role_id, [6, 5, 4])) {
             // Supervisor, Branch Manager, Assistant Manager → berdasarkan branch
             $query->where('users.branch_id', $user->branch_id);
         }

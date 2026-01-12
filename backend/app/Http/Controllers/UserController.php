@@ -133,7 +133,7 @@ class UserController extends Controller
         $user = $request->user();
         
         // Ambil user yang rolenya 8 DAN branch_id nya sama dengan user yang login
-        $sales = User::where('role_id', 8)
+        $sales = User::where('role_id', 7)
                     ->where('branch_id', $user->branch_id)
                     ->select('id', 'name')
                     ->get();

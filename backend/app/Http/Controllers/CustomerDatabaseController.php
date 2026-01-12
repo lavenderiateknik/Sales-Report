@@ -14,11 +14,11 @@ class CustomerDatabaseController extends Controller
         $user = $request->user();
         $roleId = (int) $user->role_id; 
         $query = CustomerDatabase::with(['assignedUser', 'branch']);
-        if ($roleId === 8) {
+        if ($roleId === 7) {
             $data = $query->where('assigned_to_user', $user->id)->get();     
-        } elseif (in_array($roleId, [5, 6, 7])) {
+        } elseif (in_array($roleId, [4,5, 6])) {
             $data = $query->where('id_branch', $user->branch_id)->get();
-        } elseif (in_array($roleId, [1, 2, 3, 4])) { // Misal Role 1 adalah Super Admin
+        } elseif (in_array($roleId, [1, 2, 3])) { // Misal Role 1 adalah Super Admin
             // Super Admin: Melihat semua data tanpa filter
             $data = $query->get();
         } else {
