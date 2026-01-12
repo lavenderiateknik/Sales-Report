@@ -76,7 +76,7 @@ const colsData = ref([
   { field: 'customer_name', title: 'Name Customer', width: 200, render: (value) => value ?? '-' },
   { field: 'user.name', title: 'Sales Name', render: (value, row) => value ?? row?.user?.name ?? '-' },
   { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer?.name ?? '-' },
-  { field: 'type_project.name', title: 'Type Project', render: (value, row) => value ?? row?.type_project?.name ?? '-' },
+  { field: 'type_project', title: 'Type Project', render: (value, row) => value ?? row?.type_project?.name ?? '-' },
   { field: 'project_name', title: 'Project Name', render: (value) => value ?? '-' },
   { field: 'pic_name', title: 'PIC Name', filter: false, render: (value) => value ?? '-' },
   { field: 'pic_phone', title: 'PIC Phone', filter: false, render: (value) => value ?? '-' },
@@ -92,7 +92,7 @@ const colsData = ref([
   align: 'right',
   filter: false,
   cell: (row) => {
-    return formatCurrency(row.nominal_purchase_order);
+    return formatCurrency(row.nominal_purchase_order ?? '-');
   }
 }
 
@@ -114,6 +114,7 @@ const fetchSalesReports = async () => {
   try {
     const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
     const data = res.data.data ?? res.data;
+    
     
     customers.value = data.map((item, idx) => ({
     ...item,

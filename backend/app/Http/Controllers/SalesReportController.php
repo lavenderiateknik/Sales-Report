@@ -42,7 +42,6 @@ class SalesReportController extends Controller
     {
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
         ->where('user_id', $id)
-        ->where('type_report_id', '1')
         ->orderBy('created_at', 'desc')
         ->get()
         ->makeHidden(['picture']);

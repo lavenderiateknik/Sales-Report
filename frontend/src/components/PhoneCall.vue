@@ -35,7 +35,7 @@
           <option value="" disabled>
             {{ loading.typeCustomers ? 'Memuat...' : (errorsFetch.typeCustomers ? 'Gagal memuat' : 'Pilih Tipe Pelanggan') }}
           </option>
-          <option v-for="tc in typeCustomers.filter(tc => tc.id === 2)" :key="tc.id" :value="tc.id">{{ tc.name }}</option>
+          <option v-for="tc in typeCustomers" :key="tc.id" :value="tc.id">{{ tc.name }}</option>
           
         </select>
         <p v-if="errors.type_customer_id" class="text-red-600 text-sm mt-1">{{ errors.type_customer_id[0] }}</p>
@@ -84,16 +84,16 @@
       </div>
       <!-- Type Project -->
       <div>
-        <label for="type_project_id" class="block text-sm font-medium text-gray-700 mb-1">Tipe Proyek</label>
+        <label for="type_project" class="block text-sm font-medium text-gray-700 mb-1">Tipe Proyek</label>
 
       <!-- BCI: show select built from customers.project_type -->
       <select
         v-if="form.type_customer_id == BCI_TYPE_ID"
-        id="type_project_id"
-        v-model="form.type_project_id"
+        id="type_project"
+        v-model="form.type_project"
         :disabled="loadingCustomers" 
         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"
-        :class="{ 'border-red-500': errors.type_project_id }"
+        :class="{ 'border-red-500': errors.type_project }"
         >
         <option value="" disabled>
         {{ loadingCustomers ? 'Memuat...' : (errorsFetch.typeProjects ? 'Gagal memuat' : 'Pilih Tipe Proyek') }}
@@ -104,12 +104,12 @@
       <!-- Non-BCI: manual input -->
       <input
         v-else-if="form.type_customer_id"
-        id="type_project_id"
+        id="type_project"
         type="text"
-        v-model="form.type_project_id"
+        v-model="form.type_project"
         placeholder="Masukkan tipe proyek"
         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"
-        :class="{ 'border-red-500': errors.type_project_id }"
+        :class="{ 'border-red-500': errors.type_project }"
       />
 
       <!-- not selected customer type yet -->
@@ -117,7 +117,7 @@
         Pilih Tipe Pelanggan terlebih dahulu di atas.
       </div>
 
-      <p v-if="errors.type_project_id" class="text-red-600 text-sm mt-1">{{ errors.type_project_id[0] }}</p>
+      <p v-if="errors.type_project" class="text-red-600 text-sm mt-1">{{ errors.type_project[0] }}</p>
       </div>
 
       <!-- Check In -->
@@ -162,7 +162,7 @@
 
         <div>
           <label for="pic_phone" class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon PIC</label>
-          <input id="pic_phone" type="tel" v-model="form.pic_phone" required placeholder="081234567890"
+          <input id="pic_phone" type="number" v-model="form.pic_phone" required placeholder="081234567890"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200" />
           <p v-if="errors.pic_phone" class="text-red-600 text-sm mt-1">{{ errors.pic_phone[0] }}</p>
         </div>
@@ -234,7 +234,7 @@ const form = ref({
   coordinate_check_out: "",
   type_customer_id: "",
   customer_name: "",
-  type_project_id: "",
+  type_project: "",
   project_name: "",
   pic_name: "",
   pic_phone: "",
@@ -461,7 +461,7 @@ function resetForm() {
     coordinate_check_out: "",
     type_customer_id: "",
     customer_name: "",
-    type_project_id: "",
+    type_project: "",
     project_name: "",
     pic_name: "",
     pic_phone: "",
@@ -557,11 +557,11 @@ const filteredProjectTypes = computed(() => {
 watch(selectedCustomer, (val) => {
   if (val && (val.project_type ?? "").toString().trim() !== "") {
     // isi form.type_project_id dengan project_type dari customer
-    form.value.type_project_id = val.project_type;
+    form.value.type_project = val.project_type;
   } else {
     // jika tidak ada project_type pada customer, kosongkan (BIAR JELAS)
     if (form.value.type_customer_id == BCI_TYPE_ID) {
-      form.value.type_project_id = "";
+      form.value.type_project = "";
     }
   }
 });
@@ -571,13 +571,13 @@ watch(() => form.value.type_customer_id, (val) => {
   // jika bukan BCI, biarkan pengguna mengetik; jika BCI, reset dan pastikan kita punya daftar
   if (Number(val) === BCI_TYPE_ID) {
     // kosongkan agar user memilih dari select (kecuali selectedCustomer sudah mengisi watch di atas)
-    if (!form.value.type_project_id) {
-      form.value.type_project_id = "";
+    if (!form.value.type_project) {
+      form.value.type_project = "";
     }
     // pastikan customers sudah ter-load (fetchCustomersFromServer dipanggil di onMounted)
   } else {
     // non BCI -> gunakan input manual, kosongkan nilai select
-    form.value.type_project_id = "";
+    form.value.type_project = "";
   }
 });
 
