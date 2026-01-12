@@ -105,8 +105,8 @@ const loadDetail = async () => {
   try {
     // ambil nama sales
     const u = await api.get(`/api/user/${userId.value}`)
-    salesName.value = u.data.name
-
+    salesName.value = u.data.data.name
+    
     // ambil attendance jika ada
     try {
       const a = await api.get(
