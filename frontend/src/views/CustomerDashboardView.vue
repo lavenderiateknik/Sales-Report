@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
     <!-- ===== HEADER ===== -->
     <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
       <span>Customer</span>
@@ -18,7 +18,7 @@
 
     <!-- ===== TABLE CUSTOMER PROJECT ===== -->
     <div class="overflow-x-auto px-4">
-      <table class="min-w-full border border-gray-200">
+      <table class="min-w-full border border-gray-200 bg-white">
         <thead class="bg-gray-100">
           <tr>
             <th class="px-4 py-2 border">NO.</th>

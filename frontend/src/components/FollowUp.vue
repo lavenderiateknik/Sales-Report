@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-100 mx-auto max-w-lg p-6 rounded-2xl border border-gray-300 shadow-xl/50 shadow-gray-400">
+  <div class="bg-gray-100 my-2 mx-auto max-w-lg p-6 rounded-2xl border border-gray-300 shadow-xl/50 shadow-gray-400">
     <form @submit.prevent="submitForm" enctype="multipart/form-data" class="space-y-4">
       <h1 class="text-3xl font-bold text-center text-orange-600 mb-1">
         Report <strong class="text-orange-900">Sales</strong> 📊

@@ -1,7 +1,18 @@
 <template>
-    <div>
-        <Tabel
-      :rows-data="customers"
+  <div class="bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+    <!-- SEARCH BAR -->
+    <div class="flex items-center justify-end gap-2 mb-3 py-2 px-3">
+      <span>Search Daily Visit</span>
+      <input
+        v-model="search"
+        
+        type="text"
+        placeholder="Search data..."
+        class=" bg-white border rounded-lg px-3 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+    </div>
+    <Tabel
+      :rows-data="filteredCustomers"
       :cols="colsData"
       title1="Daily"
       title2="Visit"
@@ -9,7 +20,7 @@
       :per-page="10"
       :loading="loading"
     />
-    </div>
+  </div>
 </template>
 
 <script setup>
@@ -17,7 +28,6 @@ import Tabel from '@/components/Tabel.vue';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import currency from 'currency.js';
-
 
 /* ===========================
    Helpers
@@ -41,14 +51,15 @@ function formatDate(value) {
 }
 
 /* ===========================
-Reference or State
+State
 =========================== */
 const url = ref('');
-const customers = ref([]);
+const allCustomers = ref([]);   // 🔹 data asli
+const search = ref('');
 const loading = ref(false);
 
 /* ===========================
-local storage variable
+Local storage
 =========================== */
 const token = localStorage.getItem('api_token');
 const id = localStorage.getItem('id');
@@ -56,12 +67,12 @@ const branch = localStorage.getItem('branch');
 const role = parseInt(localStorage.getItem('role'));
 
 /* ===========================
-Url base
+Base URL
 =========================== */
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
 /* ===========================
-Columns data
+Columns
 =========================== */
 const colsData = ref([
   { field: 'no', title: 'No', align: 'center', filter: false },
@@ -86,20 +97,17 @@ const colsData = ref([
   { field: 'equipment_needs', title: 'Equipments Needs', render: (value) => value ?? '-' },
   { field: 'items_purchase_order', title: 'Items Purchase Order', filter: false, render: (value) => value ?? '-' },
   {
-  field: 'nominal_purchase_order',
-  title: 'Estimated Nominal Purchase',
-  width:150,
-  align: 'right',
-  filter: false,
-  cell: (row) => {
-    return formatCurrency(row.nominal_purchase_order ?? '-');
+    field: 'nominal_purchase_order',
+    title: 'Estimated Nominal Purchase',
+    width: 150,
+    align: 'right',
+    filter: false,
+    cell: (row) => formatCurrency(row.nominal_purchase_order ?? '-')
   }
-}
-
 ]);
 
 /* ===========================
-Function
+FETCH
 =========================== */
 const fetchSalesReports = async () => {
   if (role === 7) {
@@ -112,16 +120,18 @@ const fetchSalesReports = async () => {
 
   loading.value = true;
   try {
-    const res = await axios.get(url.value, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await axios.get(url.value, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
     const data = res.data.data ?? res.data;
-    
-    
-    customers.value = data.map((item, idx) => ({
-    ...item,
-    no: idx + 1,
-    date: formatDate(item.date),
-    nominal_purchase_order: formatCurrency(item.nominal_purchase_order)
-  }));
+
+    allCustomers.value = data.map((item, idx) => ({
+      ...item,
+      no: idx + 1,
+      date: formatDate(item.date),
+      nominal_purchase_order: formatCurrency(item.nominal_purchase_order)
+    }));
   } catch (err) {
     console.error('Gagal ambil sales reports:', err);
   } finally {
@@ -129,6 +139,28 @@ const fetchSalesReports = async () => {
   }
 };
 
+/* ===========================
+SEARCH FILTER
+=========================== */
+const filteredCustomers = computed(() => {
+  if (!search.value) return allCustomers.value;
+
+  const key = search.value.toLowerCase();
+
+  return allCustomers.value.filter(r =>
+    r.customer_name?.toLowerCase().includes(key) ||
+    r.user?.name?.toLowerCase().includes(key) ||
+    r.type_customer?.name?.toLowerCase().includes(key) ||
+    r.type_project?.name?.toLowerCase().includes(key) ||
+    r.project_name?.toLowerCase().includes(key) ||
+    r.pic_name?.toLowerCase().includes(key) ||
+    r.type_report?.name?.toLowerCase().includes(key)
+  );
+});
+
+/* ===========================
+Lifecycle
+=========================== */
 onMounted(() => {
   fetchSalesReports();
 
@@ -136,11 +168,8 @@ onMounted(() => {
   setInterval(() => {
     fetchSalesReports();
   }, 5 * 60 * 1000);
-
-  
 });
 </script>
 
-<style lang="scss" scoped>
-
+<style scoped>
 </style>

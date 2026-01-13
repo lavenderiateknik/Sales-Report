@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 p-6">
+  <div class="p-6 bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
     <div class="flex flex-row items-center mb-8 text-2xl text-slate-700">
       <span>Pilih</span>
       <strong class="ml-2 text-blue-900">Tipe Laporan</strong>

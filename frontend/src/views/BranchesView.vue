@@ -12,8 +12,18 @@
 
     <!-- Table Wrapper -->
     <div class="border border-amber-500 m-3 p-3 rounded-xl bg-white shadow-xl overflow-x-auto">
-      <div class="flex items-center justify-between mb-5">
+      
+      <!-- TITLE + SEARCH -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-5 gap-3">
         <h2 class="text-3xl">Branch <strong>List</strong></h2>
+
+        <!-- SEARCH INPUT -->
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Search branch..."
+          class="border rounded-lg px-3 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        />
       </div>
 
       <div v-if="loading" class="text-center py-8 text-lg text-gray-500">
@@ -31,10 +41,15 @@
             </th>
           </tr>
         </thead>
+
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="branch in branches" :key="branch.id">
-            <td class="px-6 py-4 text-sm text-gray-500 text-center">{{ branch.no }}</td>
-            <td class="px-6 py-4 text-sm font-medium text-gray-900 text-center">{{ branch.name }}</td>
+          <tr v-for="branch in filteredBranches" :key="branch.id">
+            <td class="px-6 py-4 text-sm text-gray-500 text-center">
+              {{ branch.no }}
+            </td>
+            <td class="px-6 py-4 text-sm font-medium text-gray-900 text-center">
+              {{ branch.name }}
+            </td>
 
             <td class="px-6 py-4 text-sm font-medium text-center">
               <a 
@@ -52,9 +67,10 @@
               </button>
             </td>
           </tr>
-          <tr v-if="!loading && branches.length === 0">
+
+          <tr v-if="!loading && filteredBranches.length === 0">
             <td :colspan="colsDataBranch.length" class="px-6 py-4 text-center text-gray-500">
-              Tidak ada data cabang.
+              Data tidak ditemukan.
             </td>
           </tr>
         </tbody>
@@ -96,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import AddBranchForm from "@/components/AddBranchForm.vue";
 import EditBranchForm from "@/components/EditBranchForm.vue";
@@ -104,7 +120,9 @@ import EditBranchForm from "@/components/EditBranchForm.vue";
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem("api_token");
 
-const branches = ref([]);
+const allBranches = ref([]);   // 🔹 data asli
+const search = ref("");
+
 const showModal = ref(false);
 const showEditModal = ref(false);
 const editingBranchId = ref(null);
@@ -118,7 +136,7 @@ const fetchBranches = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    branches.value = (res.data.data || []).map((item, index) => ({
+    allBranches.value = (res.data.data || []).map((item, index) => ({
       ...item,
       no: index + 1,
     }));
@@ -128,6 +146,15 @@ const fetchBranches = async () => {
     loading.value = false;
   }
 };
+
+// --- FILTER SEARCH ---
+const filteredBranches = computed(() => {
+  if (!search.value) return allBranches.value;
+
+  return allBranches.value.filter(b =>
+    b.name.toLowerCase().includes(search.value.toLowerCase())
+  );
+});
 
 // --- Columns ---
 const colsDataBranch = ref([
@@ -148,14 +175,12 @@ const deleteBranch = async (id) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     alert("Branch berhasil dihapus");
-    // Refresh list
     fetchBranches();
   } catch (err) {
     console.error("Gagal menghapus branch:", err);
     alert("Gagal menghapus branch");
   }
 };
-
 
 const handleBranchSaved = () => {
   fetchBranches();

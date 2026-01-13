@@ -57,10 +57,6 @@
         </div>
       </div>
     </div>
-
-    <div class="p-4 text-xs italic text-gray-400">
-      Statistik lain belum dihubungkan API — ⭐ next step
-    </div>
   </div>
 </template>
 

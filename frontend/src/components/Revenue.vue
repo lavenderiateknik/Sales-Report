@@ -1,5 +1,5 @@
 <template>
-  <div class="p-4 space-y-10 bg-slate-300">
+  <div class="bg-[#10375C]/10 mx-2 my-2 px-2 py-2 rounded-2xl">
     <!-- Filter Tahun -->
     <div class="bg-white p-4 rounded-2xl shadow flex items-center gap-3 w-fit">
       <label class="text-sm font-semibold text-gray-700">Pilih Tahun:</label>

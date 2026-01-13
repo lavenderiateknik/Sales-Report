@@ -1,5 +1,5 @@
 <template>
-  <div class="my-2 px-4 py-2 space-y-4 bg-[#10375C]/10 mx-1 rounded-2xl">
+  <div class="my-2 mx-2 px-4 py-4 space-y-4 bg-[#10375C]/10  rounded-2xl">
     <div class="p-6 bg-white rounded-2xl shadow space-y-6">
 
       <div class="bg-blue-50 p-3 rounded-xl">

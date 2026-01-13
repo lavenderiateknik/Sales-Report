@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 px-2 py-2 rounded-md gap-1">
+  <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 px-3 py-3 rounded-2xl gap-1">
 
     <!-- NAV -->
     <RouterLink to="/optionreport" class="flex gap-2 place-items-center">
