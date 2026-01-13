@@ -32,7 +32,7 @@
       <div class="relative">
         <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Perusahaan / Proyek</label>
         <div @click="isOpen = !isOpen"
-          class="w-full p-2 border rounded-md bg-white cursor-pointer shadow-sm flex justify-between items-center focus:ring-2 focus:ring-orange-500 min-h-[42px]">
+          class="w-full p-2 border rounded-md bg-white cursor-pointer shadow-sm flex justify-between items-center focus:ring-2 focus:ring-orange-500 min-h-10.5">
           <div class="flex-1">
             <template v-if="selectedCustomer">
               <div class="text-sm font-bold text-gray-800">{{ selectedCustomer.customer_name }}</div>
