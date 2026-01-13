@@ -57,6 +57,7 @@ class SalesReportController extends Controller
         $user = Auth::user();
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
         ->where('id',$reportsid)
+        ->where('type_report_id', '!=', 6)
         ->first();
         return response()->json([
             "success" => true,
@@ -70,6 +71,7 @@ class SalesReportController extends Controller
         $branchreports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
+            ->where('type_report_id', '!=', 6)
             ->select('sales_reports.*')
             ->orderBy('created_at', 'desc')
             ->get()

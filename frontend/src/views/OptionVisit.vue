@@ -226,7 +226,7 @@ async function fetchVisits() {
   try {
     let url = "";
 
-    if (userRole === 7) {
+    if (userRole == 7) {
       url = `${apiBase}/salesreports/${id_user}`;
     } else if (userRole >= 4 && userRole <= 6) {
       url = `${apiBase}/branchsalesreports/${branch}`;
@@ -239,6 +239,7 @@ async function fetchVisits() {
     });
 
     visits.value = res.data.data ?? [];
+    console.log(visits.value);
 
   } catch (err) {
     console.error("Fetch visits error:", err);
