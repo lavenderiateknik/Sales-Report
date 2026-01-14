@@ -315,7 +315,7 @@ async function fetchCustomersFromServer(search = "") {
     if (search) params.search = search;
     if (role >= 5 && branch) params.branch = branch;
 
-    const res = await axios.get(`${apiBase}/allcustomerdatabase`, { headers, params });
+    const res = await axios.get(`${apiBase}/activeproject`, { headers, params });
     const data = (res.data && (res.data.data || res.data)) || [];
 
     customers.value = data.map((item) => ({
