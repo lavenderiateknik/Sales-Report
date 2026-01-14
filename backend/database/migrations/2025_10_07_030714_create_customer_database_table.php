@@ -54,6 +54,7 @@ return new class extends Migration {
             $table->string('role_status')->nullable();
             $table->string('construction_start_text')->nullable();
             $table->string('construction_end_text')->nullable();
+             $table->enum('status', ['open', 'closed'])->default('open');
             // 🟢 Tambahan untuk deteksi duplikat
             $table->string('hash', 64)->nullable()->unique();
             $table->timestamps();

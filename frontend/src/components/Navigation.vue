@@ -8,14 +8,12 @@
           System <br /><strong>Report Sales</strong>
         </span>
       </div>
-
       <!-- Tombol Menu (hanya mobile) -->
       <button @click="isOpen = !isOpen" class="md:hidden">
         <Menu v-if="!isOpen" class="w-12 h-12 text-[#F3C623]" />
         <X v-else class="w-12 h-12  text-[#F3C623]" />
       </button>
     </div>
-
     <!-- User Data -->
     <div
       class="flex flex-row gap-2 items-center lg:items-start mx-2 mb-2 rounded-xl px-4 py-4 text-sm text-slate-600 bg-slate-50 border-2 border-[#F3C623] shadow-amber-50 shadow-sm">
@@ -27,17 +25,13 @@
         <strong v-if="userRoleId > 4" class="ml-0">{{ userBranch }}</strong>
       </div>
     </div>
-
     <!-- Navigasi -->
     <transition name="fade" class="shadow-md/60 shadow-slate-50">
       <nav v-show="isOpen || isDesktop"
         class="flex flex-col gap-2 bg-[#F4F6FF] mx-2 rounded-lg mb-3 py-3 border-2 border-[#EB8317]">
-
         <div class="text-[#10375C] ">
-
           <div class="text-[#10375C] ">
             <span class="text-sm px-2 font-semibold">DASHBOARD</span>
-
             <!-- Dashboard basic start -->
             <RouterLink to="/" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
@@ -59,15 +53,11 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Medal /> Revenue
             </RouterLink>
-
             <RouterLink v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
               to="/assignmentprecentage" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <ChartPie /> Assignment Precentage
             </RouterLink>
-
-
-
             <!-- KPI Parent -->
              <!-- v-if="[4, 5, 6,] -->
             <div v-if="userRoleId != 7"
@@ -80,24 +70,20 @@
               <ChevronDown v-if="isKpiOpen" class="w-4 h-4" />
               <ChevronRight v-else class="w-4 h-4" />
             </div>
-
             <!-- KPI Child -->
             <transition name="fade">
               <div v-show="isKpiOpen" class="ml-8 flex flex-col gap-2">
                 <RouterLink to="/kpi"
                   class="link flex gap-2"
                   exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
-                  
                   <FileChartColumnIncreasing />
                   Sales KPI
                 </RouterLink>
-
                 <RouterLink to="/targetkpilist" class="link flex gap-2"
                   exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
                   <ListChecksIcon />
                   Target KPI
                 </RouterLink>
-
                 <RouterLink to="/attendance" class="link flex gap-2"
                   exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
                   <CalendarCheck />
@@ -105,16 +91,16 @@
                 </RouterLink>
               </div>
             </transition>
-
-
-
-
             <RouterLink v-if="userRoleId !== 7" to="/assignment"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Handshake /> Assignment
             </RouterLink>
-
+            <RouterLink v-if="userRoleId !== 7" to="/bcidatabase"
+              class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <Landmark /> BCI Database
+            </RouterLink>
             <!-- SPV Dashboard Parent -->
             <div v-if="userRoleId == 6 | userRoleId == 5 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
@@ -138,7 +124,6 @@
                   <ChevronDown v-if="isPersonalOpen" class="w-4 h-4" />
                   <ChevronRight v-else class="w-4 h-4" />
                 </div>
-
                 <div v-show="isPersonalOpen" class="ml-6 flex flex-col gap-1">
                   <RouterLink to="/personal-report/recaptype" class="link flex gap-2"
                     exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
@@ -207,7 +192,6 @@
             <Database /> Customer Database
           </RouterLink>
         </div>
-
         <!-- Logout -->
         <div class="text-[#10375C] cursor-pointer" @click="handleLogout">
           <span class="text-sm px-2 font-semibold flex flex-row gap-1">
@@ -246,7 +230,8 @@ import {
   ChartPie,
   FileChartColumnIncreasing,
   Ruler,
-  CalendarCheck
+  CalendarCheck,
+  Landmark
 } from "lucide-vue-next";
 import axios from 'axios';
 

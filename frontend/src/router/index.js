@@ -28,6 +28,7 @@ import TargetKpi from '@/components/TargetKpi.vue'
 import TargetKpiList from '@/components/TargetKpiList.vue'
 import AttendanceList from '@/components/AttendanceList.vue'
 import AttendanceForm from '@/components/AttendanceForm.vue'
+import BciData from '@/components/BciData.vue'
 
 
 
@@ -182,6 +183,12 @@ const router = createRouter({
       path:'/attendance/input/:userId',
       name:'attendance-form',
       component: AttendanceForm,
+      props:true
+    },
+    {
+      path:'/bcidatabase',
+      name:'bci database',
+      component: BciData,
       props:true
     }
     

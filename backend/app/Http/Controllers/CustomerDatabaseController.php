@@ -18,11 +18,9 @@ class CustomerDatabaseController extends Controller
             $data = $query->where('assigned_to_user', $user->id)->get();     
         } elseif (in_array($roleId, [4,5, 6])) {
             $data = $query->where('id_branch', $user->branch_id)->get();
-        } elseif (in_array($roleId, [1, 2, 3])) { // Misal Role 1 adalah Super Admin
-            // Super Admin: Melihat semua data tanpa filter
+        } elseif (in_array($roleId, [1, 2, 3])) { 
             $data = $query->get();
         } else {
-            // Default: Jika role tidak dikenali, kembalikan array kosong agar aman
             $data = collect([]);
         }
         return response()->json([
@@ -185,4 +183,33 @@ class CustomerDatabaseController extends Controller
             ], 500);
         }
     }
+
+   public function updatestatus(Request $request)
+{
+    $request->validate([
+        'project_id' => 'required|exists:customer_database,id',
+        'status'     => 'required|in:open,closed',
+    ]);
+
+    $project = CustomerDatabase::find($request->project_id);
+
+    if (!$project) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Data not found'
+        ], 404);
+    }
+
+    $project->status = $request->status;
+    $project->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data Updated',
+        'data' => $project,
+    ]);
+}
+
+
+
 }

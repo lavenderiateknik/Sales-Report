@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('/allcustomerdatabase', [CustomerDatabaseController::class, 'index']);
+    Route::put('/updatestatuscustomerdatabase', [CustomerDatabaseController::class, 'updatestatus']);
     Route::get('/customerdatabase', [CustomerDatabaseController::class, 'indexGrouped']);
     Route::post('/addcustomerdatabase', [CustomerDatabaseController::class, 'store']);
     Route::post('/import-customer-database', [CustomerDatabaseController::class, 'import']);
