@@ -10,43 +10,83 @@
              <input v-model="searchQuery" type="text" placeholder="Cari berdasarkan Project ID, Stage, atau Town..."
              class=" bg-white w-full md:w-1/3 border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none" />
          </div>
-        <table class="mx-4 my-4 px-2 py-2  rounded-xl bg-slate-300 rounded-base border-default" >
-            <thead class="">
-                <tr class="bg-slate-400 text-md text-white">
-                    <th class="py-2">Project Id</th>
-                    <th>Project Name</th>
-                    <th>Company Name</th>
-                    <th>Project Stage</th>
-                    <th>Project Town</th>
-                    <th>PIC Name</th>
-                    <th>Project Type</th>
-                    <th>Status</th>
+        <div class="mx-4 my-4 overflow-x-auto rounded-xl bg-slate-300">
+            <table class="min-w-full text-sm">
+                <thead>
+                <tr class="bg-slate-500 text-white text-xs md:text-sm">
+                    <th class="py-2 px-3 text-left">Project ID</th>
+                    <th class="py-2 px-3 text-left">Project Name</th>
+
+                    <th class="py-2 px-3">Company</th>
+                    <th class="hidden lg:table-cell py-2 px-3">Stage</th>
+                    <th class="hidden lg:table-cell py-2 px-3">Town</th>
+                    <th class="hidden xl:table-cell py-2 px-3">PIC</th>
+                    <th class="hidden xl:table-cell py-2 px-3">Type</th>
+
+                    <th class="py-2 px-3 text-center">Status</th>
                 </tr>
-            </thead>
-            <tbody class="py-2 mx-2 ">
-                <tr v-for="data in customersDatabase" class="my-2">
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.project_id }}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.project_name }}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.company_name }}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.project_stage }}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.project_town }}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.contact_first_name}}{{ data.contact_last_name}}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">{{ data.project_type}}</td>
-                    <td class="px-2 py-2 border-b border-slate-400">
-                        <select
-                            v-model="data.status"
-                            @change="handleAssign(data.id, data.status)"
-                            :class="String(data.status).trim().toLowerCase() === 'open'
-                            ? 'bg-green-400'
-                            : 'bg-red-400'"
-                        >
-                            <option value="open">Open</option>
-                            <option value="closed">Closed</option>
-                        </select>
+                </thead>
+
+                <tbody>
+                <tr
+                    v-for="data in filteredCustomers"
+                    :key="data.id"
+                    class="bg-slate-200 odd:bg-slate-100 hover:bg-slate-300 transition"
+                >
+                    <!-- Project ID -->
+                    <td class="px-3 py-2 font-semibold">
+                    {{ data.project_id }}
+                    </td>
+
+                    <!-- Project Name -->
+                    <td class="px-3 py-2">
+                    {{ data.project_name }}
+                    </td>
+
+                    <!-- Company -->
+                    <td class="px-3 py-2">
+                    {{ data.company_name }}
+                    </td>
+
+                    <!-- Stage -->
+                    <td class="hidden lg:table-cell px-3 py-2">
+                    {{ data.project_stage }}
+                    </td>
+
+                    <!-- Town -->
+                    <td class="hidden lg:table-cell px-3 py-2">
+                    {{ data.project_town }}
+                    </td>
+
+                    <!-- PIC -->
+                    <td class="hidden xl:table-cell px-3 py-2">
+                    {{ data.contact_first_name }} {{ data.contact_last_name }}
+                    </td>
+
+                    <!-- Type -->
+                    <td class="hidden xl:table-cell px-3 py-2">
+                    {{ data.project_type }}
+                    </td>
+
+                    <!-- Status -->
+                    <td class="px-3 py-2 text-center">
+                    <select
+                        v-model="data.status"
+                        @change="handleAssign(data.id, data.status)"
+                        class="px-2 py-1 rounded-md text-white text-xs md:text-sm focus:outline-none"
+                        :class="String(data.status).trim().toLowerCase() === 'open'
+                        ? 'bg-green-500'
+                        : 'bg-red-500'"
+                    >
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                    </select>
                     </td>
                 </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </template>
 
@@ -83,6 +123,7 @@ const filteredCustomers = computed(() => {
     const matchesMainFields = [
       item.project_id,
       item.project_name,
+      item.company_name,
       item.project_stage,
       item.project_town,
       item.project_start,
