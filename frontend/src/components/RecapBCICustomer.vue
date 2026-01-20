@@ -24,6 +24,9 @@
               <th class="px-4 py-3 text-center w-32">Tanggal</th>
               <th class="px-4 py-3 text-center">Customer</th>
               <th class="px-4 py-3 text-center">Project</th>
+              <th v-if="role === 1 || role === 2 || role === 3" class="px-4 py-3 text-center">
+                Cabang
+              </th>
               <th class="px-4 py-3 text-center w-40">Report Type</th>
               <th class="px-4 py-3 text-center w-40">Reported By</th>
               <th class="px-4 py-3 text-center w-40">Type Customer</th>
@@ -61,6 +64,10 @@
 
               <td class="px-4 py-3">
                 {{ row.project_name }}
+              </td>
+
+              <td v-if="role === 1 || role === 2 || role === 3" class="px-4 py-3">
+                {{ row.user.branch.name}}
               </td>
 
               <td class="px-4 py-3 text-center">
@@ -169,8 +176,7 @@ const fetchSalesReports = async () => {
   } else {
     url = `${apiBaseUrl}/api/allsalesreports`;
   }
-  console.log(`user role =`+role);
-  console.log(`url =`+url);
+ 
   loading.value = true;
 
   try {
@@ -183,10 +189,10 @@ const fetchSalesReports = async () => {
 
     // 🔒 Pastikan data berupa ARRAY
     const raw = res.data?.data ?? res.data;
-
     reports.value = Array.isArray(raw)
       ? raw
       : Object.values(raw || []);
+    
 
   } catch (err) {
     console.error("Gagal ambil sales report:", err);
@@ -210,7 +216,8 @@ const filteredData = computed(() => {
       (
         (r.customer_name ?? "") +
         (r.project_name ?? "") +
-        (r.type_report?.name ?? "")
+        (r.type_report?.name ?? "")+
+        (r.user?.branch?.name ?? "")
       )
         .toLowerCase()
         .includes(search.value.toLowerCase())

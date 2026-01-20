@@ -18,7 +18,7 @@ class SalesReportController extends Controller
      */
     public function index()
     {
-        $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user'])
+        $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user.branch'])
         ->select([
             'id','date','user_id','type_customer_id','customer_name',
             'is_new_customer','type_project','project_name',

@@ -48,7 +48,7 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <NotebookTabs /> Customer History
             </RouterLink>
-            <RouterLink to="revenue" v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
+            <RouterLink to="/revenue" v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Medal /> Revenue

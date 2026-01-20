@@ -55,6 +55,20 @@
         </tbody>
       </table>
     </div>
+    
+    <!-- ===== ROWS PER PAGE ===== -->
+    <div class="flex justify-end items-center px-4 mt-2">
+      <label class="mr-2 text-sm text-gray-600">Rows:</label>
+      <select
+        v-model="perPage"
+        class="border rounded px-2 py-1 text-sm"
+      >
+        <option :value="5">5</option>
+        <option :value="10">10</option>
+        <option :value="25">25</option>
+        <option :value="50">50</option>
+      </select>
+    </div>
 
     <!-- ===== PAGINATION ===== -->
     <div class="flex justify-between items-center mt-4 px-4">
@@ -172,7 +186,8 @@ const selectedCustomer = ref(null);
 =========================== */
 const searchQuery = ref("");
 const currentPage = ref(1);
-const perPage = 10;
+const perPage = ref(10);
+
 
 const filteredData = computed(() => {
   if (!searchQuery.value) return customersProject.value;
@@ -184,15 +199,18 @@ const filteredData = computed(() => {
   );
 });
 
-const totalPages = computed(() => Math.ceil(filteredData.value.length / perPage));
+const totalPages = computed(() =>
+  Math.ceil(filteredData.value.length / perPage.value)
+);
 
 const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * perPage;
-  return filteredData.value.slice(start, start + perPage);
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredData.value.slice(start, start + perPage.value);
 });
 
+
 /* Reset page saat search berubah */
-watch(searchQuery, () => {
+watch(perPage, () => {
   currentPage.value = 1;
 });
 

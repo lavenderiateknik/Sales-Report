@@ -19,7 +19,7 @@
 
     <!-- Modal Upload -->
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div class="bg-white p-6 rounded-xl w-[420px] shadow-lg">
+      <div class="bg-white p-6 rounded-xl w-105 shadow-lg">
         <h2 class="text-lg font-semibold mb-4 text-gray-700">
           Import Excel Customer
         </h2>

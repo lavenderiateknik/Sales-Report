@@ -107,7 +107,7 @@ function formatCurrency(value) {
   return currency(Number(value), { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }).format();
 }
 const fetchSales = async () => {
-  const endpoint = role == 1 ? '/api/allusers' : `/api/usersbranch/${branch}`;
+  const endpoint = role == 1 | role == 2 | role == 3  ? '/api/allusers' : `/api/usersbranch/${branch}`;
   try {
     const res = await axios.get(`${apiBaseUrl}${endpoint}`, {
     headers: { Authorization: `Bearer ${token}` },
