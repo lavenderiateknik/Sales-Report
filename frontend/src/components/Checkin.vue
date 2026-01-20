@@ -132,14 +132,14 @@
       <div class="grid md:grid-cols-2 md:gap-6">
         <div>
           <label for="pic_name" class="block text-sm font-medium text-gray-700 mb-1">Nama PIC</label>
-          <input id="pic_name" type="text" v-model="form.pic_name" required
+          <input id="pic_name" type="text" v-model="form.pic_name"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200" />
           <p v-if="errors.pic_name" class="text-red-600 text-sm mt-1">{{ errors.pic_name[0] }}</p>
         </div>
 
         <div>
           <label for="pic_phone" class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon PIC</label>
-          <input id="pic_phone" type="tel" v-model="form.pic_phone" required placeholder="081234567890"
+          <input id="pic_phone" type="tel" v-model="form.pic_phone" placeholder="081234567890"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200" />
           <p v-if="errors.pic_phone" class="text-red-600 text-sm mt-1">{{ errors.pic_phone[0] }}</p>
         </div>
@@ -147,7 +147,7 @@
 
       <div>
         <label for="pic_position" class="block text-sm font-medium text-gray-700 mb-1">Posisi PIC</label>
-        <input id="pic_position" type="text" v-model="form.pic_position" required
+        <input id="pic_position" type="text" v-model="form.pic_position"
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200" />
         <p v-if="errors.pic_position" class="text-red-600 text-sm mt-1">{{ errors.pic_position[0] }}</p>
       </div>

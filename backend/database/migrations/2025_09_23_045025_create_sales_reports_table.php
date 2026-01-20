@@ -31,9 +31,9 @@ return new class extends Migration
             $table->string('project_name');
 
             // PIC (person in charge)
-            $table->string('pic_name');
-            $table->string('pic_phone');
-            $table->string('pic_position');
+            $table->string('pic_name')->nullable();
+            $table->string('pic_phone')->nullable();
+            $table->string('pic_position')->nullable();
             // untuk membedakan customer baru atau lama
             $table->boolean('is_new_customer')->default(false);
 

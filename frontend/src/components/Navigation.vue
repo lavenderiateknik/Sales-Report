@@ -43,7 +43,7 @@
             </RouterLink>
             <!-- Dashboard basic end -->
             <!-- Dashboard Sales Manager Start -->
-            <RouterLink to="/customer" v-if="userRoleId == 4 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
+            <RouterLink to="/customer" v-if="userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <NotebookTabs /> Customer History
@@ -58,9 +58,9 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <ChartPie /> Assignment Precentage
             </RouterLink>
-            <!-- KPI Parent -->
+            <!-- KPI Parent matikan sementara untuk version 2 -->
              <!-- v-if="[4, 5, 6,] -->
-            <div v-if="userRoleId != 7"
+            <!-- <div v-if="userRoleId != 7"
               class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isKpiOpen = !isKpiOpen">
               <div class="flex items-center gap-2">
@@ -69,9 +69,9 @@
               </div>
               <ChevronDown v-if="isKpiOpen" class="w-4 h-4" />
               <ChevronRight v-else class="w-4 h-4" />
-            </div>
-            <!-- KPI Child -->
-            <transition name="fade">
+            </div> -->
+            <!-- KPI Child matikan sementara untuk version 2 -->
+            <!-- <transition name="fade">
               <div v-show="isKpiOpen" class="ml-8 flex flex-col gap-2">
                 <RouterLink to="/kpi"
                   class="link flex gap-2"
@@ -90,7 +90,7 @@
                   Attendance
                 </RouterLink>
               </div>
-            </transition>
+            </transition> -->
             <RouterLink v-if="userRoleId !== 7" to="/assignment"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
@@ -102,12 +102,15 @@
               <Landmark /> BCI Database
             </RouterLink>
             <!-- SPV Dashboard Parent -->
-            <div v-if="userRoleId == 6 | userRoleId == 5 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
-              class="text-sm pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
+            <div v-if="userRoleId == 6 | userRoleId == 5 | userRoleId == 4 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
+              class="text-sm pl-3 md:pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isSpvOpen = !isSpvOpen">
-              <div class="flex items-center gap-">
-                <ScrollText />
-                <span>SPV Dashboard</span>
+              <div class="flex items-center gap-0 md:gap-1">
+                <ScrollText class="w-10 px-0" />
+                <span>
+                  <span class="text-xs uppercase">{{ role_name }}</span> 
+                  Dashboard
+                </span>
               </div>
               <ChevronDown v-if="isSpvOpen" class="w-4 h-4" />
               <ChevronRight v-else class="w-4 h-4" />
@@ -176,17 +179,17 @@
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <LandPlot /> Report Sales
           </RouterLink>
-          <RouterLink v-if="![4, 5, 6, 7, 8].includes(userRoleId)" to="/adduser"
+          <RouterLink v-if="[1, 2].includes(userRoleId)" to="/adduser"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <UserRoundPlus /> Add User
           </RouterLink>
-          <RouterLink v-if="![4, 5, 6, 7, 8].includes(userRoleId)" to="/branches"
+          <RouterLink v-if="[1, 2].includes(userRoleId)" to="/branches"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <GitBranch /> Branches
           </RouterLink>
-          <RouterLink v-if="![4, 5, 6, 7, 8].includes(userRoleId)" to="/customerdata"
+          <RouterLink v-if="[1, 2].includes(userRoleId)" to="/customerdata"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <Database /> Customer Database
@@ -247,6 +250,7 @@ const isKpiOpen = ref(false);
 const isPersonalOpen = ref(false);
 const isTeamOpen = ref(false);
 const isReportDataOpen = ref(false);
+const role_name = localStorage.getItem("role_name")
 
 
 const fetchUserData = async () => {

@@ -88,7 +88,7 @@
       <div class="grid md:grid-cols-1 md:gap-6">
         <div>
           <label for="report_notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan Laporan</label>
-          <textarea rows="6" id="pic_name" type="text" v-model="form.report_notes" required
+          <textarea rows="6" id="pic_name" type="text" v-model="form.report_notes" required minlength="200"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
         </div>
         <div>

@@ -239,7 +239,7 @@ async function fetchVisits() {
     });
 
     visits.value = res.data.data ?? [];
-    console.log(visits.value);
+    
 
   } catch (err) {
     console.error("Fetch visits error:", err);

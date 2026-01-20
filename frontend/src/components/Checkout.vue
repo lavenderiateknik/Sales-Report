@@ -83,7 +83,7 @@
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Catatan Laporan</label>
-        <textarea v-model="form.report_notes" rows="3" class="w-full px-3 py-2 border rounded-md" />
+        <textarea v-model="form.report_notes" rows="3" class="w-full px-3 py-2 border rounded-md" required  minlength="200"/>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Kebutuhan Alat</label>
@@ -170,7 +170,7 @@ async function loadReport() {
   try {
     const res = await axios.get(`${API_BASE}/api/salesreport/${route.params.id}`, { headers: authHeader() })
     const record = res.data.data
-    console.log(res)
+    
 
     // Mapping manual untuk memastikan semua field terisi
     form.id = record.id
