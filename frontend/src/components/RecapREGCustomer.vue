@@ -24,6 +24,9 @@
               <th class="px-4 py-3 text-center w-32">Tanggal</th>
               <th class="px-4 py-3 text-center">Customer</th>
               <th class="px-4 py-3 text-center">Project</th>
+              <th v-if="role === 1 || role === 2 || role === 3" class="px-4 py-3 text-center">
+                Cabang
+              </th>
               <th class="px-4 py-3 text-center w-40">Report Type</th>
               <th class="px-4 py-3 text-center w-40">Reported By</th>
               <th class="px-4 py-3 text-center w-40">Type Customer</th>
@@ -57,6 +60,9 @@
                 <div class="text-xs text-slate-400">
                   PIC: {{ row.pic_name }}
                 </div>
+              </td>
+              <td v-if="role === 1 || role === 2 || role === 3" class="px-4 py-3">
+                {{ row.user.branch.name}}
               </td>
 
               <td class="px-4 py-3">
@@ -162,15 +168,14 @@ const fetchSalesReports = async () => {
   }
   let url = "";
 
-  if (role === 8) {
+  if (role === 7) {
     url = `${apiBaseUrl}/api/salesreports/${id}`;
-  } else if ([7, 6, 5].includes(role)) {
+  } else if ([6, 5, 4].includes(role)) {
     url = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
   } else {
     url = `${apiBaseUrl}/api/allsalesreports`;
   }
-  console.log(`user role =`+role);
-  console.log(`url =`+url);
+  
   loading.value = true;
 
   try {

@@ -318,37 +318,46 @@ class SalesReportController extends Controller
         ]);
     }
 
-    public function recapNominalMontlyDetail()
+    public function recapNominalMontlyDetail(Request $request)
     {
         $user = auth()->user();
 
-        // Query dasar
         $baseQuery = DB::table('sales_reports')
             ->join('users', 'sales_reports.user_id', '=', 'users.id');
 
-        // Filter default berdasarkan role
-        if ($user->role_id == 8) {
-            $baseQuery->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [7, 6, 5])) {
-            $baseQuery->where('users.branch_id', $user->branch_id);
+        // 🔹 PRIORITAS FILTER (INI YANG MENYAMAKAN PRINSIP)
+        if ($request->filled('user_id')) {
+            $baseQuery->where('sales_reports.user_id', $request->user_id);
+
+        } elseif ($request->filled('branch_id')) {
+            $baseQuery->where('users.branch_id', $request->branch_id);
+
+        } else {
+            // 🔹 Default role
+            if ($user->role_id == 8) {
+                $baseQuery->where('sales_reports.user_id', $user->id);
+            } elseif (in_array($user->role_id, [7, 6, 5])) {
+                $baseQuery->where('users.branch_id', $user->branch_id);
+            }
         }
 
-        // Jika memilih 1 user di dropdown → override filter
-        if (request()->has('user_id') && request('user_id') != '') {
-            $baseQuery->where('sales_reports.user_id', request('user_id'));
-        }
+        // 🔹 Ambil sales sesuai filter
+        $salesList = (clone $baseQuery)
+            ->select('users.id', 'users.name')
+            ->distinct()
+            ->get();
 
-        // Ambil semua sales yang termasuk di filter
-        $salesList = $baseQuery->select('users.id', 'users.name')->distinct()->get();
-
-        // Ambil data per bulan per sales
-        $reports = [];
-
+        // 🔹 Ambil bulan
         $months = DB::table('sales_reports')
-            ->selectRaw('MONTH(sales_reports.date) as month_number, MONTHNAME(sales_reports.date) as month_name')
-            ->groupByRaw('MONTH(sales_reports.date), MONTHNAME(sales_reports.date)')
-            ->orderByRaw('MONTH(sales_reports.date)')
+            ->selectRaw("
+                MONTH(date) as month_number,
+                MONTHNAME(date) as month_name
+            ")
+            ->groupByRaw("MONTH(date), MONTHNAME(date)")
+            ->orderByRaw("MONTH(date)")
             ->pluck('month_name', 'month_number');
+
+        $reports = [];
 
         foreach ($months as $monthNumber => $monthName) {
             $monthData = ['month' => $monthName, 'sales' => []];
@@ -368,14 +377,12 @@ class SalesReportController extends Controller
             $reports[] = $monthData;
         }
 
-        // Grand total
-        $grandTotal = (clone $baseQuery)->sum('sales_reports.nominal_purchase_order');
-
         return response()->json([
             'data' => $reports,
-            'grand_total' => $grandTotal,
+            'grand_total' => (clone $baseQuery)->sum('sales_reports.nominal_purchase_order'),
         ]);
     }
+
 
    public function recapNominalMonthlyBranches(Request $request)
     {
@@ -498,24 +505,30 @@ class SalesReportController extends Controller
     public function recapByType(Request $request)
     {
         $user = auth()->user();
-        $selectedUserId = $request->user_id; // optional filter user
 
         $query = DB::table('sales_reports')
             ->join('users', 'sales_reports.user_id', '=', 'users.id')
             ->join('type_reports', 'sales_reports.type_report_id', '=', 'type_reports.id')
-            ->selectRaw("type_reports.name as report_type, COUNT(sales_reports.id) as total");
+            ->selectRaw("
+                type_reports.name as report_type,
+                COUNT(sales_reports.id) as total
+            ");
 
-        // Jika ada filter sales di frontend
-        if ($selectedUserId) {
-            $query->where('sales_reports.user_id', $selectedUserId);
+        // 🔹 PRIORITAS FILTER (sama seperti sales)
+        if ($request->filled('user_id')) {
+            $query->where('sales_reports.user_id', $request->user_id);
+
+        } elseif ($request->filled('branch_id')) {
+            $query->where('users.branch_id', $request->branch_id);
 
         } else {
-            // Default hirarki existing
+            // 🔹 Default berdasarkan role
             if ($user->role_id == 8) {
                 $query->where('sales_reports.user_id', $user->id);
             } elseif (in_array($user->role_id, [7, 6, 5])) {
                 $query->where('users.branch_id', $user->branch_id);
             }
+            // role 1,2,3 → global
         }
 
         $reports = $query
@@ -528,6 +541,7 @@ class SalesReportController extends Controller
             'grand_total' => $reports->sum('total'),
         ]);
     }
+
 
 
     public function recapByCustomerName()

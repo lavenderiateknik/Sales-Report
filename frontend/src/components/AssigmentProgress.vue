@@ -47,11 +47,11 @@
       <!-- RIGHT PANEL -->
       <div class="md:col-span-3 flex justify-center items-center">
         <DoughnutChart
-  :key="`${selectedBranch}-${totalBCI}`"
-  :data="pieChartData"
-  title="BCI Assignment Progress"
-  class="w-96"
-/>
+            :key="`${selectedBranch}-${totalBCI}`"
+            :data="pieChartData"
+            title="BCI Assignment Progress"
+            class="w-96"
+          />
       </div>
 
     </div>
@@ -87,6 +87,7 @@ const fetchBranch = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     branchList.value = res.data.data || [];
+    console.log(branchList.va)
   } catch (error) {
     console.error("Fetch branch error:", error);
   }
