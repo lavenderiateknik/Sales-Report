@@ -213,31 +213,34 @@ class CustomerDatabaseController extends Controller
         }
     }
 
-   public function updatestatus(Request $request)
-{
-    $request->validate([
-        'project_id' => 'required|exists:customer_database,id',
-        'status'     => 'required|in:open,closed',
-    ]);
+  public function updatestatus(Request $request)
+    {
+        $request->validate([
+            'project_id' => 'required|exists:customer_database,project_id',
+            'status'     => 'required|in:open,closed',
+        ]);
 
-    $project = CustomerDatabase::find($request->project_id);
+        $updated = CustomerDatabase::where('project_id', $request->project_id)
+            ->update([
+                'status' => $request->status
+            ]);
 
-    if (!$project) {
+        if ($updated === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No data updated'
+            ], 404);
+        }
+
         return response()->json([
-            'success' => false,
-            'message' => 'Data not found'
-        ], 404);
+            'success' => true,
+            'message' => 'Project status updated',
+            'project_id' => $request->project_id,
+            'status' => $request->status,
+            'affected_rows' => $updated
+        ]);
     }
 
-    $project->status = $request->status;
-    $project->save();
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Data Updated',
-        'data' => $project,
-    ]);
-}
 
 
 
