@@ -29,6 +29,7 @@ import TargetKpiList from '@/components/TargetKpiList.vue'
 import AttendanceList from '@/components/AttendanceList.vue'
 import AttendanceForm from '@/components/AttendanceForm.vue'
 import BciData from '@/components/BciData.vue'
+import EditByUser from '@/components/EditByUser.vue'
 
 
 
@@ -178,6 +179,11 @@ const router = createRouter({
       path:'/attendance',
       name:'attendance-list',
       component: AttendanceList
+    },
+    {
+      path:'/profile',
+      name:'Profile',
+      component: EditByUser
     },
     {
       path:'/attendance/input/:userId',

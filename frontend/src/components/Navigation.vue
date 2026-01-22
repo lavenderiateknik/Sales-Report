@@ -17,7 +17,12 @@
     <!-- User Data -->
     <div
       class="flex flex-row gap-2 items-center lg:items-start mx-2 mb-2 rounded-xl px-4 py-4 text-sm text-slate-600 bg-slate-50 border-2 border-[#F3C623] shadow-amber-50 shadow-sm">
-      <Contact class="w-10 h-10" />
+      <div class="flex flex-col items-center">
+        <Contact class="w-10 h-10" />
+        <RouterLink to="/profile" class="text-[10px] text-red-600 ">
+          Edit Profile
+        </RouterLink>
+      </div>
       <div class="flex flex-col">
         <span>Welcome,</span>
         <strong class="ml-0">{{ userName }}</strong>
@@ -234,7 +239,8 @@ import {
   FileChartColumnIncreasing,
   Ruler,
   CalendarCheck,
-  Landmark
+  Landmark,
+  UserPen
 } from "lucide-vue-next";
 import axios from 'axios';
 

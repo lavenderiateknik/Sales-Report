@@ -8,9 +8,9 @@
       <p>Gagal memuat data user: {{ fetchError }}</p>
     </div>
 
-    <div v-else>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Name</label>
+    <div v-else class="px-2 py-2">
+      <div class="flex  flex-col">
+        <label class="block py-2 text-sm font-medium text-gray-700">Name</label>
         <input
           v-model="form.name"
           type="text"
@@ -21,8 +21,8 @@
         <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name[0] }}</p>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Email</label>
+      <div class="flex  flex-col">
+        <label class="block py-2 text-sm font-medium text-gray-700">Email</label>
         <input
           v-model="form.email"
           type="email"
@@ -33,8 +33,8 @@
         <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email[0] }}</p>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Password (Kosongkan jika tidak diubah)</label>
+      <div class="flex  flex-col">
+        <label class="block py-2 text-sm font-medium text-gray-700">Password (Kosongkan jika tidak diubah)</label>
         <input
           v-model="form.password"
           autocomplete="new-password"
@@ -45,8 +45,8 @@
         <p v-if="errors.password" class="text-red-500 text-sm mt-1">{{ errors.password[0] }}</p>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+      <div class="flex  flex-col">
+        <label class="block py-2 text-sm font-medium text-gray-700">Confirm New Password</label>
         <input
           v-model="form.password_confirmation"
           autocomplete="new-password"
@@ -55,9 +55,9 @@
           placeholder="Confirm new password"
         />
       </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Role</label>
+      
+      <div v-if="role == 1" class="flex  flex-col">
+        <label class="block py-2 text-sm font-medium text-gray-700">Role</label>
         <select
           v-model="form.role_id"
           class="w-full border rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200"
@@ -69,8 +69,8 @@
         <p v-if="errors.role_id" class="text-red-500 text-sm mt-1">{{ errors.role_id[0] }}</p>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Branch</label>
+      <div class="flex  flex-col" v-if="role == 1">
+        <label class="block py-2 text-sm font-medium text-gray-700">Branch</label>
         <select
           v-model="form.branch_id"
           class="w-full border rounded-lg px-3 py-2 mt-1 focus:ring focus:ring-blue-200"
@@ -113,6 +113,7 @@ const emit = defineEmits(['saved']);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem('api_token');
+const role = localStorage.getItem('role');
 
 const form = ref({
   name: '',
@@ -213,6 +214,7 @@ const submitForm = async () => {
 
     alert('User berhasil diupdate!');
     emit('saved'); // Beri tahu komponen induk untuk menutup modal dan me-refresh tabel
+    window.location.href = "/";
     
   } catch (err) {
     if (err.response && err.response.status === 422) {

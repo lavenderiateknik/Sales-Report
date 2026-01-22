@@ -105,12 +105,16 @@
                     ></span>
 
                     <span class="relative">
-                      <template v-if="row.check_out">
-                        Sudah Checkout
+                      <template v-if="row.check_out" >
+                        <p class="text-center">
+                          Sudah Checkout
+                        </p>
                       </template>
 
                       <template v-else-if="isExpired(row)">
-                        Expired
+                        <p class="text-center">
+                          Expired
+                        </p>
                       </template>
 
                       <template v-else>
@@ -294,17 +298,17 @@ function formatDate(date) {
 }
 
 function isExpired(row) {
-  if (!row.date || !row.check_in || row.check_out) return false;
+  if (!row.date || row.check_out) return false;
 
-  const dateTimeStr = `${row.date} ${row.check_in}`;
-  const checkInTime = new Date(dateTimeStr);
-
-  if (isNaN(checkInTime.getTime())) return false;
+  // Ambil tanggal visit (tanpa jam)
+  const visitDate = new Date(row.date);
+  visitDate.setHours(23, 59, 59, 999); // batas akhir hari
 
   const now = new Date();
-  const diffHours = (now - checkInTime) / (1000 * 60 * 60);
-  return diffHours >= 24;
+
+  return now > visitDate;
 }
+
 
 function canCheckout(row) {
   if (!isExpired(row)) return true;
