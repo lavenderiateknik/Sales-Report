@@ -56,8 +56,9 @@
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Proyek</label>
-        <input type="text" v-model="form.type_project_id" readonly
+        <input type="text" v-model="form.type_project"
           class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed">
+          {{ form }}
       </div>
 
       <div>
@@ -211,10 +212,10 @@ const loading = ref({ typeCustomers: false, typeReports: false });
 const form = ref({
   date: new Date().toISOString().split("T")[0],
   type_customer_id: "",
-  type_report_id: "",
+  type_report: "",
   customer_name: "",
   project_name: "",
-  type_project_id: "", 
+  type_project: "", 
   pic_name: "",
   pic_phone: "",
   pic_position: "",
@@ -232,7 +233,7 @@ function selectItem(customer) {
   // Auto-fill form
   form.value.customer_name = customer.company_name ?? customer.customer_name;
   form.value.project_name = customer.project_name;
-  form.value.type_project_id = customer.project_type ?? customer.type_project;
+  form.value.type_project = customer.project_type ?? customer.type_project;
   form.value.pic_name = customer.pic_name ?? customer.pic_name;
   form.value.pic_phone = customer.pic_phone ?? customer.pic_phone;
   form.value.pic_position = customer.pic_position ?? customer.pic_position;
@@ -268,10 +269,12 @@ async function fetchAllDropdowns() {
     
     // Mapping data customers untuk dropdown
     const customerData = resAll.data?.data ?? resAll.data;
+    
     customers.value = Array.isArray(customerData) ? customerData.map(item => ({
       ...item,
       customer_name: item.company_name ?? item.customer_name ?? item.name ?? "Tanpa Nama"
     })) : [];
+    console.log(customers.value);
 
   } catch (err) {
     console.error("Gagal memuat data:", err.response?.data ?? err.message);

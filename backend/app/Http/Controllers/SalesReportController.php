@@ -656,7 +656,7 @@ class SalesReportController extends Controller
         $allvisited = SalesReport::where('user_id', $id)
         ->select([
             'id','date','customer_name','project_name',
-            'type_report_id','is_new_customer'
+            'type_report_id','is_new_customer',"type_project"
         ])
         ->get();
 
