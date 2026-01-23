@@ -3,14 +3,31 @@
     <div class="bg-white border border-amber-300 rounded-2xl shadow-xl shadow-slate-400 overflow-hidden">
 
       <!-- HEADER -->
-      <div class="px-4 pt-4 pb-3 border-b">
-        <div class="flex justify-between items-center">
-          <h1 class="text-2xl font-bold">Recap BCI Customers</h1>
+     <div class="flex justify-between items-center gap-3 px-3 py-3">
+        <h1 class="text-2xl font-bold">Recap BCI Customers</h1>
 
+        <div class="flex gap-2 items-center">
+          <!-- TANGGAL MULAI -->
+           Start
+          <input
+            type="date"
+            v-model="startDate"
+            class="rounded-xl border px-3 py-2 text-sm focus:ring-4 focus:ring-indigo-100"
+          />
+
+          <!-- TANGGAL AKHIR -->
+           End
+          <input
+            type="date"
+            v-model="endDate"
+            class="rounded-xl border px-3 py-2 text-sm focus:ring-4 focus:ring-indigo-100"
+          />
+
+          <!-- SEARCH -->
           <input
             v-model="search"
-            placeholder="Cari customer / project"
-            class="rounded-xl border px-3 py-2 text-sm focus:ring-4 focus:ring-indigo-100"
+            placeholder="Cari customer / project / tanggal / report type / nominal"
+            class="rounded-xl border px-3 py-2 text-sm focus:ring-4 focus:ring-indigo-100 w-96"
           />
         </div>
       </div>
@@ -157,6 +174,8 @@ const branch = localStorage.getItem("branch");
 const loading = ref(false);
 const reports = ref([]);
 const search = ref("");
+const startDate = ref(""); // yyyy-mm-dd
+const endDate = ref("");   // yyyy-mm-dd
 const page = ref(1);
 const pageSize = 10;
 
@@ -210,19 +229,45 @@ const filteredData = computed(() => {
   return reports.value
     // ✅ HANYA BCI
     .filter((r) => r.type_customer?.name === "REG")
-    // 🔍 SEARCH
+
+    // 📅 FILTER RENTANG TANGGAL
+    .filter((r) => {
+      if (!r.date) return false;
+
+      const rowDate = new Date(r.date);
+
+      if (startDate.value) {
+        const start = new Date(startDate.value);
+        if (rowDate < start) return false;
+      }
+
+      if (endDate.value) {
+        const end = new Date(endDate.value);
+        end.setHours(23, 59, 59, 999); // inklusif sampai akhir hari
+        if (rowDate > end) return false;
+      }
+
+      return true;
+    })
+
+    // 🔍 SEARCH TEXT
     .filter((r) =>
       (
         (r.customer_name ?? "") +
         (r.project_name ?? "") +
-        (r.type_report?.name ?? "")
+        (r.type_report?.name ?? "") +
+        (r.user.name ?? "") +
+        (r.date ?? "") +
+        (r.nominal_purchase_order ?? "")
       )
         .toLowerCase()
         .includes(search.value.toLowerCase())
     )
+
     // 🔽 TERBARU DI ATAS
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 });
+
 
 /* ================= PAGINATION ================= */
 const totalPages = computed(() =>
@@ -235,7 +280,7 @@ const paginatedData = computed(() => {
 });
 
 /* ================= RESET PAGE SAAT SEARCH ================= */
-watch(search, () => {
+watch([search, startDate, endDate], () => {
   page.value = 1;
 });
 

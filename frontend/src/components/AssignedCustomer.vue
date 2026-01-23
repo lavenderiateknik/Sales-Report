@@ -1,27 +1,10 @@
 <template>
-  <div class="max-w-350 mx-auto p-6">
-    <div class="bg-white border border-amber-300 rounded-2xl shadow-xl shadow-slate-400 overflow-hidden">
-
-      <div class="px-4 pt-4 pb-3 border-b">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-          <h1 class="text-2xl font-semibold text-slate-800">
-            Assignment <span class="text-amber-600 font-bold">Customer</span>
-          </h1>
-
-          <div class="flex items-center gap-3">
-            <div v-if="loading" class="text-xs text-amber-600 animate-pulse font-medium">
-              Memperbarui data...
-            </div>
-            <input
-              v-model="search"
-              placeholder="Cari customer, project, atau kota..."
-              class="rounded-xl border border-slate-200 px-4 py-2 text-sm focus:ring-4 focus:ring-amber-100 outline-none transition-all w-72"
-            />
-          </div>
+    <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+        <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
+            <span>Assigned</span>
+            <strong class="ml-2 uppercase">Customer</strong> 
         </div>
-      </div>
-
-      <div class="overflow-x-auto">
+        <div class="overflow-x-auto">
         <table class="min-w-full text-sm table-fixed">
           <thead class="bg-slate-50 text-[11px] uppercase text-slate-500 font-bold">
             <tr>
@@ -33,7 +16,6 @@
               <th class="px-4 py-4 text-center w-32">Role On Project</th>
               <th class="px-4 py-4 text-center w-32">Town</th>
               <th class="px-4 py-4 text-right w-40">Nilai Project</th>
-              <th class="px-4 py-4 text-center w-48 bg-amber-50/50">Assign To Sales</th>
             </tr>
           </thead>
 
@@ -83,40 +65,6 @@
               <td class="px-4 py-4 text-right font-bold text-slate-800">
                 {{ formatCurrency(row.local_value) }}
               </td>
-
-              <td class="px-4 py-4 text-center bg-amber-50/20">
-                <div class="flex flex-col items-center gap-1 min-h-12.5 justify-center">
-                  <select 
-                    v-if="salesList.length > 0"
-                    @change="handleAssign(row.id, $event.target.value)"
-                    :disabled="loadingAssignment === row.id"
-                    :class="[
-                      'text-xs rounded-lg border px-2 py-1.5 outline-none transition-all w-full select-custom shadow-sm',
-                      row.assigned_to_user 
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 font-semibold' 
-                        : 'border-slate-300 bg-white text-slate-500 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
-                    ]"
-                    :value="row.assigned_to_user || ''"
-                  >
-                    <option value="" disabled>-- Pilih Sales --</option>
-                    <option v-for="sales in salesList" :key="sales.id" :value="sales.id">
-                      {{ sales.name }}
-                    </option>
-                  </select>
-
-                  <div v-else class="text-[10px] text-rose-500 font-medium italic">
-                    Cabang tidak memiliki sales
-                  </div>
-                  
-                  <span v-if="row.assigned_to_user" class="text-[9px] font-bold text-emerald-500 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                    TERTUGASKAN
-                  </span>
-                  <span v-else-if="salesList.length > 0" class="text-[9px] font-bold text-slate-400 italic">
-                    BELUM DIPILIH
-                  </span>
-                </div>
-              </td>
             </tr>
 
             <tr v-if="!filteredData.length && !loading">
@@ -158,13 +106,11 @@
           </button>
         </div>
       </div>
-
     </div>
-  </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+    import { ref, computed, onMounted, watch } from "vue";
 import axios from "axios";
 
 /* ================= ENV & AUTH ================= */
@@ -194,7 +140,7 @@ const fetchData = async () => {
     console.log(salesUrl);
 
     const [resCustomers, resSales] = await Promise.all([
-      axios.get(`${apiBaseUrl}/api/allcustomerdatabase`, {
+      axios.get(`${apiBaseUrl}/api/customerdatabaseassigned`, {
         headers: { Authorization: `Bearer ${token}` }
       }),
       axios.get(salesUrl, {
@@ -215,34 +161,6 @@ const fetchData = async () => {
 
 onMounted(fetchData);
 
-/* ================= ASSIGNMENT LOGIC ================= */
-const handleAssign = async (customerId, userId) => {
-  loadingAssignment.value = customerId;
-  try {
-    await axios.post(`${apiBaseUrl}/api/customer/assign`, {
-      customer_id: customerId,
-      user_id: userId
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    // Update local state secara manual agar tidak perlu refresh API full
-    const index = customers.value.findIndex(c => c.id === customerId);
-    if (index !== -1) {
-      customers.value[index].assigned_to_user = userId;
-      // Update object assigned_user jika ada di data row
-      const sales = salesList.value.find(s => s.id == userId);
-      if (sales) {
-        customers.value[index].assigned_user = sales;
-      }
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Gagal memperbarui penugasan. Periksa koneksi atau role anda.");
-  } finally {
-    loadingAssignment.value = null;
-  }
-};
 
 /* ================= FILTER & PAGINATION ================= */
 const filteredData = computed(() => {
@@ -275,15 +193,9 @@ const formatCurrency = (val) => {
     maximumFractionDigits: 0,
   }).format(val);
 };
+
 </script>
 
-<style scoped>
-.select-custom {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  background-size: 1rem;
-  padding-right: 2rem;
-}
+<style lang="scss" scoped>
+
 </style>

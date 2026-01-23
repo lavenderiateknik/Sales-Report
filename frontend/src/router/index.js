@@ -30,6 +30,7 @@ import AttendanceList from '@/components/AttendanceList.vue'
 import AttendanceForm from '@/components/AttendanceForm.vue'
 import BciData from '@/components/BciData.vue'
 import EditByUser from '@/components/EditByUser.vue'
+import AssignedCustomer from '@/components/AssignedCustomer.vue'
 
 
 
@@ -184,6 +185,11 @@ const router = createRouter({
       path:'/profile',
       name:'Profile',
       component: EditByUser
+    },
+    {
+      path:'/assignedcustomer',
+      name:'assigned',
+      component: AssignedCustomer
     },
     {
       path:'/attendance/input/:userId',

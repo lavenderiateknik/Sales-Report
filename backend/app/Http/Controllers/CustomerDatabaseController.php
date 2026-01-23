@@ -32,19 +32,30 @@ class CustomerDatabaseController extends Controller
         ]);
     }
 
+    public function assigned(Request $request)
+    {
+        $user = $request->user();
+        $roleId = (int) $user->role_id; 
+        $query = CustomerDatabase::with(['assignedUser', 'branch']);
+        $data = $query->where('assigned_to_user', $user->id)->get();     
+        return response()->json([
+            'success' => true,
+            'message' => 'Data retrieved successfully',
+            'role_debug' => $roleId, 
+            'count' => $data->count(),
+            'data' => $data,
+        ]);
+    }
+
     public function activeproject(Request $request)
     {
         $user = $request->user();
         $roleId = (int) $user->role_id; 
         $query = CustomerDatabase::with(['assignedUser', 'branch']);
-        if ($roleId === 7) {
+        if (in_array($roleId, [4,5,6,7])) {
             $data = $query->where('assigned_to_user', $user->id)
             ->where('status','open')
             ->get();     
-        } elseif (in_array($roleId, [4,5,6])) {
-            $data = $query->where('id_branch', $user->branch_id)
-            ->where('status','open')
-            ->get();
         } elseif (in_array($roleId, [1, 2, 3])) { 
             $data = $query
             ->where('status','open')

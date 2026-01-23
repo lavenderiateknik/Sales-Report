@@ -46,6 +46,10 @@
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <BookOpenText /> Daily Visit
             </RouterLink>
+             <RouterLink to="/assignedcustomer" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
+              exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
+              <NotebookPen /> Assigned Customer
+            </RouterLink>
             <!-- Dashboard basic end -->
             <!-- Dashboard Sales Manager Start -->
             <RouterLink to="/customer" v-if="userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
@@ -240,7 +244,8 @@ import {
   Ruler,
   CalendarCheck,
   Landmark,
-  UserPen
+  UserPen,
+  NotebookPen
 } from "lucide-vue-next";
 import axios from 'axios';
 

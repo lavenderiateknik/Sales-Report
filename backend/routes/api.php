@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::get('/allcustomerdatabase', [CustomerDatabaseController::class, 'index']);
+    Route::get('/customerdatabaseassigned', [CustomerDatabaseController::class, 'assigned']);
     Route::get('/activeproject', [CustomerDatabaseController::class, 'activeproject']);
     Route::put('/updatestatuscustomerdatabase', [CustomerDatabaseController::class, 'updatestatus']);
     Route::get('/customerdatabase', [CustomerDatabaseController::class, 'indexGrouped']);
