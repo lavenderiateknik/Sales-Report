@@ -1,0 +1,26 @@
+id;name;email;email_verified_at;password;role_id;branch_id;remember_token;created_at;update_at
+33;Ahmad Ananda Yuda;nanda.jkt@majulanggeng.com;;passwordawal;7;;;;
+32;Evelyn;evelyn@konstrukindo.co.id;;passwordawal;2;;;;
+31;Fathir Zuhayr Handaru;daru.jkt@majulanggeng.co.id;;passwordawal;7;3;;;
+23;Angga Siswo Samodro;angga.sby@majulanggeng.co.id;;passwordawal;7;7;;;
+22;Bela Widianto;bela@majulanggeng.co.id;;passwordawal;7;7;;;
+21;Edi Subianto;edi@majulanggeng.co.id;;passwordawal;5;7;;;
+20;Ridwan Harry Prabowo;ridwan.sem@majulanggeng.co.id;;passwordawal;7;6;;;
+19;Tri Juhendy;tri_juhendy.sem@majulanggeng.co.id;;passwordawal;5;6;;;
+18;Muchlis Situmorang;muchlis.mdn@majulanggeng.co.id;;passwordawal;7;8;;;
+17;Andri Syahputra;andri@majulanggeng.co.id;;passwordawal;7;8;;;
+16;Heri Purnomo;hery_p@majulanggeng.co.id;;passwordawal;5;8;;;
+15;Rachmad B Arisandi;sandi.bpn@majulanggeng.co.id;;passwordawal;7;5;;;
+14;Sudadi;sudadi@majulanggeng.co.id;;passwordawal;7;5;;;
+13;Sudi Hartono;sudi_hartono@majulanggeng.co.id;;passwordawal;5;5;;;
+12;Yoshua Kristianto;yosua@majulanggeng.co.id;;passwordawal;7;4;;;
+4;Akbar Rusdianto;rusdi@majulanggeng.co.id;;passwordawal;5;4;;;
+9;Heru Hidayat;heru.jkt@majulanggeng.co.id;;passwordawal;6;3;;;
+8;Adi Putra Sulistio;adips@majulanggeng.co.id;;passwordawal;7;2;;;
+7;Abdul Hakim;hakim@majulanggeng.co.id;;passwordawal;7;9;;;
+6;Alain Karepu;alain@majulanggeng.co.id;;passwordawal;4;2;;;
+5;M. Syawaludin Nur;syawaludin@majulanggeng.co.id;;passwordawal;7;2;;;
+4;R. Bayoe Soelaksono;bayoe@majulanggeng.co.id;;passwordawal;4;1;;;
+3;Ridwan;ridwan@majulanggeng.co.id;;passwordawal;2;;;;
+2;Derry Sofyan;derry@majulanggeng.co.id;;passwordawal;3;;;;
+1;superadmin;superadmin@gmail.com;;passwordawal;1;;;;

@@ -46,11 +46,18 @@
         </div>
 
         <div v-if="isOpen" class="absolute z-50 mt-1 w-full max-h-60 overflow-auto bg-white border rounded-md shadow-xl">
-          <div v-for="customer in customers" :key="customer.id" @click="selectItem(customer)"
-            class="p-3 text-sm hover:bg-orange-50 cursor-pointer border-b last:border-0">
+          <div
+            v-for="customer in filteredCustomers"
+            :key="customer.id"
+            @click="selectItem(customer)"
+            class="p-3 text-sm hover:bg-orange-50 cursor-pointer border-b last:border-0"
+          >
             <div class="font-bold text-gray-800">{{ customer.customer_name }}</div>
-            <div class="text-xs text-gray-500">{{ customer.project_name }} || {{ customer.type_project }}</div>
+            <div class="text-xs text-gray-500">
+              {{ customer.project_name }} || {{ customer.type_project }}
+            </div>
           </div>
+
         </div>
       </div>
 
@@ -58,7 +65,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Proyek</label>
         <input type="text" v-model="form.type_project"
           class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 cursor-not-allowed">
-          {{ form }}
+          
       </div>
 
       <div>
@@ -153,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch  } from "vue";
+import { ref, onMounted, watch, computed  } from "vue";
 import axios from "axios";
 
 
@@ -241,6 +248,8 @@ function selectItem(customer) {
   isOpen.value = false;
 }
 
+
+
 // --- FETCH DATA DENGAN BEARER TOKEN ---
 async function fetchAllDropdowns() {
   if (!rawToken) {
@@ -274,7 +283,7 @@ async function fetchAllDropdowns() {
       ...item,
       customer_name: item.company_name ?? item.customer_name ?? item.name ?? "Tanpa Nama"
     })) : [];
-    console.log(customers.value);
+    
 
   } catch (err) {
     console.error("Gagal memuat data:", err.response?.data ?? err.message);
@@ -286,6 +295,17 @@ async function fetchAllDropdowns() {
     loading.value.typeReports = false;
   }
 }
+
+const filteredCustomers = computed(() => {
+  // Jika belum pilih type customer → kosongkan dropdown
+  if (!form.value.type_customer_id) {
+    return [];
+  }
+
+  return customers.value.filter(c =>
+    String(c.type_customer_id) === String(form.value.type_customer_id)
+  );
+});
 
 watch(() => form.value.type_report_id, (val) => {
   if (val !== 5) {

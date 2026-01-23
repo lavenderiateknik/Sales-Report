@@ -39,7 +39,15 @@
                 </div>
                 <div class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
                   <span class="bg-slate-100 px-1 rounded text-[9px] font-bold">PIC</span>
-                  {{ row.contact_first_name }} {{ row.contact_surname }}
+                  {{ row.contact_first_name }} {{ row.contact_surname }}<br/>
+                </div>
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                  <span class="bg-slate-100 px-1 rounded text-[9px] font-bold">Mobile</span>
+                  {{ row.mobile?row.mobile: '-' }}<br/>
+                </div>
+                <div class="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                  <span class="bg-slate-100 px-1 rounded text-[9px] font-bold">Landline</span>
+                  {{ row.contact_landline? row.contact_landline: '1' }}<br/>
                 </div>
               </td>
 
@@ -149,6 +157,7 @@ const fetchData = async () => {
     ]);
 
     customers.value = resCustomers.data.data || resCustomers.data;
+    console.log(customers.value);
     // Pastikan data sales berupa array
     salesList.value = Array.isArray(resSales.data) ? resSales.data : (resSales.data.data || []);
 

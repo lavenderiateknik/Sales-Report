@@ -90,15 +90,16 @@
       <select
         v-if="form.type_customer_id == BCI_TYPE_ID"
         id="type_project"
+        disabled
         v-model="form.type_project"
         :disabled="loadingCustomers" 
         class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 transition duration-200"
         :class="{ 'border-red-500': errors.type_project }"
         >
-        <option value="" disabled>
+        <option value="" readonly>
         {{ loadingCustomers ? 'Memuat...' : (errorsFetch.typeProjects ? 'Gagal memuat' : 'Pilih Tipe Proyek') }}
         </option>
-          <option v-for="(pt, idx) in filteredProjectTypes" :key="pt + idx" :value="pt" class=" text-wrap whitespace-normal" >{{ pt }}</option>
+          <option readonly v-for="(pt, idx) in filteredProjectTypes" :key="pt + idx" :value="pt" class=" text-wrap whitespace-normal" >{{ pt }}</option>
       </select>
 
       <!-- Non-BCI: manual input -->
@@ -333,7 +334,7 @@ async function fetchCustomersFromServer(search = "") {
     if (search) params.search = search;
     if (role >= 5 && branch) params.branch = branch;
 
-    const res = await axios.get(`${apiBase}/allcustomerdatabase`, { headers, params });
+    const res = await axios.get(`${apiBase}/activeproject`, { headers, params });
     const data = (res.data && (res.data.data || res.data)) || [];
 
     customers.value = data.map((item) => ({

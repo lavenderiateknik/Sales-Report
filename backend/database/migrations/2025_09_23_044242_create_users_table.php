@@ -20,7 +20,7 @@ return new class extends Migration
             //role
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             //branch
-            $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

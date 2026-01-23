@@ -52,6 +52,9 @@
                   Checkout
                 </th>
                 <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                  Report By
+                </th>
+                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
                   Status
                 </th>
                 <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
@@ -87,6 +90,10 @@
                 <!-- CHECKOUT -->
                 <td class="px-5 py-5 border-b bg-white text-sm">
                   {{ row.check_out ?? "-" }}
+                </td>
+                <!-- Reported By -->
+                <td class="px-5 py-5 border-b bg-white text-sm">
+                  {{ row.user.name }}
                 </td>
 
                 <!-- STATUS -->

@@ -33,7 +33,7 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Customer</label>
         <select v-model="form.type_customer_id" class="w-full px-3 py-2 border border-gray-300 rounded-md" disabled>
           <option :value="1">BCI</option>
-          <option :value="2">Non BCI</option>
+          <option :value="2">REG</option>
         </select>
       </div>
 
@@ -133,7 +133,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000'
+const API_BASE = import.meta.env.VITE_API_BASE_URL
 const route = useRoute()
 
 const submitting = ref(false)

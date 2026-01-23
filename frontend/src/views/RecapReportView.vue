@@ -94,8 +94,8 @@ const colsData = ref([
   { field: 'pic_position', title: 'PIC Position', filter: false, render: (value) => value ?? '-' },
   { field: 'type_report.name', title: 'Type Report', filter: false, render: (value, row) => value ?? row?.type_report?.name ?? '-' },
   { field: 'report_notes', title: 'Report Notes', filter: false, cellClass: 'wrap-cell', width: 200, render: (value) => value ?? '-' },
-  { field: 'equipment_needs', title: 'Equipments Needs', render: (value) => value ?? '-' },
-  { field: 'items_purchase_order', title: 'Items Purchase Order', filter: false, render: (value) => value ?? '-' },
+  { field: 'equipment_needs', width: 250, title: 'Equipments Needs', render: (value) => value ?? '-' },
+  { field: 'items_purchase_order', width: 250, title: 'Items Purchase Order', filter: false, render: (value) => value ?? '-' },
   {
     field: 'nominal_purchase_order',
     title: 'Estimated Nominal Purchase',

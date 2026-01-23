@@ -54,11 +54,12 @@ class SalesReportController extends Controller
 
     public function salesreport($reportsid)
     {
-        $user = Auth::user();
+
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
-        ->where('id',$reportsid)
+        ->where('id', $reportsid)
         ->where('type_report_id', '!=', 6)
         ->first();
+        $reports->makeHidden(['picture']);
         return response()->json([
             "success" => true,
             "message" => "Data Found",
@@ -656,7 +657,7 @@ class SalesReportController extends Controller
         $allvisited = SalesReport::where('user_id', $id)
         ->select([
             'id','date','customer_name','project_name',
-            'type_report_id','is_new_customer',"type_project"
+            'type_report_id','is_new_customer',"type_project","type_customer_id" 
         ])
         ->get();
 
