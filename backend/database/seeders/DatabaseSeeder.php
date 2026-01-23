@@ -58,7 +58,8 @@ class DatabaseSeeder extends Seeder
             ['name' => "Makassar"],
         ]);
 
-        $path = database_path('seeders/data/users.csv');
+        $path = database_path('seeders/data/users_mlm.csv');
+        //$path = database_path('seeders/data/users_adk.csv');
 
         if (!File::exists($path)) {
             $this->command->error('File users.csv tidak ditemukan');
