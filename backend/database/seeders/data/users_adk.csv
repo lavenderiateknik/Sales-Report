@@ -1,0 +1,20 @@
+id;name;email;email_verified_at;password;role_id;branch_id;remember_token;created_at;update_at
+19;Ridwan Budhaya;ridwan@majulanggeng.co.id;;passwordawal;2;;;;
+18;Andri Oktavianto;andri.oktavianto@konstrukindo.co.id;;passwordawal;7;1;;;
+17;Putri Renny;putri.renny@konstrukindo.co.id;;passwordawal;7;5;;;
+16;Evelyn Septiani Chandra;evelyn@konstrukindo.co.id;;passwordawal;2;;;;
+15;Eko Febriyanto;eko@konstrukindo.co.id;;passwordawal;7;1;;;
+14;Ahmad Setiaji;aji@konstrukindo.co.id;;passwordawal;7;1;;;
+13;Dwi Wika Matadinata;dina@konstrukindo.co.id;;passwordawal;7;1;;;
+12;Christian;christian@konstrukindo.co.id;;passwordawal;7;5;;;
+11;Bekti Sudaryanto;bekti.s@konstrukindo.co.id;;passwordawal;6;8;;;
+10;Ahmad Avan Navi'i;avannavi@konstrukindo.co.id;;passwordawal;7;8;;;
+9;Roy Marasi;roy_bm@konstrukindo.co.id;;passwordawal;6;5;;;
+8;Restiantoro;restiantoro@konstrukindo.co.id;;passwordawal;7;8;;;
+7;Hadi Mulyanto;hadi.mulyanto@konstrukindo.co.id;;passwordawal;7;1;;;
+6;Nanda Agus Safana Sukma;nanda@konstrukindo.co.id;;passwordawal;7;1;;;
+5;Tria Utami;tria@konstrukindo.co.id;;passwordawal;7;1;;;
+4;Daniel Siahaan;daniel.siahaan@konstrukindo.co.id;;passwordawal;7;1;;;
+3;Bramantya Evan Ezra;evan@konstrukindo.co.id;;passwordawal;4;1;;;
+2;Reza Saputra;reza@konstrukindo.co.id;;passwordawal;3;1;;;
+1;superadmin;superadmin@gmail.com;;passwordawal;2;;;;
