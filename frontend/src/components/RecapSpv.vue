@@ -1,57 +1,61 @@
 <template>
   <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
- 
-    <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
-      <span>Report</span>
-      <strong class="ml-2 uppercase">{{ role_name }}</strong> 
+    <div v-if="isAllowed">
+      <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
+        <span>Report</span>
+        <strong class="ml-2 uppercase">{{ role_name }}</strong> 
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2">
+        <Tabel
+          :rows-data="typeRecap"
+          :cols="colsDataTypeRecap"
+          title1="Recap"
+          title2="Type Report"
+          :pageable="false"
+          :per-page="10"
+          :loading="loading"
+        />
+  
+        <Tabel
+          :rows-data="monthRecap"
+          :cols="colsDataNominalMonthRecap"
+          title1="Recap"
+          title2="Nominal Monthly"
+          :pageable="true"
+          :per-page="10"
+          :loading="loading"
+        />
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2">
+        <Chart
+          v-if="monthRecapChart.labels.length"
+          :chart-data="monthRecapChart"
+          title1="Recap"
+          title2="Nominal Monthly"
+        />
+        <Tabel
+          :rows-data="typecustomers"
+          :cols="colsDataTypeCustomer"
+          title1="Recap Type"
+          title2="Customer"
+          :pageable="false"
+          :per-page="10"
+          :loading="loading"
+        />
+      </div>  
+    </div>
+    <div v-else class="p-6 text-center text-red-600">
+      🚫 Anda tidak memiliki akses ke halaman ini
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2">
-      <Tabel
-        :rows-data="typeRecap"
-        :cols="colsDataTypeRecap"
-        title1="Recap"
-        title2="Type Report"
-        :pageable="false"
-        :per-page="10"
-        :loading="loading"
-      />
 
-      <Tabel
-        :rows-data="monthRecap"
-        :cols="colsDataNominalMonthRecap"
-        title1="Recap"
-        title2="Nominal Monthly"
-        :pageable="true"
-        :per-page="10"
-        :loading="loading"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2">
-      <Chart
-        v-if="monthRecapChart.labels.length"
-        :chart-data="monthRecapChart"
-        title1="Recap"
-        title2="Nominal Monthly"
-      />
-      <Tabel
-        :rows-data="typecustomers"
-        :cols="colsDataTypeCustomer"
-        title1="Recap Type"
-        title2="Customer"
-        :pageable="false"
-        :per-page="10"
-        :loading="loading"
-      />
-    </div>
   </div>
 </template>
 
 <script setup>
 import Tabel from '@/components/Tabel.vue';
 import Chart from '@/components/Chart.vue';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import axios from 'axios';
 import currency from 'currency.js';
 
@@ -93,7 +97,9 @@ const monthRecapChart = ref({
 =========================== */
 const token = localStorage.getItem('api_token');
 const id = localStorage.getItem('id');
-const role = parseInt(localStorage.getItem('role'));
+const role = Number(localStorage.getItem("role"));
+const isAllowed = computed(() => role <= 6);
+
 const role_name = localStorage.getItem('role_name');
 const branch = localStorage.getItem('branch');
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;

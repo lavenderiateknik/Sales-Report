@@ -1,85 +1,85 @@
 <template>
   <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-
-    <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
-      <span>Report</span>
-      <strong class="ml-2 uppercase">{{ role_name }}</strong>
-    </div>
-
-    <div v-if="[1,2,3].includes(role)" class="flex flex-row items-center gap-3 px-4 pb-2">
-      <label class="text-sm font-medium text-slate-600">Cabang</label>
-      <select
-        v-model="selectedBranch"
-        @change="handleFilterChange"
-        class="border rounded-lg px-3 py-1 text-sm bg-white shadow-sm"
-      >
-        <option value="">Semua Cabang</option>
-        <option
-          v-for="b in branchList"
-          :key="b.id"
-          :value="b.id"
+    <div v-if="isAllowed">
+      <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
+        <span>Report</span>
+        <strong class="ml-2 uppercase">{{ role_name }}</strong>
+      </div>
+      <div v-if="[1,2,3].includes(role)" class="flex flex-row items-center gap-3 px-4 pb-2">
+        <label class="text-sm font-medium text-slate-600">Cabang</label>
+        <select
+          v-model="selectedBranch"
+          @change="handleFilterChange"
+          class="border rounded-lg px-3 py-1 text-sm bg-white shadow-sm"
         >
-          {{ b.name }}
-        </option>
-      </select>
-    </div>
-
-    <div class="flex flex-row items-center gap-3 px-4 pb-4">
-      <label class="text-sm font-medium text-slate-600">Nama Sales</label>
-      <select
-        v-model="selectedSales"
-        @change="handleFilterChange"
-        class="border rounded-lg px-3 py-1 text-sm bg-white shadow-sm"
-      >
-        <option value="">Semua Sales</option>
-        <option v-for="sales in salesList" :key="sales.id" :value="sales.id">
-          {{ sales.name }}
-        </option>
-      </select>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <Tabel
-        :rows-data="typeRecap"
-        :cols="colsDataTypeRecap"
-        title1="Recap" title2="Type Report"
-        :pageable="false" :per-page="10" :loading="loadingTypeRecap"
-      />
-
-      <Tabel
-        :rows-data="typeCustomerRecap"
-        :cols="colsDataTypeCustomer"
-        title1="Recap" title2="Type Customer"
-        :pageable="false" :per-page="10" :loading="loadingTypeCustomer"
-      />
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
-      <Tabel
-        :rows-data="monthlyRecap"
-        :cols="colsDataMonthlyRecap"
-        title1="Recap" title2="Nominal Monthly"
-        :pageable="false" :per-page="10" :loading="loadingMonthly"
-      />
-
-      <div class="mt-0">
-        <Chart
-          v-if="!loadingMonthly && monthRecapChart.labels.length"
-          :key="chartKey" 
-          :chart-data="monthRecapChart"
-          title1="Recap"
-          title2="Nominal Monthly"
+          <option value="">Semua Cabang</option>
+          <option
+            v-for="b in branchList"
+            :key="b.id"
+            :value="b.id"
+          >
+            {{ b.name }}
+          </option>
+        </select>
+      </div>
+      <div class="flex flex-row items-center gap-3 px-4 pb-4">
+        <label class="text-sm font-medium text-slate-600">Nama Sales</label>
+        <select
+          v-model="selectedSales"
+          @change="handleFilterChange"
+          class="border rounded-lg px-3 py-1 text-sm bg-white shadow-sm"
+        >
+          <option value="">Semua Sales</option>
+          <option v-for="sales in salesList" :key="sales.id" :value="sales.id">
+            {{ sales.name }}
+          </option>
+        </select>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Tabel
+          :rows-data="typeRecap"
+          :cols="colsDataTypeRecap"
+          title1="Recap" title2="Type Report"
+          :pageable="false" :per-page="10" :loading="loadingTypeRecap"
         />
-        <div v-else-if="loadingMonthly" class="h-100 flex items-center justify-center bg-white rounded-3xl shadow-md">
-           <p class="text-slate-400">Memproses data...</p>
+  
+        <Tabel
+          :rows-data="typeCustomerRecap"
+          :cols="colsDataTypeCustomer"
+          title1="Recap" title2="Type Customer"
+          :pageable="false" :per-page="10" :loading="loadingTypeCustomer"
+        />
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
+        <Tabel
+          :rows-data="monthlyRecap"
+          :cols="colsDataMonthlyRecap"
+          title1="Recap" title2="Nominal Monthly"
+          :pageable="false" :per-page="10" :loading="loadingMonthly"
+        />
+  
+        <div class="mt-0">
+          <Chart
+            v-if="!loadingMonthly && monthRecapChart.labels.length"
+            :key="chartKey" 
+            :chart-data="monthRecapChart"
+            title1="Recap"
+            title2="Nominal Monthly"
+          />
+          <div v-else-if="loadingMonthly" class="h-100 flex items-center justify-center bg-white rounded-3xl shadow-md">
+             <p class="text-slate-400">Memproses data...</p>
+          </div>
         </div>
       </div>
+    </div>
+    <div v-else class="p-6 text-center text-red-600">
+      🚫 Anda tidak memiliki akses ke halaman ini
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import Tabel from "@/components/Tabel.vue";
 import Chart from "@/components/Chart.vue";
@@ -88,6 +88,7 @@ import currency from "currency.js";
 const token = localStorage.getItem("api_token");
 const role_name = localStorage.getItem("role_name");
 const role = Number(localStorage.getItem("role"));
+const isAllowed = computed(() => role <= 6);
 const authHeader = {
   headers: { Authorization: `Bearer ${token}` }
 };
@@ -108,6 +109,7 @@ const typeRecap = ref([]);
 const monthlyRecap = ref([]);
 const typeCustomerRecap = ref([]);
 const monthRecapChart = ref({ labels: [], datasets: [] });
+
 
 const colsDataTypeRecap = [
   { field: "report_type", title: "Report Type" },
