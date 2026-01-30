@@ -1,42 +1,47 @@
 <template>
   <div class="bg-[#10375C]/10 mx-2 my-2 px-2 py-2 rounded-2xl">
-    <!-- Filter Tahun -->
-    <div class="bg-white p-4 rounded-2xl shadow flex items-center gap-3 w-fit">
-      <label class="text-sm font-semibold text-gray-700">Pilih Tahun:</label>
-      <select
-        v-model="selectedYear"
-        @change="loadData"
-        class="border px-3 py-2 rounded-lg text-sm"
-      >
-        <option v-for="y in years" :key="y" :value="y">
-          {{ y }}
-        </option>
-      </select>
-    </div>
+      <div v-if="isAllowed">
+        <!-- Filter Tahun -->
+        <div class="bg-white p-4 rounded-2xl shadow flex items-center gap-3 w-fit">
+          <label class="text-sm font-semibold text-gray-700">Pilih Tahun:</label>
+          <select
+            v-model="selectedYear"
+            @change="loadData"
+            class="border px-3 py-2 rounded-lg text-sm"
+          >
+            <option v-for="y in years" :key="y" :value="y">
+              {{ y }}
+            </option>
+          </select>
+        </div>
 
-    <!-- Chart A: Semua Cabang -->
-    <Chart
-      v-if="chartAll"
-      :chart-data="chartAll"
-      title1="Revenue "
-      :title2="selectedYear.toString()"
-    />
+        <!-- Chart A: Semua Cabang -->
+        <Chart
+          v-if="chartAll"
+          :chart-data="chartAll"
+          title1="Revenue "
+          :title2="selectedYear.toString()"
+        />
 
-    <!-- Chart B: Per Cabang -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-      <Chart
-        v-for="item in chartEachBranch"
-        :key="item.branch"
-        :chart-data="item.data"
-        title1="Cabang "
-        :title2="item.branch"
-      />
-    </div>
+        <!-- Chart B: Per Cabang -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <Chart
+            v-for="item in chartEachBranch"
+            :key="item.branch"
+            :chart-data="item.data"
+            title1="Cabang "
+            :title2="item.branch"
+          />
+        </div>
+      </div>
+      <div v-else class="p-6 text-center text-red-600">
+        🚫 Anda tidak memiliki akses ke halaman ini
+      </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted,computed } from "vue";
 import Chart from "@/components/Chart.vue";
 
 const token = localStorage.getItem("api_token");
@@ -47,6 +52,9 @@ const selectedYear = ref(new Date().getFullYear());
 
 const chartAll = ref(null);
 const chartEachBranch = ref([]);
+
+const role = parseInt(localStorage.getItem("role"));
+const isAllowed = computed(() => role <= 3);
 
 /* =========================
    HELPER FETCH

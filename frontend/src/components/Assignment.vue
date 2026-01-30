@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-350 mx-auto p-6">
-    <div class="bg-white border border-amber-300 rounded-2xl shadow-xl shadow-slate-400 overflow-hidden">
+    <div v-if="isAllowed" class="bg-white border border-amber-300 rounded-2xl shadow-xl shadow-slate-400 overflow-hidden">
 
       <div class="px-4 pt-4 pb-3 border-b">
         <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -160,6 +160,9 @@
       </div>
 
     </div>
+    <div v-else class="p-6 text-center text-red-600">
+        🚫 Anda tidak memiliki akses ke halaman ini
+    </div>
   </div>
 </template>
 
@@ -172,6 +175,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem("api_token");
 // Konversi ke Number agar perbandingan role < 5 akurat
 const role = Number(localStorage.getItem("role"));
+const isAllowed = computed(() => role <= 6);
 const branch = localStorage.getItem("branch");
 
 /* ================= STATE ================= */

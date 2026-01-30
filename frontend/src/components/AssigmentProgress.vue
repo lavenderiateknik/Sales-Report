@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-
-    <!-- HEADER -->
+    <div v-if="isAllowed">
+       <!-- HEADER -->
     <div class="flex flex-row items-center px-4 pt-3 pb-4 text-3xl text-slate-600">
       <span>Assigment BCI</span>
       <strong class="ml-2 uppercase">Data Progress</strong>
@@ -55,6 +55,11 @@
       </div>
 
     </div>
+
+    </div>
+    <div v-else class="p-6 text-center text-red-600">
+        🚫 Anda tidak memiliki akses ke halaman ini
+    </div>
   </div>
 </template>
 
@@ -69,6 +74,8 @@ import DoughnutChart from "./DoughnutChart.vue";
 ========================= */
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem("api_token");
+const role = parseInt(localStorage.getItem("role"));
+const isAllowed = computed(() => role <= 3);
 
 /* =========================
    STATE
@@ -76,6 +83,7 @@ const token = localStorage.getItem("api_token");
 const branchList = ref([]);
 const rawBCIData = ref([]);
 const selectedBranch = ref("");
+
 
 /* =========================
    FETCH BRANCHES

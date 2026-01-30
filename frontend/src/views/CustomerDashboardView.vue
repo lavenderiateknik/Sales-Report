@@ -1,143 +1,147 @@
 <template>
   <div class="bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-    <!-- ===== HEADER ===== -->
-    <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
-      <span>Customer</span>
-      <strong class="ml-2">History</strong>
-    </div>
+    <div v-if="isAllowed">
+      <!-- ===== HEADER ===== -->
+      <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
+        <span>Customer</span>
+        <strong class="ml-2">History</strong>
+      </div>
 
-    <!-- ===== SEARCH ===== -->
-    <div class="px-4 mb-4">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Search customer, project, PIC..."
-        class="w-full md:w-1/2 px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring focus:border-blue-300"
-      />
-    </div>
+      <!-- ===== SEARCH ===== -->
+      <div class="px-4 mb-4">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search customer, project, PIC..."
+          class="w-full md:w-1/2 px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring focus:border-blue-300"
+        />
+      </div>
 
-    <!-- ===== TABLE CUSTOMER PROJECT ===== -->
-    <div class="overflow-x-auto px-4">
-      <table class="min-w-full border border-gray-200 bg-white">
-        <thead class="bg-gray-100">
-          <tr>
-            <th class="px-4 py-2 border">NO.</th>
-            <th class="px-4 py-2 border">Customer</th>
-            <th class="px-4 py-2 border">PIC</th>
-            <th class="px-4 py-2 border">Contact</th>
-            <th class="px-4 py-2 border">Project</th>
-            <th class="px-4 py-2 border">History</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="customer in paginatedData"
-            :key="customer.no"
-            class="border-t"
-          >
-            <td class="px-4 py-2 border">{{ customer.no }}</td>
-            <td class="px-4 py-2 border">{{ customer.customer_name }}</td>
-            <td class="px-4 py-2 border">{{ customer.pic_name }}</td>
-            <td class="px-4 py-2 border">{{ customer.pic_phone }}</td>
-            <td class="px-4 py-2 border">{{ customer.project_name }}</td>
-            <td class="px-4 py-2 border">
-              <button
-                class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-                @click="openHistory(customer)"
-              >
-                History
-              </button>
-            </td>
-          </tr>
-          <tr v-if="paginatedData.length === 0">
-            <td colspan="6" class="text-center py-4">No customers found.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <!-- ===== ROWS PER PAGE ===== -->
-    <div class="flex justify-end items-center px-4 mt-2">
-      <label class="mr-2 text-sm text-gray-600">Rows:</label>
-      <select
-        v-model="perPage"
-        class="border rounded px-2 py-1 text-sm"
+      <!-- ===== TABLE CUSTOMER PROJECT ===== -->
+      <div class="overflow-x-auto px-4">
+        <table class="min-w-full border border-gray-200 bg-white">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2 border">NO.</th>
+              <th class="px-4 py-2 border">Customer</th>
+              <th class="px-4 py-2 border">PIC</th>
+              <th class="px-4 py-2 border">Contact</th>
+              <th class="px-4 py-2 border">Project</th>
+              <th class="px-4 py-2 border">History</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="customer in paginatedData"
+              :key="customer.no"
+              class="border-t"
+            >
+              <td class="px-4 py-2 border">{{ customer.no }}</td>
+              <td class="px-4 py-2 border">{{ customer.customer_name }}</td>
+              <td class="px-4 py-2 border">{{ customer.pic_name }}</td>
+              <td class="px-4 py-2 border">{{ customer.pic_phone }}</td>
+              <td class="px-4 py-2 border">{{ customer.project_name }}</td>
+              <td class="px-4 py-2 border">
+                <button
+                  class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  @click="openHistory(customer)"
+                >
+                  History
+                </button>
+              </td>
+            </tr>
+            <tr v-if="paginatedData.length === 0">
+              <td colspan="6" class="text-center py-4">No customers found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- ===== ROWS PER PAGE ===== -->
+      <div class="flex justify-end items-center px-4 mt-2">
+        <label class="mr-2 text-sm text-gray-600">Rows:</label>
+        <select
+          v-model="perPage"
+          class="border rounded px-2 py-1 text-sm"
+        >
+          <option :value="5">5</option>
+          <option :value="10">10</option>
+          <option :value="25">25</option>
+          <option :value="50">50</option>
+        </select>
+      </div>
+
+      <!-- ===== PAGINATION ===== -->
+      <div class="flex justify-between items-center mt-4 px-4">
+        <button
+          class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          :disabled="currentPage === 1"
+          @click="currentPage--"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button
+          class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+          :disabled="currentPage === totalPages"
+          @click="currentPage++"
+        >
+          Next
+        </button>
+      </div>
+
+      <!-- ===== MODAL HISTORY ===== -->
+      <div
+        v-if="showModal"
+        class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
       >
-        <option :value="5">5</option>
-        <option :value="10">10</option>
-        <option :value="25">25</option>
-        <option :value="50">50</option>
-      </select>
-    </div>
+        <div class="bg-white rounded-xl shadow-lg w-11/12 md:w-3/4 p-6 max-h-[70vh] overflow-y-auto">
+          <h2 class="text-xl font-bold text-slate-700 mb-4">
+            History - {{ selectedCustomer?.customer_name }}
+          </h2>
 
-    <!-- ===== PAGINATION ===== -->
-    <div class="flex justify-between items-center mt-4 px-4">
-      <button
-        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-        :disabled="currentPage === 1"
-        @click="currentPage--"
-      >
-        Previous
-      </button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button
-        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-        :disabled="currentPage === totalPages"
-        @click="currentPage++"
-      >
-        Next
-      </button>
-    </div>
-
-    <!-- ===== MODAL HISTORY ===== -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-xl shadow-lg w-11/12 md:w-3/4 p-6 max-h-[70vh] overflow-y-auto">
-        <h2 class="text-xl font-bold text-slate-700 mb-4">
-          History - {{ selectedCustomer?.customer_name }}
-        </h2>
-
-        <div v-if="selectedCustomer?.history?.length">
-          <div class="overflow-x-auto">
-            <table class="min-w-full border border-gray-200">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-4 py-2 border">No.</th>
-                  <th class="px-4 py-2 border">Tanggal Report</th>
-                  <th class="px-4 py-2 border">Type Report</th>
-                  <th class="px-4 py-2 border">Report Notes</th>
-                  <th class="px-4 py-2 border">Report By</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(report, idx) in selectedCustomer.history" :key="idx" class="border-t">
-                  <td class="px-4 py-2 border">{{ idx + 1 }}</td>
-                  <td class="px-4 py-2 border">{{ report.date }}</td>
-                  <td class="px-4 py-2 border">{{ report.type_report_name }}</td>
-                  <td class="px-4 py-2 border">{{ report.report_notes }}</td>
-                  <td class="px-4 py-2 border">{{ report.user_name }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <div v-if="selectedCustomer?.history?.length">
+            <div class="overflow-x-auto">
+              <table class="min-w-full border border-gray-200">
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th class="px-4 py-2 border">No.</th>
+                    <th class="px-4 py-2 border">Tanggal Report</th>
+                    <th class="px-4 py-2 border">Type Report</th>
+                    <th class="px-4 py-2 border">Report Notes</th>
+                    <th class="px-4 py-2 border">Report By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(report, idx) in selectedCustomer.history" :key="idx" class="border-t">
+                    <td class="px-4 py-2 border">{{ idx + 1 }}</td>
+                    <td class="px-4 py-2 border">{{ report.date }}</td>
+                    <td class="px-4 py-2 border">{{ report.type_report_name }}</td>
+                    <td class="px-4 py-2 border">{{ report.report_notes }}</td>
+                    <td class="px-4 py-2 border">{{ report.user_name }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-        <div v-else class="text-slate-500 italic">
-          No history available for your login.
-        </div>
+          <div v-else class="text-slate-500 italic">
+            No history available for your login.
+          </div>
 
-        <div class="flex justify-end mt-6">
-          <button
-            class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-            @click="showModal = false"
-          >
-            Close
-          </button>
+          <div class="flex justify-end mt-6">
+            <button
+              class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+              @click="showModal = false"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
+    <div v-else class="p-6 text-center text-red-600">
+      🚫 Anda tidak memiliki akses ke halaman ini
+    </div>
   </div>
 </template>
 
@@ -172,6 +176,8 @@ const loading = ref(false);
 const token = localStorage.getItem("api_token");
 const id = localStorage.getItem("id");
 const role = parseInt(localStorage.getItem("role"));
+
+const isAllowed = computed(() => role <= 3);
 const branch = localStorage.getItem("branch");
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 

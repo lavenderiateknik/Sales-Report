@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
+    <div v-if="isAllowed" class="flex flex-col bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
       <!-- Header -->
       <div class="flex flex-row items-center px-4 py-4 text-3xl text-slate-600">
         <span>Supervisor</span>
@@ -23,6 +23,9 @@
       <!-- recap by name -->
       <Tabel :rows-data="recapReportByNameCustomers" :cols="colsRecapReportByNameCustomer" title1="Recap"
         title2="Visit, Follow Up, Offering, Negotiation and Purchase Order by Customer" />
+    </div>
+    <div v-else class="p-6 text-center text-red-600">
+    🚫 Anda tidak memiliki akses ke halaman ini
     </div>
   </div>
 </template>
@@ -69,6 +72,7 @@ const url = ref('');
 const token = localStorage.getItem('api_token');
 const id = localStorage.getItem('id');
 const role = parseInt(localStorage.getItem('role'));
+const isAllowed = computed(() => role <= 6);
 const branch = localStorage.getItem('branch');
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -256,6 +260,10 @@ const colsRecapReportByNameCustomer = ref([
    Lifecycle
 =========================== */
 onMounted(() => {
+   if (!isAllowed.value) {
+    router.replace('/forbidden'); // atau '/dashboard'
+    return;
+  }
 
   fetchTypeReports();
   fetchMonthReports();
