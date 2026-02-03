@@ -35,7 +35,7 @@ import AssignedCustomer from '@/components/AssignedCustomer.vue'
 
 
 const router = createRouter({
-  history: createWebHistory("/frontend/dist/"),
+  history: createWebHistory("/"),
   routes: [
     {
       path: '/',
