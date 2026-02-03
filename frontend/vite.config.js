@@ -8,7 +8,7 @@ import vueJsx from "@vitejs/plugin-vue-jsx";
 
 
 export default defineConfig({
-  base: '/', // <--- jika ingin di convert ke mobile app ubah menjadi "./" untuk web /frontend/dist/
+  base: '/', 
   plugins: [
     vue(),
     vueDevTools(),
