@@ -67,25 +67,29 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const login = async () => {
   loginError.value = null;
 
-  try {
+ try {
     const response = await axios.post(`${apiBaseUrl}/api/login`, {
       email: email.value,
       password: password.value,
     });
 
-    // Pastikan data yang diterima sesuai dengan struktur ini
     const userData = response.data;
+    console.log("Cek Data User:", userData); // Lihat di console structure-nya
 
-    localStorage.setItem('api_token', userData.token);
-    localStorage.setItem('id', userData.user.id);
-    localStorage.setItem('name', userData.user.name);
-    localStorage.setItem('email', userData.user.email);
-    localStorage.setItem('branch', userData.user.branch_id);  
-    localStorage.setItem('role', userData.user.role_id);
-    localStorage.setItem('role_name', userData.user.role.name);
-    localStorage.setItem('branch_name', userData.user.branch.name); 
-
+    // Gunakan Optional Chaining (?.) agar jika data null, aplikasi tidak crash
+    localStorage.setItem('api_token', userData?.token || '');
+    localStorage.setItem('id', userData?.user?.id || '');
+    localStorage.setItem('name', userData?.user?.name || '');
+    localStorage.setItem('email', userData?.user?.email || '');
+    localStorage.setItem('role', userData?.user?.role_id || '');
     
+    // Bagian yang paling sering bikin error 'data of undefined'
+    localStorage.setItem('role_name', userData?.user?.role?.name || 'No Role');
+    localStorage.setItem('branch', userData?.user?.branch_id || '');
+    localStorage.setItem('branch_name', userData?.user?.branch?.name || 'No Branch');
+
+    // Gunakan window.location jika router.push tetap bermasalah, 
+    // tapi router.push lebih disarankan untuk SPA.
     await router.push({ name: 'home' });
 
   } catch (error) {
