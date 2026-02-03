@@ -84,10 +84,12 @@ class CustomerDatabaseController extends Controller
         if (in_array($role, [5, 6, 7, 8])) {
             $data = CustomerDatabase::with('branch')
                 ->where('id_branch', $user->branch_id)
+                ->orderBy('id_branch', 'desc')
                 ->orderBy('project_id', 'asc')
                 ->get();
         } else {
             $data = CustomerDatabase::with('branch')
+                ->orderBy('id_branch', 'desc')
                 ->orderBy('project_id', 'asc')
                 ->get();
         }

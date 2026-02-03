@@ -85,21 +85,20 @@ const login = async () => {
     localStorage.setItem('role_name', userData.user.role.name);
     localStorage.setItem('branch_name', userData.user.branch.name); 
 
-    // Gunakan path langsung atau pastikan name 'home' sudah terdaftar di router
+    
     await router.push({ name: 'home' });
 
   } catch (error) {
-    console.error("Detail Error:", error); // Membantu debugging di console
+    console.error("Detail Error:", error); 
 
-    // Penanganan error yang lebih aman agar tidak "reading data of undefined"
+    
     if (error.response && error.response.data) {
-      // Error dari server (misal: 401 Unauthorized, 422 Validation Error)
+      
       loginError.value = error.response.data.message || 'Email atau password salah.';
     } else if (error.request) {
-      // Request terkirim tapi tidak ada respon (Network error/Server down)
       loginError.value = 'Tidak ada respon dari server. Periksa koneksi internet atau URL API.';
     } else {
-      // Error lainnya (kesalahan setup axios atau runtime js)
+      
       loginError.value = 'Terjadi kesalahan sistem.';
     }
   }
