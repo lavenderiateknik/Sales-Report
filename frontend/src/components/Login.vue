@@ -74,8 +74,7 @@ const login = async () => {
     });
 
     const userData = response.data;
-    console.log("Cek Data User:", userData); // Lihat di console structure-nya
-
+    
     // Gunakan Optional Chaining (?.) agar jika data null, aplikasi tidak crash
     localStorage.setItem('api_token', userData?.token || '');
     localStorage.setItem('id', userData?.user?.id || '');
@@ -93,19 +92,15 @@ const login = async () => {
     window.location.href = '/';
 
   } catch (error) {
-    console.error("Detail Error:", error); 
-
+    console.error("Detail Error:", error);
     
-    if (error.response && error.response.data) {
-      
-      loginError.value = error.response.data.message || 'Email atau password salah.';
-    } else if (error.request) {
-      loginError.value = 'Tidak ada respon dari server. Periksa koneksi internet atau URL API.';
-    } else {
-      
-      loginError.value = 'Terjadi kesalahan sistem.';
-    }
-  }
+    // Gunakan pengecekan bertingkat yang sangat aman
+    const serverMessage = error?.response?.data?.message 
+                       || error?.message 
+                       || 'Terjadi kesalahan koneksi ke server';
+                       
+    loginError.value = serverMessage;
+}
 };
 </script>
 
