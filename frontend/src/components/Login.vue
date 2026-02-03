@@ -90,7 +90,7 @@ const login = async () => {
 
     // Gunakan window.location jika router.push tetap bermasalah, 
     // tapi router.push lebih disarankan untuk SPA.
-    await router.push({ name: 'home' });
+    window.location.href = '/';
 
   } catch (error) {
     console.error("Detail Error:", error); 
