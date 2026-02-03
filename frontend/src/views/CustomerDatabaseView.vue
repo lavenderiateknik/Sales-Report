@@ -67,6 +67,7 @@
           <tbody>
             <tr v-for="(item, index) in paginatedCustomers" :key="item.project_id" class="border-b hover:bg-blue-300">
               <td class="py-3 px-4 text-gray-700">{{ item.project_id }}</td>
+              <!-- //requested addition -->
               <td class="py-3 px-4 text-gray-700">{{ item.branch_name}}</td>
               <td class="py-3 px-4 text-gray-700">{{ item.project_name || "-" }}</td>
               <td class="py-3 px-4 text-gray-700 hidden lg:table-cell">{{ item.project_stage || "-" }}</td>
