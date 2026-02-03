@@ -209,14 +209,25 @@ const router = createRouter({
 
 
 router.beforeEach((to, from, next) => {
-  const isAuth = localStorage.getItem('api_token'); // Menggunakan token, bukan boolean
+  const isAuth = !!localStorage.getItem('api_token');
 
-  if (to.name !== "Login" && !isAuth) {
-    next({ name: 'Login' });
-  } else if (to.name === "Login" && isAuth) {
-    next({ name: 'home' });
-  } else {
-    next();
+  // route login
+  if (to.path === '/login') {
+    if (isAuth) {
+      next('/');
+    } else {
+      next();
+    }
+    return;
   }
+
+  // route lain (protected)
+  if (!isAuth) {
+    next('/login');
+    return;
+  }
+
+  next();
 });
+
 export default router
