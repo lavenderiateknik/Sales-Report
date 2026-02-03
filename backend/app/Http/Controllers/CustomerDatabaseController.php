@@ -98,7 +98,7 @@ class CustomerDatabaseController extends Controller
 
             return [
                 'project_id'    => $first->project_id,
-                'id_branch'     => $first->id_branch,
+                'branch_name'  => $first->branch?->name,
                 'project_name'  => $first->project_name,
                 'project_stage' => $first->project_stage,
                 'project_town'  => $first->project_town,
