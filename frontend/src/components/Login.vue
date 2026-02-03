@@ -67,41 +67,32 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const login = async () => {
   loginError.value = null;
 
- try {
-    const response = await axios.post(`${apiBaseUrl}/api/login`, {
+  try {
+    const { data } = await axios.post(`${apiBaseUrl}/api/login`, {
       email: email.value,
       password: password.value,
     });
 
-    const userData = response.data;
-    
-    // Gunakan Optional Chaining (?.) agar jika data null, aplikasi tidak crash
-    localStorage.setItem('api_token', userData?.token || '');
-    localStorage.setItem('id', userData?.user?.id || '');
-    localStorage.setItem('name', userData?.user?.name || '');
-    localStorage.setItem('email', userData?.user?.email || '');
-    localStorage.setItem('role', userData?.user?.role_id || '');
-    
-    // Bagian yang paling sering bikin error 'data of undefined'
-    localStorage.setItem('role_name', userData?.user?.role?.name || 'No Role');
-    localStorage.setItem('branch', userData?.user?.branch_id || '');
-    localStorage.setItem('branch_name', userData?.user?.branch?.name || 'No Branch');
+    // Simpan token & user
+    localStorage.setItem('api_token', data.token);
+    localStorage.setItem('id', data.user.id);
+    localStorage.setItem('name', data.user.name);
+    localStorage.setItem('email', data.user.email);
+    localStorage.setItem('role', data.user.role_id);
+    localStorage.setItem('role_name', data.user.role?.name ?? '');
+    localStorage.setItem('branch', data.user.branch_id);
+    localStorage.setItem('branch_name', data.user.branch?.name ?? '');
 
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    window.location.href = '/';
+    // 🔥 Redirect SPA
+    router.push('/');
 
   } catch (error) {
-    console.error("Detail Error:", error);
-    
-    // Gunakan pengecekan bertingkat yang sangat aman
-    const serverMessage = error?.response?.data?.message 
-                       || error?.message 
-                       || 'Terjadi kesalahan koneksi ke server';
-                       
-    loginError.value = serverMessage;
-}
+    loginError.value =
+      error?.response?.data?.message ||
+      'Gagal login, silakan coba lagi';
+  }
 };
+
 </script>
 
 <style scoped>
