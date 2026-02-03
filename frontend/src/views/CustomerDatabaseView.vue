@@ -54,6 +54,7 @@
           <thead class="bg-[#F3C623] text-slate-600 text-sm">
             <tr>
               <th class="py-3 px-4 text-left font-semibold border-b">Project ID</th>
+              <th class="py-3 px-4 text-left font-semibold border-b">Cabang</th>
               <th class="py-3 px-4 text-left font-semibold border-b">Project Name</th>
               <th class="py-3 px-4 text-left font-semibold border-b hidden lg:table-cell">Project Stage</th>
               <th class="py-3 px-4 text-left font-semibold border-b hidden lg:table-cell">Project Town</th>
@@ -66,6 +67,7 @@
           <tbody>
             <tr v-for="(item, index) in paginatedCustomers" :key="item.project_id" class="border-b hover:bg-blue-300">
               <td class="py-3 px-4 text-gray-700">{{ item.project_id }}</td>
+              <td class="py-3 px-4 text-gray-700">{{ item.branch_name}}</td>
               <td class="py-3 px-4 text-gray-700">{{ item.project_name || "-" }}</td>
               <td class="py-3 px-4 text-gray-700 hidden lg:table-cell">{{ item.project_stage || "-" }}</td>
               <td class="py-3 px-4 text-gray-700 hidden lg:table-cell">{{ item.project_town || "-" }}</td>
@@ -281,6 +283,7 @@ const fetchCustomers = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     customersDatabase.value = res.data.data || [];
+    
   } catch (err) {
     console.error("Gagal mengambil data:", err);
   }

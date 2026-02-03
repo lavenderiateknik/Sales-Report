@@ -82,11 +82,14 @@ class CustomerDatabaseController extends Controller
 
         // Filter berdasarkan role dan cabang
         if (in_array($role, [5, 6, 7, 8])) {
-            $data = CustomerDatabase::where('id_branch', $user->branch_id)
+            $data = CustomerDatabase::with('branch')
+                ->where('id_branch', $user->branch_id)
                 ->orderBy('project_id', 'asc')
                 ->get();
         } else {
-            $data = CustomerDatabase::orderBy('project_id', 'asc')->get();
+            $data = CustomerDatabase::with('branch')
+                ->orderBy('project_id', 'asc')
+                ->get();
         }
 
         // Kelompokkan berdasarkan project_id
@@ -95,6 +98,7 @@ class CustomerDatabaseController extends Controller
 
             return [
                 'project_id'    => $first->project_id,
+                'id_branch'     => $first->id_branch,
                 'project_name'  => $first->project_name,
                 'project_stage' => $first->project_stage,
                 'project_town'  => $first->project_town,
