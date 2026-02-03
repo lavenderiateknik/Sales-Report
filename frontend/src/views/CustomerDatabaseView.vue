@@ -284,6 +284,7 @@ const fetchCustomers = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     customersDatabase.value = res.data.data || [];
+    
   } catch (err) {
     console.error("Gagal mengambil data:", err);
   }
