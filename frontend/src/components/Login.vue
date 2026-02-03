@@ -88,8 +88,8 @@ const login = async () => {
     localStorage.setItem('branch', userData?.user?.branch_id || '');
     localStorage.setItem('branch_name', userData?.user?.branch?.name || 'No Branch');
 
-    // Gunakan window.location jika router.push tetap bermasalah, 
-    // tapi router.push lebih disarankan untuk SPA.
+    await new Promise(resolve => setTimeout(resolve, 100));
+
     window.location.href = '/';
 
   } catch (error) {
