@@ -53,41 +53,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'; // KOREKSI: Tambahkan 'ref'
+import { ref } from 'vue';
 import { useRouter } from "vue-router";
-import axios from 'axios'; // KOREKSI: Import axios
+import axios from 'axios';
 
 const router = useRouter();
-const email = ref(''); // KOREKSI: Deklarasi variabel reaktif
-const password = ref(''); // KOREKSI: Deklarasi variabel reaktif
-const loginError = ref(null); // KOREKSI: Variabel untuk pesan error
+const email = ref('');
+const password = ref('');
+const loginError = ref(null);
 
-// Ambil URL dasar API dari variabel lingkungan
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
-const login = async () => { // KOREKSI: Buat fungsi ini menjadi async
-  loginError.value = null; // Reset error message
+const login = async () => {
+  loginError.value = null;
 
-    try {
-    const response = await axios.post(`${apiBaseUrl}/api/login`, { // Gunakan variabel di sini
+  try {
+    const response = await axios.post(`${apiBaseUrl}/api/login`, {
       email: email.value,
       password: password.value,
     });
 
-    localStorage.setItem('api_token', response.data.token);
-    localStorage.setItem('id', response.data.user.id);
-    localStorage.setItem('name', response.data.user.name);
-    localStorage.setItem('email', response.data.user.email);
-    localStorage.setItem('branch', response.data.user.branch_id);  
-    localStorage.setItem('role', response.data.user.role_id);
-    localStorage.setItem('role_name', response.data.user.role.name);
-    localStorage.setItem('branch', response.data.user.branch_id);  
-    localStorage.setItem('branch_name', response.data.user.branch.name);  
-    router.push({ name: 'home' });
+    // Pastikan data yang diterima sesuai dengan struktur ini
+    const userData = response.data;
+
+    localStorage.setItem('api_token', userData.token);
+    localStorage.setItem('id', userData.user.id);
+    localStorage.setItem('name', userData.user.name);
+    localStorage.setItem('email', userData.user.email);
+    localStorage.setItem('branch', userData.user.branch_id);  
+    localStorage.setItem('role', userData.user.role_id);
+    localStorage.setItem('role_name', userData.user.role.name);
+    localStorage.setItem('branch_name', userData.user.branch.name); 
+
+    // Gunakan path langsung atau pastikan name 'home' sudah terdaftar di router
+    await router.push({ name: 'home' });
 
   } catch (error) {
-    // Login gagal
-    loginError.value = error.response.data.message || 'Terjadi kesalahan saat login.'; // Tampilkan pesan error dari API
+    console.error("Detail Error:", error); // Membantu debugging di console
+
+    // Penanganan error yang lebih aman agar tidak "reading data of undefined"
+    if (error.response && error.response.data) {
+      // Error dari server (misal: 401 Unauthorized, 422 Validation Error)
+      loginError.value = error.response.data.message || 'Email atau password salah.';
+    } else if (error.request) {
+      // Request terkirim tapi tidak ada respon (Network error/Server down)
+      loginError.value = 'Tidak ada respon dari server. Periksa koneksi internet atau URL API.';
+    } else {
+      // Error lainnya (kesalahan setup axios atau runtime js)
+      loginError.value = 'Terjadi kesalahan sistem.';
+    }
   }
 };
 </script>
