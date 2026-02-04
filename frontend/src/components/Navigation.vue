@@ -52,17 +52,17 @@
             </RouterLink>
             <!-- Dashboard basic end -->
             <!-- Dashboard Sales Manager Start -->
-            <RouterLink to="/customer" v-if="userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
+            <RouterLink to="/customer" v-if="userRoleId == 3 || userRoleId == 1 || userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <NotebookTabs /> Customer History
             </RouterLink>
-            <RouterLink to="/revenue" v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
+            <RouterLink to="/revenue" v-if="userRoleId == 3 || userRoleId == 2 || userRoleId == 1"
               class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <Medal /> Revenue
             </RouterLink>
-            <RouterLink v-if="userRoleId == 3 | userRoleId == 2 | userRoleId == 1"
+            <RouterLink v-if="userRoleId == 3 || userRoleId == 2 || userRoleId == 1"
               to="/assignmentprecentage" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
               <ChartPie /> Assignment Precentage
@@ -111,7 +111,7 @@
               <Landmark /> BCI Database
             </RouterLink>
             <!-- SPV Dashboard Parent -->
-            <div v-if="userRoleId == 6 | userRoleId == 5 | userRoleId == 4 | userRoleId == 3 | userRoleId == 1 | userRoleId == 1"
+            <div v-if="userRoleId == 6 || userRoleId == 5 || userRoleId == 4 || userRoleId == 3 || userRoleId == 1 || userRoleId == 1"
               class="text-sm pl-3 md:pl-5 flex items-center justify-between gap-1 pb-1 my-1 cursor-pointer hover:font-semibold"
               @click="isSpvOpen = !isSpvOpen">
               <div class="flex items-center gap-0 md:gap-1">
