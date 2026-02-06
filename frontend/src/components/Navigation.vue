@@ -198,7 +198,7 @@
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <GitBranch /> Branches
           </RouterLink>
-          <RouterLink v-if="[1, 2].includes(userRoleId)" to="/customerdata"
+          <RouterLink v-if="[1, 2, 3].includes(userRoleId)" to="/customerdata"
             class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
             exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
             <Database /> Customer Database
