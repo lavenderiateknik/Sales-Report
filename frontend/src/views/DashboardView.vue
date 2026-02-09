@@ -147,14 +147,16 @@ const getDate = () => {
 =========================== */
 const fetchTypeReports = async () => {
   let url;
-  if (role === 8) url = `${apiBaseUrl}/api/typecustomers/${id}`;
-  else if ([7, 6, 5].includes(role)) url = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
+  if (role === 7) url = `${apiBaseUrl}/api/typecustomers/${id}`;
+  else if ([ 6, 5, 4 ].includes(role)) url = `${apiBaseUrl}/api/typecustomersbybranch/${branch}`;
   else url = `${apiBaseUrl}/api/optiontypecustomers`;
+  
 
   loading.value = true;
   try {
     const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
     typecustomers.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
+    
   } finally {
     loading.value = false;
   }
@@ -162,14 +164,14 @@ const fetchTypeReports = async () => {
 
 const fetchMonthReports = async () => {
   let url;
-  if (role === 8) url = `${apiBaseUrl}/api/recap-reports/${id}`;
-  else if ([7, 6, 5].includes(role)) url = `${apiBaseUrl}/api/recap-reports-branch/${branch}`;
+  if (role === 7) url = `${apiBaseUrl}/api/recap-reports/${id}`;
+  else if ([ 6, 5, 4].includes(role)) url = `${apiBaseUrl}/api/recap-reports-branch/${branch}`;
   else url = `${apiBaseUrl}/api/recap-reports`;
-
   loading.value = true;
   try {
     const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
     monthreports.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
+    
   } finally {
     loading.value = false;
   }
@@ -182,6 +184,7 @@ const fetchCustomerRecap = async () => {
       headers: { Authorization: `Bearer ${token}` }
     });
     customerreports.value = (res.data.data || []).map((i, idx) => ({ ...i, no: idx + 1 }));
+    
   } finally {
     loading.value = false;
   }
@@ -229,7 +232,7 @@ const fetchTypeRecap = async () => {
     report_type: i.report_type,
     total: Number(i.total) || 0,
   }));
-
+  console.log(rows);
   typeRecap.value = [...rows, {
     no: '',
     report_type: 'Grand Total',

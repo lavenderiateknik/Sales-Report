@@ -29,6 +29,7 @@ class SalesReportController extends Controller
             'created_at'
         ])
         ->orderBy('date','desc')
+        ->where('type_report_id', '!=', 6)
         ->get();
          return response()->json([
             "success" => true,
@@ -43,6 +44,7 @@ class SalesReportController extends Controller
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
         ->where('user_id', $id)
         ->orderBy('created_at', 'desc')
+        ->where('type_report_id', '!=', 6)
         ->get()
         ->makeHidden(['picture']);
         return response()->json([
@@ -207,7 +209,7 @@ class SalesReportController extends Controller
         if ($user->role_id == 7) {
             // Sales → hanya data miliknya
             $query->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [7, 6, 5])) {
+        } elseif (in_array($user->role_id, [6, 5, 4])) {
             // Supervisor, Branch Manager, Assistant Manager → berdasarkan branch
             $query->where('users.branch_id', $user->branch_id);
         }
@@ -524,9 +526,9 @@ class SalesReportController extends Controller
 
         } else {
             // 🔹 Default berdasarkan role
-            if ($user->role_id == 8) {
+            if ($user->role_id == 7) {
                 $query->where('sales_reports.user_id', $user->id);
-            } elseif (in_array($user->role_id, [7, 6, 5])) {
+            } elseif (in_array($user->role_id, [6, 5, 4])) {
                 $query->where('users.branch_id', $user->branch_id);
             }
             // role 1,2,3 → global
@@ -698,6 +700,9 @@ class SalesReportController extends Controller
 
         $validated = $request->validate([
             'report_notes' => 'nullable|string',
+            'pic_name' => 'nullable|string',
+            'pic_phone' => 'nullable|string',
+            'pic_position' => 'nullable|string',
             'equipment_needs' => 'nullable|string',
             'items_purchase_order' => 'nullable|string',
             'nominal_purchase_order' => 'nullable|numeric',
