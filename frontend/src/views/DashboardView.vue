@@ -232,7 +232,7 @@ const fetchTypeRecap = async () => {
     report_type: i.report_type,
     total: Number(i.total) || 0,
   }));
-  console.log(rows);
+  
   typeRecap.value = [...rows, {
     no: '',
     report_type: 'Grand Total',

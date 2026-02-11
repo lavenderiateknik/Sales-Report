@@ -84,23 +84,30 @@ class UserController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $validated = $request->validate([
+        $rules = [
             'name' => ['required','string','max:255'],
             'email' => ['required','email', Rule::unique('users')->ignore($user->id)],
             'role_id' => ['required','exists:roles,id'],
-            'branch_id' => ['required','exists:branches,id'],
             'password' => ['nullable','confirmed','min:6'],
-        ]);
+        ];
 
-        // update field biasa
-        $user->fill([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'role_id' => $validated['role_id'],
-            'branch_id' => $validated['branch_id'],
-        ]);
+        $role = $request->input('role_id');
+        if (!in_array($role, [1,2,3])) {
+            $rules['branch_id'] = ['required','exists:branches,id'];
+        } else {
+            $rules['branch_id'] = ['nullable','exists:branches,id'];
+        }
 
-        // jika password dikirim
+        $validated = $request->validate($rules);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->role_id = $validated['role_id'];
+
+        if (isset($validated['branch_id'])) {
+            $user->branch_id = $validated['branch_id'];
+        }
+
         if (!empty($validated['password'])) {
             $user->password = Hash::make($validated['password']);
         }

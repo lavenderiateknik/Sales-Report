@@ -9,7 +9,8 @@
     </div>
 
     <div v-else class="px-2 py-2">
-      <div class="flex  flex-col">
+      <!-- Name -->
+      <div class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Name</label>
         <input
           v-model="form.name"
@@ -21,7 +22,8 @@
         <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name[0] }}</p>
       </div>
 
-      <div class="flex  flex-col">
+      <!-- Email -->
+      <div class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Email</label>
         <input
           v-model="form.email"
@@ -33,7 +35,8 @@
         <p v-if="errors.email" class="text-red-500 text-sm mt-1">{{ errors.email[0] }}</p>
       </div>
 
-      <div class="flex  flex-col">
+      <!-- Password -->
+      <div class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Password (Kosongkan jika tidak diubah)</label>
         <input
           v-model="form.password"
@@ -45,7 +48,8 @@
         <p v-if="errors.password" class="text-red-500 text-sm mt-1">{{ errors.password[0] }}</p>
       </div>
 
-      <div class="flex  flex-col">
+      <!-- Confirm Password -->
+      <div class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Confirm New Password</label>
         <input
           v-model="form.password_confirmation"
@@ -55,8 +59,9 @@
           placeholder="Confirm new password"
         />
       </div>
-      
-      <div v-if="role == 1" class="flex  flex-col">
+
+      <!-- Role -->
+      <div v-if="role === 1" class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Role</label>
         <select
           v-model="form.role_id"
@@ -64,12 +69,13 @@
           required
         >
           <option value="">-- Select Role --</option>
-          <option v-for="role in roles" :key="role.id" :value="role.id">{{ role.name }}</option>
+          <option v-for="r in roles" :key="r.id" :value="r.id">{{ r.name }}</option>
         </select>
         <p v-if="errors.role_id" class="text-red-500 text-sm mt-1">{{ errors.role_id[0] }}</p>
       </div>
 
-      <div class="flex  flex-col" v-if="role == 1">
+      <!-- Branch -->
+      <div v-if="role === 1" class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Branch</label>
         <select
           v-model="form.branch_id"
@@ -77,7 +83,7 @@
           required
         >
           <option value="">-- Select Branch --</option>
-          <option v-for="branch in branches" :key="branch.id" :value="branch.id">{{ branch.name }}</option>
+          <option v-for="b in branches" :key="b.id" :value="b.id">{{ b.name }}</option>
         </select>
         <p v-if="errors.branch_id" class="text-red-500 text-sm mt-1">{{ errors.branch_id[0] }}</p>
       </div>
@@ -101,19 +107,18 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const props = defineProps({
-  userId: {
-    type: [Number, String],
-    required: true,
-  },
+  userId: { type: Number, required: true },
+  role: { type: Number, required: true }, // menerima role dari parent
 });
 
 const emit = defineEmits(['saved']);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 const token = localStorage.getItem('api_token');
-const role = localStorage.getItem('role');
 
 const form = ref({
   name: '',
@@ -131,46 +136,39 @@ const loading = ref(true);
 const submitting = ref(false);
 const fetchError = ref(null);
 
-// --- Fetch Data User, Roles, and Branches ---
-
+// --- Fetch roles & branches ---
 const fetchReferenceData = async () => {
   try {
-    // Ganti ini dengan endpoint Anda untuk roles dan branches
-    // Contoh:
     const [rolesRes, branchesRes] = await Promise.all([
       axios.get(`${apiBaseUrl}/api/allroles`, { headers: { Authorization: `Bearer ${token}` } }),
       axios.get(`${apiBaseUrl}/api/allbranches`, { headers: { Authorization: `Bearer ${token}` } }),
     ]);
     roles.value = rolesRes.data.data || [];
-      branches.value = branchesRes.data.data || [];
-      
+    branches.value = branchesRes.data.data || [];
   } catch (err) {
     console.error('Failed to fetch reference data:', err);
     fetchError.value = 'Gagal memuat daftar Role atau Branch.';
   }
 };
 
+// --- Fetch user data ---
 const fetchUserData = async (id) => {
   if (!id) return;
   loading.value = true;
   fetchError.value = null;
-  
+
   try {
     const res = await axios.get(`${apiBaseUrl}/api/user/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const user = res.data.data;
-    
-    // Isi form dengan data user yang diterima
+
     form.value.name = user.name || '';
     form.value.email = user.email || '';
     form.value.role_id = user.role_id || '';
     form.value.branch_id = user.branch_id || '';
-    
-    // Reset password fields saat memuat
     form.value.password = '';
     form.value.password_confirmation = '';
-    
   } catch (err) {
     console.error('Failed to fetch user data:', err);
     fetchError.value = `Tidak dapat menemukan user ID ${id}.`;
@@ -179,47 +177,38 @@ const fetchUserData = async (id) => {
   }
 };
 
-// --- Watcher untuk ID Berubah ---
-
-// Memuat data user setiap kali props.userId berubah
+// --- Watch userId perubahan ---
 watch(() => props.userId, (newId) => {
   fetchUserData(newId);
 }, { immediate: true });
 
-// --- Submit Form ---
-
+// --- Submit form ---
 const submitForm = async () => {
   submitting.value = true;
-  errors.value = {}; // Reset error
+  errors.value = {};
 
-  // Siapkan data yang akan dikirim
-  let dataToSend = {
+  const dataToSend = {
     name: form.value.name,
     email: form.value.email,
     role_id: form.value.role_id,
     branch_id: form.value.branch_id,
   };
-  
-  // Hanya masukkan password jika diisi
   if (form.value.password) {
     dataToSend.password = form.value.password;
     dataToSend.password_confirmation = form.value.password_confirmation;
   }
 
   try {
-    // Gunakan PUT atau PATCH sesuai API Anda
     await axios.put(`${apiBaseUrl}/api/updateuser/${props.userId}`, dataToSend, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    alert('User berhasil diupdate!');
-    emit('saved'); // Beri tahu komponen induk untuk menutup modal dan me-refresh tabel
-    window.location.href = "/";
-    
+    emit('saved'); // SPA-friendly, tidak reload halaman
+    router.push('/');
   } catch (err) {
-    if (err.response && err.response.status === 422) {
-      // Validation error dari Laravel
+    if (err.response?.status === 422) {
       errors.value = err.response.data.errors;
+      console.log('Validation errors:', errors.value);
     } else {
       console.error('Gagal update user:', err);
       errors.value.general = 'Gagal menyimpan perubahan. Coba lagi.';
