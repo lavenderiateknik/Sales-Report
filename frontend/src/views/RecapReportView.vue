@@ -1,175 +1,311 @@
 <template>
-  <div class="bg-[#10375C]/10 mx-2 my-2 rounded-2xl">
-    <!-- SEARCH BAR -->
-    <div class="flex items-center justify-end gap-2 mb-3 py-2 px-3">
-      <span>Search Daily Visit</span>
+  <div class="bg-[#10375C]/10 mx-2 my-2 rounded-2xl p-4">
+
+    <!-- SEARCH -->
+    <div class="flex items-center justify-end gap-2 mb-4">
+      <span class="font-medium">Search</span>
       <input
         v-model="search"
-        
         type="text"
         placeholder="Search data..."
-        class=" bg-white border rounded-lg px-3 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        class="bg-white border rounded-lg px-3 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-400"
       />
     </div>
-    <Tabel
-      :rows-data="filteredCustomers"
-      :cols="colsData"
-      title1="Daily"
-      title2="Visit"
-      :pageable="true"
-      :per-page="10"
-      :loading="loading"
-    />
+
+    <!-- CARD -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-orange-400">
+      <div class="p-4 border-b border-gray-100">
+        <h1 class="text-2xl font-normal">
+          Daily <span class="font-bold">Report</span>
+        </h1>
+      </div>
+
+      <!-- TABLE -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+
+          <thead>
+            <tr class="bg-gray-50 text-gray-700 uppercase text-xs">
+              <th class="px-4 py-3 border-b text-center w-12">No</th>
+              <th class="px-4 py-3 border-b text-center">Date</th>
+              <th class="px-4 py-3 border-b">Customer Name</th>
+              <th class="px-4 py-3 border-b">Project Name</th>
+              <th class="px-4 py-3 border-b">Report By</th>
+              <th class="px-4 py-3 border-b">Type Report</th>
+              <th class="px-4 py-3 border-b text-center">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody class="text-sm divide-y divide-gray-100">
+
+            <tr v-if="loading">
+              <td colspan="7" class="text-center py-10 text-gray-500">
+                Loading data...
+              </td>
+            </tr>
+
+            <tr v-else-if="filteredCustomers.length === 0">
+              <td colspan="7" class="text-center py-10 text-gray-500">
+                No data found.
+              </td>
+            </tr>
+
+            <tr
+              v-for="(row, index) in paginatedCustomers"
+              :key="index"
+              class="hover:bg-gray-50 transition-colors"
+            >
+              <td class="px-4 py-3 text-center">
+                {{ (currentPage - 1) * perPage + index + 1 }}
+              </td>
+
+              <td class="px-4 py-3 text-center whitespace-nowrap">
+                {{ formatDate(row.date) }}
+              </td>
+
+              <td class="px-4 py-3 font-medium">
+                {{ row.customer_name || '-' }}
+              </td>
+
+              <td class="px-4 py-3">
+                {{ row.project_name || '-' }}
+              </td>
+
+              <td class="px-4 py-3">
+                {{ row.user?.name || '-' }}
+              </td>
+
+              <td class="px-4 py-3">
+                <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-xs font-semibold">
+                  {{ row.type_report?.name || '-' }}
+                </span>
+              </td>
+
+              <td class="px-4 py-3 text-center">
+                <button
+                  @click="openDetail(row)"
+                  class="px-4 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm transition-all active:scale-95"
+                >
+                  Detail
+                </button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 px-4 py-3 border-t bg-gray-50 text-sm">
+
+        <div class="flex items-center gap-2">
+          <span>Rows per page:</span>
+          <select v-model="perPage" class="border rounded px-2 py-1">
+            <option :value="10">10</option>
+            <option :value="20">20</option>
+            <option :value="50">50</option>
+          </select>
+        </div>
+
+        <div>
+          {{ (currentPage - 1) * perPage + 1 }} -
+          {{ Math.min(currentPage * perPage, filteredCustomers.length) }}
+          of {{ filteredCustomers.length }}
+        </div>
+
+        <div class="flex gap-2">
+          <button
+            class="px-3 py-1 border rounded disabled:opacity-40"
+            :disabled="currentPage === 1"
+            @click="currentPage--"
+          >
+            Prev
+          </button>
+
+          <button
+            class="px-3 py-1 border rounded disabled:opacity-40"
+            :disabled="currentPage === totalPages"
+            @click="currentPage++"
+          >
+            Next
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MODAL -->
+    <div v-if="showModal" class="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-3xl relative overflow-y-auto max-h-[90vh] shadow-2xl">
+        <h2 class="text-xl font-bold mb-4 border-b pb-3 text-[#10375C]">Report Detail {{ selectedCustomer?.type_report?.name }}</h2>
+        <button @click="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-3xl">&times;</button>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-sm">
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Date</span>
+            <span class="font-medium">{{ formatDate(selectedCustomer?.date) }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Customer Name</span>
+            <span class="font-medium">{{ selectedCustomer?.customer_name }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Check In</span>
+            <span class="font-medium">{{ selectedCustomer?.check_in || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Check Out</span>
+            <span class="font-medium">{{ selectedCustomer?.check_out || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Coordinate Check In</span>
+            <span class="font-medium">{{ selectedCustomer?.coordinate_check_in || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Coordinate Check Out</span>
+            <span class="font-medium">{{ selectedCustomer?.coordinate_check_out || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Project Name</span>
+            <span class="font-medium">{{ selectedCustomer?.project_name }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Type Project</span>
+            <span class="font-medium">{{ selectedCustomer?.type_project }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">Reported By</span>
+            <span class="font-medium">{{ selectedCustomer?.user?.name || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">PIC Name</span>
+            <span class="font-medium">{{ selectedCustomer?.pic_name || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">PIC Phone</span>
+            <span class="font-medium">{{ selectedCustomer?.pic_phone || '-' }}</span>
+          </div>
+          <div class="flex flex-col border-b border-gray-50 pb-1">
+            <span class="text-gray-400 text-xs uppercase font-bold">PIC Position</span>
+            <span class="font-medium">{{ selectedCustomer?.pic_position || '-' }}</span>
+          </div>
+          <div class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
+            <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Report Notes</span>
+            <p class="text-gray-700 leading-relaxed">{{ selectedCustomer?.report_notes || 'No notes available.' }}</p>
+          </div>
+          <div v-if="selectedCustomer?.equipment_needs" class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
+            <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Equipment Needs</span>
+            <p class="text-gray-700 leading-relaxed">{{ selectedCustomer?.equipment_needs || '-' }}</p>
+          </div>
+          <div v-if="selectedCustomer?.items_purchase_order" class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
+            <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Items Purchased</span>
+            <p class="text-gray-700 leading-relaxed">{{ selectedCustomer?.items_purchase_order || '-' }}</p>
+          </div>
+          <div v-if="selectedCustomer?.nominal_purchase_order" class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
+            <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Nominal Purchase</span>
+            <p class="text-gray-700 leading-relaxed">{{ formatCurrency(selectedCustomer?.nominal_purchase_order) || '-' }}</p>
+          </div>
+          <div v-if="selectedCustomer?.picture" class="col-span-full mt-3">
+            <span class="text-gray-400 text-xs uppercase font-bold block mb-1">
+              Photo
+            </span>
+
+            <img
+              :src="`data:image/jpeg;base64,${selectedCustomer.picture}`"
+              class="w-full max-h-80 object-contain rounded-lg border"
+            />
+          </div>
+          </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import Tabel from '@/components/Tabel.vue';
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
-import currency from 'currency.js';
+import { ref, computed, onMounted, watch } from 'vue'
+import axios from 'axios'
+import currency from 'currency.js'
 
-/* ===========================
-   Helpers
-=========================== */
-function formatCurrency(value, options = { symbol: 'Rp ', separator: '.', decimal: ',', precision: 0 }) {
-  if (value === null || value === undefined || value === '') return '-';
-  const num = Number(value);
-  if (!Number.isFinite(num)) return '-';
-  return currency(num, options).format();
+const formatDate = (val) => {
+  if (!val) return '-'
+  const d = new Date(val)
+  return isNaN(d.getTime())
+    ? val
+    : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
 }
 
-function formatDate(value) {
-  if (!value) return '-';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
+const formatCurrency = (val) => {
+  return currency(val || 0, {
+    symbol: 'Rp ',
+    separator: '.',
+    decimal: ',',
+    precision: 0
+  }).format()
 }
 
-/* ===========================
-State
-=========================== */
-const url = ref('');
-const allCustomers = ref([]);   // 🔹 data asli
-const search = ref('');
-const loading = ref(false);
+const allCustomers = ref([])
+const search = ref('')
+const loading = ref(false)
+const selectedCustomer = ref(null)
+const showModal = ref(false)
 
-/* ===========================
-Local storage
-=========================== */
-const token = localStorage.getItem('api_token');
-const id = localStorage.getItem('id');
-const branch = localStorage.getItem('branch');
-const role = parseInt(localStorage.getItem('role'));
+/* PAGINATION */
+const currentPage = ref(1)
+const perPage = ref(10)
 
-/* ===========================
-Base URL
-=========================== */
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const token = localStorage.getItem('api_token')
+const id = localStorage.getItem('id')
+const branch = localStorage.getItem('branch')
+const role = parseInt(localStorage.getItem('role'))
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
-/* ===========================
-Columns
-=========================== */
-const colsData = ref([
-  { field: 'no', title: 'No', align: 'center', filter: false },
-  {
-    field: 'date',
-    title: 'Date',
-    type: 'date',
-    minWidth: '150px',
-    align: 'center',
-    render: (value) => (value ? formatDate(value) : '-'),
-  },
-  { field: 'customer_name', title: 'Name Customer', width: 200, render: (value) => value ?? '-' },
-  { field: 'user.name', title: 'Sales Name', render: (value, row) => value ?? row?.user?.name ?? '-' },
-  { field: 'type_customer.name', title: 'Type Customer', render: (value, row) => value ?? row?.type_customer?.name ?? '-' },
-  { field: 'type_project', title: 'Type Project', render: (value, row) => value ?? row?.type_project?.name ?? '-' },
-  { field: 'project_name', title: 'Project Name', render: (value) => value ?? '-' },
-  { field: 'pic_name', title: 'PIC Name', filter: false, render: (value) => value ?? '-' },
-  { field: 'pic_phone', title: 'PIC Phone', filter: false, render: (value) => value ?? '-' },
-  { field: 'pic_position', title: 'PIC Position', filter: false, render: (value) => value ?? '-' },
-  { field: 'type_report.name', title: 'Type Report', filter: false, render: (value, row) => value ?? row?.type_report?.name ?? '-' },
-  { field: 'report_notes', title: 'Report Notes', filter: false, cellClass: 'wrap-cell', width: 200, render: (value) => value ?? '-' },
-  { field: 'equipment_needs', width: 250, title: 'Equipments Needs', render: (value) => value ?? '-' },
-  { field: 'items_purchase_order', width: 250, title: 'Items Purchase Order', filter: false, render: (value) => value ?? '-' },
-  {
-    field: 'nominal_purchase_order',
-    title: 'Estimated Nominal Purchase',
-    width: 150,
-    align: 'right',
-    filter: false,
-    cell: (row) => formatCurrency(row.nominal_purchase_order ?? '-')
-  }
-]);
-
-/* ===========================
-FETCH
-=========================== */
 const fetchSalesReports = async () => {
-  if (role === 7) {
-    url.value = `${apiBaseUrl}/api/salesreports/${id}`;
-  } else if ([6, 5, 4].includes(role)) {
-    url.value = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
-  } else {
-    url.value = `${apiBaseUrl}/api/allsalesreports`;
-  }
+  let url = `${apiBaseUrl}/api/allsalesreports`
 
-  loading.value = true;
+  if (role === 7) url = `${apiBaseUrl}/api/salesreports/${id}`
+  else if ([6,5,4].includes(role))
+    url = `${apiBaseUrl}/api/branchsalesreports/${branch}`
+
+  loading.value = true
   try {
-    const res = await axios.get(url.value, {
+    const res = await axios.get(url, {
       headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const data = res.data.data ?? res.data;
-
-    allCustomers.value = data.map((item, idx) => ({
-      ...item,
-      no: idx + 1,
-      date: formatDate(item.date),
-      nominal_purchase_order: formatCurrency(item.nominal_purchase_order)
-    }));
-  } catch (err) {
-    console.error('Gagal ambil sales reports:', err);
+    })
+    allCustomers.value = res.data.data ?? res.data
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-/* ===========================
-SEARCH FILTER
-=========================== */
 const filteredCustomers = computed(() => {
-  if (!search.value) return allCustomers.value;
-
-  const key = search.value.toLowerCase();
-
+  const s = search.value.toLowerCase()
   return allCustomers.value.filter(r =>
-    r.customer_name?.toLowerCase().includes(key) ||
-    r.user?.name?.toLowerCase().includes(key) ||
-    r.type_customer?.name?.toLowerCase().includes(key) ||
-    r.type_project?.name?.toLowerCase().includes(key) ||
-    r.project_name?.toLowerCase().includes(key) ||
-    r.pic_name?.toLowerCase().includes(key) ||
-    r.type_report?.name?.toLowerCase().includes(key)
-  );
-});
+    r.date?.toLowerCase().includes(s) ||
+    r.customer_name?.toLowerCase().includes(s) ||
+    r.project_name?.toLowerCase().includes(s) ||
+    r.user?.name?.toLowerCase().includes(s) ||
+    r.type_report?.name?.toLowerCase().includes(s)
+  )
+})
 
-/* ===========================
-Lifecycle
-=========================== */
-onMounted(() => {
-  fetchSalesReports();
+const paginatedCustomers = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value
+  return filteredCustomers.value.slice(start, start + perPage.value)
+})
 
-  // auto-refresh setiap 5 menit
-  setInterval(() => {
-    fetchSalesReports();
-  }, 5 * 60 * 1000);
-});
+const totalPages = computed(() =>
+  Math.ceil(filteredCustomers.value.length / perPage.value) || 1
+)
+
+watch([search, perPage], () => currentPage.value = 1)
+
+const openDetail = (row) => {
+  selectedCustomer.value = row
+  showModal.value = true
+}
+
+const closeModal = () => showModal.value = false
+
+onMounted(fetchSalesReports)
 </script>
-
-<style scoped>
-</style>

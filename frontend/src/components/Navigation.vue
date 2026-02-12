@@ -44,7 +44,7 @@
             </RouterLink>
             <RouterLink to="/recapreport" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">
-              <BookOpenText /> Daily Visit
+              <BookOpenText /> Daily Report
             </RouterLink>
              <RouterLink to="/assignedcustomer" class="text-sm pl-5 flex items-center gap-1 pb-1 my-1 hover:font-semibold"
               exact-active-class="bg-blue-200 bg-opacity-10 font-semibold" @click="closeMobileMenu">

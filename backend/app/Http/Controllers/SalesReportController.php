@@ -19,40 +19,56 @@ class SalesReportController extends Controller
     public function index()
     {
         $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user.branch'])
-        ->select([
-            'id','date','user_id','type_customer_id','customer_name',
-            'is_new_customer','type_project','project_name',
-            'pic_name','pic_phone','pic_position',
-            'type_report_id','report_notes','equipment_needs',
-            'items_purchase_order','nominal_purchase_order',
-            'check_in','check_out','coordinate_check_in','coordinate_check_out',
-            'created_at'
-        ])
-        ->orderBy('date','desc')
-        ->where('type_report_id', '!=', 6)
-        ->get();
-         return response()->json([
+            ->select([
+                'id','date','user_id','type_customer_id','customer_name',
+                'is_new_customer','type_project','project_name',
+                'pic_name','pic_phone','pic_position',
+                'type_report_id','report_notes','equipment_needs',
+                'items_purchase_order','nominal_purchase_order',
+                'check_in','check_out','coordinate_check_in','coordinate_check_out',
+                'picture','created_at'
+            ])
+            ->orderBy('date','desc')
+            ->get();
+
+        // ✅ CONVERT BLOB → BASE64
+        $allTypeReport->transform(function ($item) {
+            if ($item->picture) {
+                $item->picture = base64_encode($item->picture);
+            }
+            return $item;
+        });
+
+        return response()->json([
             "success" => true,
             "message" => "Data Found",
             "data" => $allTypeReport
         ], 200);
-
     }
+
 
     public function salesreports($id)
     {
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
-        ->where('user_id', $id)
-        ->orderBy('created_at', 'desc')
-        ->where('type_report_id', '!=', 6)
-        ->get()
-        ->makeHidden(['picture']);
+            ->where('user_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // ✅ CONVERT BLOB → BASE64
+        $reports->transform(function ($item) {
+            if ($item->picture) {
+                $item->picture = base64_encode($item->picture);
+            }
+            return $item;
+        });
+
         return response()->json([
             "success" => true,
             "message" => "Data Found",
             "data" => $reports
         ], 200);
     }
+
 
     public function salesreport($reportsid)
     {
@@ -74,11 +90,18 @@ class SalesReportController extends Controller
         $branchreports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
-            ->where('type_report_id', '!=', 6)
+            // ->where('type_report_id', '!=', 6)
             ->select('sales_reports.*')
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->makeHidden(['picture']);
+            ->get();
+
+        // ✅ CONVERT BLOB → BASE64
+        $branchreports->transform(function ($item) {
+            if ($item->picture) {
+                $item->picture = base64_encode($item->picture);
+            }
+            return $item;
+        });
 
         return response()->json([
             "success" => true,
@@ -86,6 +109,7 @@ class SalesReportController extends Controller
             "data" => $branchreports
         ], 200);
     }
+
 
     public function typecustomerbysales($id)
     {
