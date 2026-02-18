@@ -92,7 +92,7 @@
 
       <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1">Unggah Foto</label>
-        <input type="file" class="w-full" accept="image/*" @change="onFileChange" />
+        <input type="file" class="w-full" accept="image/*" required @change="onFileChange" />
         <div v-if="previewUrl" class="mt-2">
           <img :src="previewUrl" class="h-40 w-full object-cover rounded-md border" />
           <button type="button" class="text-red-500 text-sm mt-1 underline" @click="clearPreview">Hapus Foto</button>
