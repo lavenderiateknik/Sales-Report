@@ -50,13 +50,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/alltypereports', [TypeReportController::class, 'index']);
     //salesreport
     Route::get('/allsalesreports', [SalesReportController::class, 'index']);
+    Route::get('/optionsalesreports', [SalesReportController::class, 'optionvisit']);
     Route::get('/allvisitedcustomers/{id}', [SalesReportController::class, 'visited']);
     Route::get('/salesreports/{id}', [SalesReportController::class, 'salesreports']);
+    Route::get('/optionvisitsalesreports/{id}', [SalesReportController::class, 'optionvisitsalesreports']);
     Route::get('/salesreport/{reportsid}', [SalesReportController::class, 'salesreport']);
     Route::get('/sales-reports/{id}/picture', [SalesReportController::class, 'showPicture']);
     Route::post('/sales-reports', [SalesReportController::class, 'store']);
     Route::put('/checkout/{id}', [SalesReportController::class, 'update']);
     Route::get('/branchsalesreports/{branch}', [SalesReportController::class, 'branchsalesreports']);
+    Route::get('/optionvisitbranchsalesreports/{branch}', [SalesReportController::class, 'optionvisitbranchsalesreports']);
 
     Route::get('/typecustomers/{id}', [SalesReportController::class, 'typecustomerbysales']);
     Route::get('/typecustomersbybranch/{branchId}', [SalesReportController::class, 'typecustomerbybranch']);

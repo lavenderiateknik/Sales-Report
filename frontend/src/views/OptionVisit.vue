@@ -238,11 +238,11 @@ async function fetchVisits() {
     let url = "";
 
     if (userRole == 7) {
-      url = `${apiBase}/salesreports/${id_user}`;
+      url = `${apiBase}/optionvisitsalesreports/${id_user}`;
     } else if (userRole >= 4 && userRole <= 6) {
-      url = `${apiBase}/branchsalesreports/${branch}`;
+      url = `${apiBase}/optionvisitbranchsalesreports/${branch}`;
     } else {
-      url = `${apiBase}/allsalesreports`;
+      url = `${apiBase}/optionsalesreports`;
     }
 
     const res = await axios.get(url, {
