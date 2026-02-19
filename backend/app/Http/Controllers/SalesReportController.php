@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\SalesReport;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
+
+
 use function in_array; 
 
 class SalesReportController extends Controller
@@ -192,8 +194,18 @@ class SalesReportController extends Controller
 
     public function typecustomerbysales($id)
     {
-        $reports = SalesReport::selectRaw('type_customer_id, COUNT(*) as total')
-            ->where('user_id', $id)
+        $query = SalesReport::selectRaw('type_customer_id, COUNT(*) as total')
+            ->where('user_id', $id);
+
+        if (request('start_date')) {
+            $query->whereDate('date', '>=', request('start_date'));
+        }
+
+        if (request('end_date')) {
+            $query->whereDate('date', '<=', request('end_date'));
+        }
+
+        $reports = $query
             ->groupBy('type_customer_id')
             ->with('typeCustomer')
             ->get();
@@ -207,13 +219,22 @@ class SalesReportController extends Controller
 
     public function typecustomerbybranch($branchId)
     {
-        $reports = SalesReport::selectRaw('type_customer_id, COUNT(*) as total')
+        $query = SalesReport::selectRaw('type_customer_id, COUNT(*) as total')
             ->join('users', 'sales_reports.user_id', '=', 'users.id')
-            ->where('users.branch_id', $branchId)
+            ->where('users.branch_id', $branchId);
+
+        if (request('start_date')) {
+            $query->whereDate('sales_reports.date', '>=', request('start_date'));
+        }
+
+        if (request('end_date')) {
+            $query->whereDate('sales_reports.date', '<=', request('end_date'));
+        }
+
+        $reports = $query
             ->groupBy('type_customer_id')
             ->with('typeCustomer')
             ->get();
-            
 
         return response()->json([
             "success" => true,
@@ -221,9 +242,20 @@ class SalesReportController extends Controller
             "data" => $reports
         ]);
     }
+
     public function alltypecustomers()
     {
-        $reports = SalesReport::selectRaw('type_customer_id, COUNT(*) as total')
+        $query = SalesReport::selectRaw('type_customer_id, COUNT(*) as total');
+
+        if (request('start_date')) {
+            $query->whereDate('date', '>=', request('start_date'));
+        }
+
+        if (request('end_date')) {
+            $query->whereDate('date', '<=', request('end_date'));
+        }
+
+        $reports = $query
             ->groupBy('type_customer_id')
             ->with('typeCustomer')
             ->get();
@@ -235,15 +267,24 @@ class SalesReportController extends Controller
         ]);
     }
 
-    public function recapByMonth()
+    public function recapByMonth(Request $request)
     {
-        $reports = SalesReport::selectRaw("
+        $query = SalesReport::selectRaw("
             DATE_FORMAT(date, '%b') as month,
             SUM(CASE WHEN type_report_id = 3 THEN 1 ELSE 0 END) as offering,
             SUM(CASE WHEN type_report_id = 5 THEN 1 ELSE 0 END) as purchase
-        ")
+        ");
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        }
+
+        $reports = $query
             ->groupBy(DB::raw("DATE_FORMAT(date, '%b')"))
-            ->orderByRaw("MIN(date)") // supaya urut Jan, Feb, dst
+            ->orderByRaw("MIN(date)")
             ->get();
 
         return response()->json([
@@ -292,7 +333,7 @@ class SalesReportController extends Controller
         ]);
     }
 
-    public function recapByCustomer()
+    public function recapByCustomer(Request $request)
     {
         $user = Auth::user();
 
@@ -305,29 +346,30 @@ class SalesReportController extends Controller
             DB::raw("SUM(CASE WHEN type_report_id = 5 THEN 1 ELSE 0 END) as po"),
             DB::raw("COUNT(*) as total")
         )
-            ->join('users', 'sales_reports.user_id', '=', 'users.id')
-            ->groupBy('customer_name');
+        ->join('users', 'sales_reports.user_id', '=', 'users.id')
+        ->groupBy('customer_name');
 
-        // 🔹 Filter sesuai role
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('sales_reports.date', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        }
+
         if ($user->role_id == 7) {
-            // Sales → hanya data miliknya
             $query->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [6, 5, 4])) {
-            // Supervisor, Branch Manager, Assistant Manager → berdasarkan branch
+        } elseif (in_array($user->role_id, [6,5,4])) {
             $query->where('users.branch_id', $user->branch_id);
         }
-        // Manager Sales & Top Management → tidak ada filter
-
-        $data = $query->get();
 
         return response()->json([
             'success' => true,
             'message' => 'Data Found',
-            'data' => $data
+            'data' => $query->get()
         ]);
     }
 
-     public function recapByCustomerSpv()
+    public function recapByCustomerSpv()
     {
         $user = Auth::user();
 
@@ -352,7 +394,7 @@ class SalesReportController extends Controller
         ]);
     }
 
-    public function recapByDate()
+    public function recapByDate(Request $request)
     {
         $user = Auth::user();
 
@@ -365,18 +407,21 @@ class SalesReportController extends Controller
             DB::raw("SUM(CASE WHEN type_report_id = 5 THEN 1 ELSE 0 END) as po"),
             DB::raw("COUNT(*) as total")
         )
-            ->join('users', 'sales_reports.user_id', '=', 'users.id')
-            ->groupBy('date');
+        ->join('users', 'sales_reports.user_id', '=', 'users.id')
+        ->groupBy('date');
 
-        // 🔹 Filter sesuai role
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('sales_reports.date', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        }
+
         if ($user->role_id == 7) {
-            // Sales → hanya data miliknya
             $query->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [6, 5, 4])) {
-            // Supervisor, Branch Manager, Assistant Manager → berdasarkan branch
+        } elseif (in_array($user->role_id, [6,5,4])) {
             $query->where('users.branch_id', $user->branch_id);
         }
-        // Manager Sales & Top Management → tidak ada filter
 
         $data = $query->get();
 
@@ -386,6 +431,8 @@ class SalesReportController extends Controller
             'data' => $data
         ]);
     }
+
+
 
     public function recapNominalMontly()
     {
@@ -446,6 +493,16 @@ class SalesReportController extends Controller
                 $baseQuery->where('users.branch_id', $user->branch_id);
             }
         }
+
+        // Tambahkan setelah filter user/branch
+        if ($request->filled('start_date')) {
+            $baseQuery->whereDate('sales_reports.date', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $baseQuery->whereDate('sales_reports.date', '<=', $request->end_date);
+        }
+
 
         // 🔹 Ambil sales sesuai filter
         $salesList = (clone $baseQuery)
@@ -554,11 +611,6 @@ class SalesReportController extends Controller
         ]);
     }
 
-
-
-
-
-
     public function recapNominalMontlySpv()
     {
         $user = auth()->user();
@@ -582,8 +634,7 @@ class SalesReportController extends Controller
             'grand_total' => $grandTotal,
         ]);
     }
-    
-    
+        
     public function recapByTypeSpv()
     {
         $user = auth()->user();
@@ -620,21 +671,23 @@ class SalesReportController extends Controller
                 COUNT(sales_reports.id) as total
             ");
 
-        // 🔹 PRIORITAS FILTER (sama seperti sales)
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('sales_reports.date', [
+                $request->start_date,
+                $request->end_date
+            ]);
+        }
+
         if ($request->filled('user_id')) {
             $query->where('sales_reports.user_id', $request->user_id);
-
         } elseif ($request->filled('branch_id')) {
             $query->where('users.branch_id', $request->branch_id);
-
         } else {
-            // 🔹 Default berdasarkan role
             if ($user->role_id == 7) {
                 $query->where('sales_reports.user_id', $user->id);
-            } elseif (in_array($user->role_id, [6, 5, 4])) {
+            } elseif (in_array($user->role_id, [6,5,4])) {
                 $query->where('users.branch_id', $user->branch_id);
             }
-            // role 1,2,3 → global
         }
 
         $reports = $query
@@ -647,8 +700,6 @@ class SalesReportController extends Controller
             'grand_total' => $reports->sum('total'),
         ]);
     }
-
-
 
     public function recapByCustomerName()
     {
