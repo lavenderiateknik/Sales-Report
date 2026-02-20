@@ -28,12 +28,22 @@
               />
             </div>
 
-            <div>
+            <div class="relative">
               <input
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 placeholder="Password"
-                v-model="password" class="block w-full h-11 rounded-xl px-3 bg-gray-100 shadow-md border border-gray-200 focus:bg-blue-50 focus:ring focus:ring-blue-200 focus:outline-none text-sm md:text-base"
+                v-model="password"
+                class="block w-full h-11 rounded-xl px-3 pr-10 bg-gray-100 shadow-md border border-gray-200 focus:bg-blue-50 focus:ring focus:ring-blue-200 focus:outline-none text-sm md:text-base"
               />
+
+              <button
+                type="button"
+                @click="togglePassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                <Eye v-if="!showPassword" class="w-5 h-5" />
+                <EyeOff v-else class="w-5 h-5" />
+              </button>
             </div>
 
             <div>
@@ -56,13 +66,19 @@
 import { ref } from 'vue';
 import { useRouter } from "vue-router";
 import axios from 'axios';
+import { Eye, EyeOff } from 'lucide-vue-next';
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
 const loginError = ref(null);
+const showPassword = ref(false);
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+const togglePassword = () => {
+  showPassword.value = !showPassword.value;
+};
 
 const login = async () => {
   loginError.value = null;

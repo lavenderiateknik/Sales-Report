@@ -848,10 +848,16 @@ class SalesReportController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $report = SalesReport::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
-
+    //    if ($user->role == 7) {
+    //     // Sales hanya boleh update miliknya sendiri
+    //     $report = SalesReport::where('id', $id)
+    //         ->where('user_id', $user->id)
+    //         ->firstOrFail();
+    //     } else {
+    //         // Atasan boleh akses report bawahan
+    //         $report = SalesReport::where('id', $id)->firstOrFail();
+    //     }
+        $report = SalesReport::findOrFail($id);
         $validated = $request->validate([
             'report_notes' => 'nullable|string',
             'pic_name' => 'nullable|string',
