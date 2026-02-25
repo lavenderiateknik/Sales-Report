@@ -1,10 +1,11 @@
 <template>
-  <div class="flex flex-col bg-[#10375C]/10 mx-2 my-2 px-3 py-3 rounded-2xl gap-1">
-
+  <div
+    class="flex flex-col bg-[#10375C]/10 mx-2 my-2 px-3 py-3 rounded-2xl gap-1"
+  >
     <!-- NAV -->
     <RouterLink to="/optionreport" class="flex gap-2 place-items-center">
-      <ArrowLeftFromLineIcon class="w-4"/> Back
-    </RouterLink> 
+      <ArrowLeftFromLineIcon class="w-4" /> Back
+    </RouterLink>
 
     <RouterLink
       to="/checkin"
@@ -12,15 +13,29 @@
     >
       Checkin
     </RouterLink>
-    
+
     <div class="py-8">
       <h2 class="text-2xl font-semibold leading-tight">Visit History</h2>
 
       <div class="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
-        <div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+        <div
+          class="inline-block min-w-full shadow rounded-lg overflow-hidden relative"
+        >
+          <!-- LOADING OVERLAY -->
+          <div
+            v-if="loading"
+            class="absolute inset-0 bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center z-10"
+          >
+            <div
+              class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"
+            ></div>
+            <p class="mt-2 text-sm text-gray-600">Loading data...</p>
+          </div>
 
           <!-- SEARCH + INFO PAGE -->
-          <div class="flex items-center justify-between px-4 py-3 bg-white border-b">
+          <div
+            class="flex items-center justify-between px-4 py-3 bg-white border-b"
+          >
             <input
               v-model="search"
               type="text"
@@ -36,28 +51,44 @@
           <table class="min-w-full leading-normal">
             <thead>
               <tr>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Nama Perusahaan
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Nama Proyek
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Tanggal
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Checkin
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Checkout
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Report By
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Status
                 </th>
-                <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase">
+                <th
+                  class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase"
+                >
                   Aksi
                 </th>
               </tr>
@@ -66,7 +97,6 @@
             <tbody>
               <!-- DATA -->
               <tr v-for="row in paginatedVisits" :key="row.id">
-
                 <!-- NAMA PERUSAHAAN -->
                 <td class="px-5 py-5 border-b bg-white text-sm">
                   {{ row.customer_name }}
@@ -98,7 +128,9 @@
 
                 <!-- STATUS -->
                 <td class="px-5 py-5 border-b bg-white text-sm">
-                  <span class="relative inline-block px-3 py-1 font-semibold text-white leading-tight">
+                  <span
+                    class="relative inline-block px-3 py-1 font-semibold text-white leading-tight"
+                  >
                     <span
                       aria-hidden
                       class="absolute inset-0 rounded-full opacity-50"
@@ -106,27 +138,21 @@
                         isExpired(row)
                           ? 'bg-gray-600'
                           : row.check_out
-                            ? 'bg-green-600'
-                            : 'bg-red-600'
+                          ? 'bg-green-600'
+                          : 'bg-red-600'
                       "
                     ></span>
 
                     <span class="relative">
-                      <template v-if="row.check_out" >
-                        <p class="text-center">
-                          Sudah Checkout
-                        </p>
+                      <template v-if="row.check_out">
+                        <p class="text-center">Sudah Checkout</p>
                       </template>
 
                       <template v-else-if="isExpired(row)">
-                        <p class="text-center">
-                          Expired
-                        </p>
+                        <p class="text-center">Expired</p>
                       </template>
 
-                      <template v-else>
-                        Belum Checkout
-                      </template>
+                      <template v-else> Belum Checkout </template>
                     </span>
                   </span>
                 </td>
@@ -135,7 +161,6 @@
                 <td class="px-5 py-5 border-b bg-white text-sm">
                   <!-- Jika belum checkout -->
                   <template v-if="!row.check_out">
-
                     <!-- Boleh checkout -->
                     <RouterLink
                       v-if="canCheckout(row)"
@@ -153,13 +178,10 @@
                     >
                       Checkout
                     </span>
-
                   </template>
 
                   <!-- Jika sudah checkout -->
-                  <span v-else class="text-gray-400">
-                    -
-                  </span>
+                  <span v-else class="text-gray-400"> - </span>
                 </td>
               </tr>
 
@@ -173,7 +195,9 @@
           </table>
 
           <!-- PAGINATION -->
-          <div class="flex justify-between items-center px-4 py-3 bg-white border-t">
+          <div
+            class="flex justify-between items-center px-4 py-3 bg-white border-t"
+          >
             <button
               @click="prevPage"
               :disabled="currentPage === 1"
@@ -194,7 +218,6 @@
               Next
             </button>
           </div>
-
         </div>
       </div>
     </div>
@@ -250,12 +273,12 @@ async function fetchVisits() {
     });
 
     visits.value = res.data.data ?? [];
-    
-
   } catch (err) {
     console.error("Fetch visits error:", err);
   } finally {
-    loading.value = false;
+    setTimeout(() => {
+      loading.value = false;
+    }, 300); 
   }
 }
 
@@ -266,14 +289,15 @@ const filteredVisits = computed(() => {
   if (!search.value) return visits.value;
 
   const q = search.value.toLowerCase();
-  return visits.value.filter(v =>
-    (v.customer_name || "").toLowerCase().includes(q) ||
-    (v.project_name || "").toLowerCase().includes(q)
+  return visits.value.filter(
+    (v) =>
+      (v.customer_name || "").toLowerCase().includes(q) ||
+      (v.project_name || "").toLowerCase().includes(q),
   );
 });
 
 const totalPages = computed(() =>
-  Math.ceil(filteredVisits.value.length / perPage.value)
+  Math.ceil(filteredVisits.value.length / perPage.value),
 );
 
 const paginatedVisits = computed(() => {
@@ -315,7 +339,6 @@ function isExpired(row) {
 
   return now > visitDate;
 }
-
 
 function canCheckout(row) {
   if (!isExpired(row)) return true;
