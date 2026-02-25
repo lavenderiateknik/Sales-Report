@@ -749,7 +749,7 @@ class SalesReportController extends Controller
                 'type_customer_id' => 'required|exists:type_customers,id',
                 'customer_name' => 'required|string|max:255',
                 'type_project' => 'nullable|string',
-                'check_in' => 'nullable|date_format:H:i',
+                'check_in' => 'required|date_format:H:i',
                 'coordinate_check_in' => 'nullable|string',
                 'project_name' => 'required|string|max:255',
                 'pic_name' => 'string|max:255',
