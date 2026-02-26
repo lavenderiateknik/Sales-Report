@@ -329,7 +329,7 @@ async function submitForm() {
       fd.append("customer_id", selectedCustomer.value.id);
     }
 
-    await axios.post(`${apiBase}/sales-reports`, fd, {
+    await axios.post(`${apiBase}/sales-reports-followup`, fd, {
       headers: { 
         "Authorization": token,
         "Content-Type": "multipart/form-data" 

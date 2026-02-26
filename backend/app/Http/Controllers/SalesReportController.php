@@ -794,6 +794,58 @@ class SalesReportController extends Controller
         ], 201);
     }
 
+    public function storeFolowUp(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'type_report_id' => 'required',
+                'date' => 'required|date',
+                'type_customer_id' => 'required|exists:type_customers,id',
+                'customer_name' => 'required|string|max:255',
+                'type_project' => 'nullable|string',
+                'project_name' => 'required|string|max:255',
+                'pic_name' => 'string|max:255',
+                'pic_phone' => 'string|max:20',
+                'pic_position' => 'string|max:255',
+                'report_notes' => 'nullable|string',
+                'equipment_needs' => 'nullable|string',
+                'check_out' => 'nullable|date_format:H:i',
+                'coordinate_check_out' => 'nullable|string',
+                'nominal_purchase_order' => 'nullable|numeric',
+                'items_purchase_order' => 'nullable|string',
+                'is_new_customer' => 'nullable',
+                'picture' => 'nullable|image|max:5120',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        // 🔐 paksa boolean supaya konsisten
+        $validated['is_new_customer'] = $request->boolean('is_new_customer');
+
+        $report = new SalesReport($validated);
+        $report->user_id = Auth::id();
+
+        if ($request->hasFile('picture')) {
+            $report->picture = file_get_contents(
+                $request->file('picture')->getRealPath()
+            );
+        }
+
+        $report->save();
+
+        return response()->json([
+            'message' => 'Berhasil Tersimpan',
+            'data' => [
+                'id' => $report->id,
+                'date' => $report->date,
+            ]
+        ], 201);
+    }
+
 
 
     /**

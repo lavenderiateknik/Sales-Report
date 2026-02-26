@@ -501,7 +501,7 @@ async function submitForm() {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    const res = await axios.post(`${apiBase}/sales-reports`, fd, { headers });
+    const res = await axios.post(`${apiBase}/sales-reports-followup`, fd, { headers });
     alert(res.data?.message ?? "Laporan berhasil disimpan");
     resetForm();
     window.location.href = "/optionreport";
