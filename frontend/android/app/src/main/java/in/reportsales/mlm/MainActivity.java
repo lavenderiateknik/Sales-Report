@@ -1,4 +1,4 @@
-package in.penawaran.reportsales;
+package in.reportsales.mlm;
 
 import com.getcapacitor.BridgeActivity;
 

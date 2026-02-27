@@ -1,17 +1,15 @@
 {
-  "appId": "in.penawaran.reportsales",
+  "appId": "in.reportsales.mlm",
   "appName": "Sales Report",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "plugins": {
-  "SplashScreen": {
-    "launchShowDuration": 3000,
-    "launchAutoHide": false,
-    "backgroundColor": "#EB8317",
-    "androidScaleType": "CENTER_CROP",
-    "showSpinner": true
+    "SplashScreen": {
+      "launchShowDuration": 3000,
+      "launchAutoHide": false,
+      "backgroundColor": "#EB8317",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": true
+    }
   }
 }
-}
-
-

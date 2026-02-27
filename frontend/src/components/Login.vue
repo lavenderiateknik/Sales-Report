@@ -105,7 +105,7 @@ const login = async () => {
   } catch (error) {
     loginError.value =
       error?.response?.data?.message ||
-      'Gagal login, silakan coba lagi andang';
+      'Gagal login, silakan coba lagi';
   }
 };
 

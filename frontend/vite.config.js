@@ -8,7 +8,7 @@ import vueJsx from "@vitejs/plugin-vue-jsx";
 
 
 export default defineConfig({
-  base: '/frontend/dist/', 
+  base: '/', // ganti path menjadi '/' jika di conver ke mobile jika ek web gunakan path '/frontend/dist/'
   plugins: [
     vue(),
     vueDevTools(),

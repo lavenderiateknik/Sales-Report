@@ -31,26 +31,21 @@ class SalesReportController extends Controller
                 'picture','created_at'
             ])
             ->orderBy('date','desc')
-            ->get();
+            ->paginate(request('per_page', 10));
 
-        // ✅ CONVERT BLOB → BASE64
-        $allTypeReport->transform(function ($item) {
+        $allTypeReport->getCollection()->transform(function ($item) {
             if ($item->picture) {
                 $item->picture = base64_encode($item->picture);
             }
             return $item;
         });
 
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $allTypeReport
-        ], 200);
+        return response()->json($allTypeReport);
     }
 
     public function optionvisit()
     {
-        $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user.branch'])
+        $reports = SalesReport::with(['typeCustomer', 'typeReport','user.branch'])
             ->select([
                 'id','date','user_id','type_customer_id','customer_name',
                 'is_new_customer','type_project','project_name',
@@ -60,23 +55,18 @@ class SalesReportController extends Controller
                 'check_in','check_out','coordinate_check_in','coordinate_check_out',
                 'picture','created_at'
             ])
+            ->where('type_report_id', 1)
             ->orderBy('created_at','desc')
-            ->where('type_report_id', '=', 1)
-            ->get();
+            ->paginate(request('per_page', 10));
 
-        // ✅ CONVERT BLOB → BASE64
-        $allTypeReport->transform(function ($item) {
+        $reports->getCollection()->transform(function ($item) {
             if ($item->picture) {
                 $item->picture = base64_encode($item->picture);
             }
             return $item;
         });
 
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $allTypeReport
-        ], 200);
+        return response()->json($reports);
     }
 
 
@@ -85,44 +75,35 @@ class SalesReportController extends Controller
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->where('user_id', $id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(request('per_page', 10));
 
-        // ✅ CONVERT BLOB → BASE64
-        $reports->transform(function ($item) {
+        // convert BLOB → base64
+        $reports->getCollection()->transform(function ($item) {
             if ($item->picture) {
                 $item->picture = base64_encode($item->picture);
             }
             return $item;
         });
 
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $reports
-        ], 200);
+        return response()->json($reports);
     }
 
     public function optionvisitsalesreports($id)
     {
         $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->where('user_id', $id)
-            ->where('type_report_id', '=', 1)
+            ->where('type_report_id', 1)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(request('per_page', 10));
 
-        // ✅ CONVERT BLOB → BASE64
-        $reports->transform(function ($item) {
+        $reports->getCollection()->transform(function ($item) {
             if ($item->picture) {
                 $item->picture = base64_encode($item->picture);
             }
             return $item;
         });
 
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $reports
-        ], 200);
+        return response()->json($reports);
     }
 
 
@@ -143,27 +124,21 @@ class SalesReportController extends Controller
     
     public function branchsalesreports($id)
     {
-        $branchreports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
+        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
-            // ->where('type_report_id', '!=', 6)
             ->select('sales_reports.*')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('sales_reports.created_at', 'desc')
+            ->paginate(request('per_page', 10));
 
-        // ✅ CONVERT BLOB → BASE64
-        $branchreports->transform(function ($item) {
+        $reports->getCollection()->transform(function ($item) {
             if ($item->picture) {
                 $item->picture = base64_encode($item->picture);
             }
             return $item;
         });
 
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $branchreports
-        ], 200);
+        return response()->json($reports);
     }
 
     public function optionvisitbranchsalesreports($id)
@@ -171,24 +146,19 @@ class SalesReportController extends Controller
         $branchreports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
             ->join('users', 'users.id', '=', 'sales_reports.user_id')
             ->where('users.branch_id', $id)
+            ->where('type_report_id', 1)
             ->select('sales_reports.*')
-            ->where('type_report_id', '=', 1)
-            ->orderBy('created_at', 'desc')
-            ->get();
-    
-        // ✅ CONVERT BLOB → BASE64
-        $branchreports->transform(function ($item) {
+            ->orderBy('sales_reports.created_at', 'desc')
+            ->paginate(request('per_page', 10));
+
+        $branchreports->getCollection()->transform(function ($item) {
             if ($item->picture) {
                 $item->picture = base64_encode($item->picture);
             }
             return $item;
         });
-    
-        return response()->json([
-            "success" => true,
-            "message" => "Data Found",
-            "data" => $branchreports
-        ], 200);
+
+        return response()->json($branchreports);
     }
 
 

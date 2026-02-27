@@ -44,15 +44,15 @@
               </td>
             </tr>
 
-            <tr v-else-if="filteredCustomers.length === 0">
+            <tr v-else-if="allCustomers.length === 0">
               <td colspan="7" class="text-center py-10 text-gray-500">
                 No data found.
               </td>
             </tr>
 
             <tr
-              v-for="(row, index) in paginatedCustomers"
-              :key="index"
+              v-for="(row, index) in allCustomers"
+              :key="row.id"
               class="hover:bg-gray-50 transition-colors"
             >
               <td class="px-4 py-3 text-center">
@@ -98,19 +98,19 @@
       <!-- PAGINATION -->
       <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 px-4 py-3 border-t bg-gray-50 text-sm">
 
-        <div class="flex items-center gap-2">
+        <!-- <div class="flex items-center gap-2">
           <span>Rows per page:</span>
           <select v-model="perPage" class="border rounded px-2 py-1">
             <option :value="10">10</option>
             <option :value="20">20</option>
             <option :value="50">50</option>
           </select>
-        </div>
+        </div> -->
 
         <div>
           {{ (currentPage - 1) * perPage + 1 }} -
-          {{ Math.min(currentPage * perPage, filteredCustomers.length) }}
-          of {{ filteredCustomers.length }}
+          {{ Math.min(currentPage * perPage, totalData) }}
+          of {{ totalData }}
         </div>
 
         <div class="flex gap-2">
@@ -137,9 +137,9 @@
     <!-- MODAL -->
     <div v-if="showModal" class="fixed inset-0 bg-black/60 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
       <div class="bg-white rounded-2xl p-6 w-full max-w-3xl relative overflow-y-auto max-h-[90vh] shadow-2xl">
-        <h2 class="text-xl font-bold mb-4 border-b pb-3 text-[#10375C]">Report Detail {{ selectedCustomer?.type_report?.name }}</h2>
-        <button @click="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-3xl">&times;</button>
-
+        <h2 class="text-xl font-bold mb-4 border-b pb-3 text-[#10375C]">
+          Report Detail {{ selectedCustomer?.type_report?.name }}
+        </h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-sm">
           <div class="flex flex-col border-b border-gray-50 pb-1">
             <span class="text-gray-400 text-xs uppercase font-bold">Date</span>
@@ -205,17 +205,22 @@
             <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Nominal Purchase</span>
             <p class="text-gray-700 leading-relaxed">{{ formatCurrency(selectedCustomer?.nominal_purchase_order) || '-' }}</p>
           </div>
-          <div v-if="selectedCustomer?.picture" class="col-span-full mt-3">
-            <span class="text-gray-400 text-xs uppercase font-bold block mb-1">
-              Photo
-            </span>
+        </div>
+        <button @click="closeModal" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-3xl">
+          &times;
+        </button>
 
-            <img
-              :src="`data:image/jpeg;base64,${selectedCustomer.picture}`"
-              class="w-full max-h-80 object-contain rounded-lg border"
-            />
-          </div>
-          </div>
+        <div v-if="selectedCustomer?.picture" class="col-span-full mt-3">
+          <span class="text-gray-400 text-xs uppercase font-bold block mb-1">
+            Photo
+          </span>
+
+          <img
+            :src="`data:image/jpeg;base64,${selectedCustomer.picture}`"
+            class="w-full max-h-80 object-contain rounded-lg border"
+          />
+        </div>
+
       </div>
     </div>
 
@@ -223,7 +228,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import currency from 'currency.js'
 
@@ -232,7 +237,11 @@ const formatDate = (val) => {
   const d = new Date(val)
   return isNaN(d.getTime())
     ? val
-    : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+    : d.toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      })
 }
 
 const formatCurrency = (val) => {
@@ -250,9 +259,10 @@ const loading = ref(false)
 const selectedCustomer = ref(null)
 const showModal = ref(false)
 
-/* PAGINATION */
 const currentPage = ref(1)
 const perPage = ref(10)
+const totalPages = ref(1)
+const totalData = ref(0)
 
 const token = localStorage.getItem('api_token')
 const id = localStorage.getItem('id')
@@ -269,43 +279,41 @@ const fetchSalesReports = async () => {
 
   loading.value = true
   try {
-    const res = await axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    allCustomers.value = res.data.data ?? res.data
+    const res = await axios.get(
+      `${url}?page=${currentPage.value}&per_page=${perPage.value}&search=${search.value}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    )
+
+    allCustomers.value = res.data.data
+    totalPages.value = res.data.last_page
+    totalData.value = res.data.total
+
+  } catch (err) {
+    console.error(err)
   } finally {
     loading.value = false
   }
 }
 
-const filteredCustomers = computed(() => {
-  const s = search.value.toLowerCase()
-  return allCustomers.value.filter(r =>
-    r.date?.toLowerCase().includes(s) ||
-    r.customer_name?.toLowerCase().includes(s) ||
-    r.project_name?.toLowerCase().includes(s) ||
-    r.user?.name?.toLowerCase().includes(s) ||
-    r.type_report?.name?.toLowerCase().includes(s)
-  )
+watch([currentPage, perPage], () => {
+  fetchSalesReports()
 })
 
-const paginatedCustomers = computed(() => {
-  const start = (currentPage.value - 1) * perPage.value
-  return filteredCustomers.value.slice(start, start + perPage.value)
+watch(search, () => {
+  currentPage.value = 1
+  fetchSalesReports()
 })
-
-const totalPages = computed(() =>
-  Math.ceil(filteredCustomers.value.length / perPage.value) || 1
-)
-
-watch([search, perPage], () => currentPage.value = 1)
 
 const openDetail = (row) => {
   selectedCustomer.value = row
   showModal.value = true
 }
 
-const closeModal = () => showModal.value = false
+const closeModal = () => {
+  showModal.value = false
+}
 
 onMounted(fetchSalesReports)
 </script>
