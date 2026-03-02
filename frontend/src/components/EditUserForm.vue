@@ -61,7 +61,7 @@
       </div>
 
       <!-- Role -->
-      <div v-if="role === 1" class="flex flex-col">
+      <div v-if="role == 1" class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Role</label>
         <select
           v-model="form.role_id"
@@ -75,7 +75,7 @@
       </div>
 
       <!-- Branch -->
-      <div v-if="role === 1" class="flex flex-col">
+      <div v-if="role == 1" class="flex flex-col">
         <label class="block py-2 text-sm font-medium text-gray-700">Branch</label>
         <select
           v-model="form.branch_id"
@@ -204,7 +204,7 @@ const submitForm = async () => {
     });
 
     emit('saved'); // SPA-friendly, tidak reload halaman
-    router.push('/');
+    router.push('/adduser'); // Redirect ke halaman user list setelah update
   } catch (err) {
     if (err.response?.status === 422) {
       errors.value = err.response.data.errors;

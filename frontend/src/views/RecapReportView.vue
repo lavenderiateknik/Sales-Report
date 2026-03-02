@@ -44,14 +44,14 @@
               </td>
             </tr>
 
-            <tr v-else-if="allCustomers.length === 0">
+            <tr v-else-if="filteredCustomers.length === 0">
               <td colspan="7" class="text-center py-10 text-gray-500">
                 No data found.
               </td>
             </tr>
 
             <tr
-              v-for="(row, index) in allCustomers"
+              v-for="(row, index) in filteredCustomers"
               :key="row.id"
               class="hover:bg-gray-50 transition-colors"
             >
@@ -228,7 +228,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import axios from 'axios'
 import currency from 'currency.js'
 
@@ -287,6 +287,7 @@ const fetchSalesReports = async () => {
     )
 
     allCustomers.value = res.data.data
+    
     totalPages.value = res.data.last_page
     totalData.value = res.data.total
 
@@ -296,6 +297,10 @@ const fetchSalesReports = async () => {
     loading.value = false
   }
 }
+
+const filteredCustomers = computed(() => {
+  return allCustomers.value
+})
 
 watch([currentPage, perPage], () => {
   fetchSalesReports()

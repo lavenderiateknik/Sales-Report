@@ -18,9 +18,11 @@ class SalesReportController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $allTypeReport = SalesReport::with(['typeCustomer', 'typeReport','user.branch'])
+        $search = $request->search;
+
+        $query = SalesReport::with(['typeCustomer', 'typeReport','user.branch'])
             ->select([
                 'id','date','user_id','type_customer_id','customer_name',
                 'is_new_customer','type_project','project_name',
@@ -29,9 +31,27 @@ class SalesReportController extends Controller
                 'items_purchase_order','nominal_purchase_order',
                 'check_in','check_out','coordinate_check_in','coordinate_check_out',
                 'picture','created_at'
-            ])
+            ]);
+
+        // SEARCH
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%$search%")
+                ->orWhere('project_name', 'like', "%$search%")
+                ->orWhere('pic_name', 'like', "%$search%")
+                ->orWhere('date', 'like', "%$search%")
+                ->orWhereHas('typeReport', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%$search%");
+                })
+                ->orWhereHas('user', function ($q3) use ($search) {
+                    $q3->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        $allTypeReport = $query
             ->orderBy('date','desc')
-            ->paginate(request('per_page', 10));
+            ->paginate($request->per_page ?? 10);
 
         $allTypeReport->getCollection()->transform(function ($item) {
             if ($item->picture) {
@@ -70,12 +90,32 @@ class SalesReportController extends Controller
     }
 
 
-    public function salesreports($id)
+    public function salesreports(Request $request, $id)
     {
-        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
-            ->where('user_id', $id)
+        $search = $request->search;
+
+        $query = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
+            ->where('user_id', $id);
+
+        // SEARCH
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('customer_name', 'like', "%$search%")
+                ->orWhere('project_name', 'like', "%$search%")
+                ->orWhere('pic_name', 'like', "%$search%")
+                ->orWhere('date', 'like', "%$search%")
+                ->orWhereHas('typeReport', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%$search%");
+                })
+                ->orWhereHas('user', function ($q3) use ($search) {
+                    $q3->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        $reports = $query
             ->orderBy('created_at', 'desc')
-            ->paginate(request('per_page', 10));
+            ->paginate($request->per_page ?? 10);
 
         // convert BLOB → base64
         $reports->getCollection()->transform(function ($item) {
@@ -122,14 +162,34 @@ class SalesReportController extends Controller
         ], 200);
     }
     
-    public function branchsalesreports($id)
+    public function branchsalesreports(Request $request, $id)
     {
-        $reports = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
-            ->join('users', 'users.id', '=', 'sales_reports.user_id')
-            ->where('users.branch_id', $id)
-            ->select('sales_reports.*')
+        $search = $request->search;
+
+        $query = SalesReport::with(['typeCustomer', 'typeReport', 'user'])
+            ->whereHas('user', function ($q) use ($id) {
+                $q->where('branch_id', $id);
+            });
+
+        // SEARCH
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('sales_reports.customer_name', 'like', "%$search%")
+                ->orWhere('sales_reports.project_name', 'like', "%$search%")
+                ->orWhere('sales_reports.pic_name', 'like', "%$search%")
+                ->orWhere('sales_reports.date', 'like', "%$search%")
+                ->orWhereHas('typeReport', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%$search%");
+                })
+                ->orWhereHas('user', function ($q3) use ($search) {
+                    $q3->where('name', 'like', "%$search%");
+                });
+            });
+        }
+
+        $reports = $query
             ->orderBy('sales_reports.created_at', 'desc')
-            ->paginate(request('per_page', 10));
+            ->paginate($request->per_page ?? 10);
 
         $reports->getCollection()->transform(function ($item) {
             if ($item->picture) {

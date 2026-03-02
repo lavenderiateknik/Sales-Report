@@ -114,7 +114,8 @@
           </h3>
           
           <EditUserForm 
-            :user-id="editingUserId" 
+            :user-id="editingUserId"
+            :role="role" 
             @saved="handleEditSaved"
           />
         </div>
