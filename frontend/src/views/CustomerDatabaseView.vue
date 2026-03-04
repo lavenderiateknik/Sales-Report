@@ -224,6 +224,7 @@ const filteredCustomers = computed(() => {
     // cek bidang utama proyek
     const matchesMainFields = [
       item.project_id,
+      item.branch_name,
       item.project_name,
       item.project_stage,
       item.project_town,
@@ -284,6 +285,7 @@ const fetchCustomers = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     customersDatabase.value = res.data.data || [];
+    console.log('Fetched customers:', customersDatabase.value) // Debug log
     
   } catch (err) {
     console.error("Gagal mengambil data:", err);

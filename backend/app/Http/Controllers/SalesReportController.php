@@ -473,9 +473,9 @@ class SalesReportController extends Controller
             ->join('users', 'sales_reports.user_id', '=', 'users.id');
 
         // Filter default berdasarkan role
-        if ($user->role_id == 8) {
+        if ($user->role_id == 7) {
             $baseQuery->where('sales_reports.user_id', $user->id);
-        } elseif (in_array($user->role_id, [7, 6, 5])) {
+        } elseif (in_array($user->role_id, [6, 5, 4])) {
             $baseQuery->where('users.branch_id', $user->branch_id);
         }
 
@@ -517,9 +517,9 @@ class SalesReportController extends Controller
 
         } else {
             // 🔹 Default role
-            if ($user->role_id == 8) {
+            if ($user->role_id == 7) {
                 $baseQuery->where('sales_reports.user_id', $user->id);
-            } elseif (in_array($user->role_id, [7, 6, 5])) {
+            } elseif (in_array($user->role_id, [6, 5, 4])) {
                 $baseQuery->where('users.branch_id', $user->branch_id);
             }
         }

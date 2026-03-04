@@ -83,7 +83,7 @@
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Catatan Laporan</label>
-        <textarea v-model="form.report_notes" rows="3" class="w-full px-3 py-2 border rounded-md" required  minlength="200"/>
+        <textarea v-model="form.report_notes" rows="3" class="w-full px-3 py-2 border rounded-md" required />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Kebutuhan Alat</label>
