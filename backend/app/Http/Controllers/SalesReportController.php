@@ -969,6 +969,20 @@ class SalesReportController extends Controller
         ]);
     }
 
+    public function updateNotes(Request $request, $id)
+    {
+        $report = SalesReport::findOrFail($id);
+
+        $validated = $request->validate([
+            'report_notes' => 'nullable|string'
+        ]);
+
+        $report->update($validated);
+
+        return response()->json([
+            'message' => 'Report notes berhasil diperbarui'
+        ]);
+    }
 
     /**
      * Remove the specified resource from storage.

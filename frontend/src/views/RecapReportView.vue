@@ -191,7 +191,46 @@
           </div>
           <div class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
             <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Report Notes</span>
-            <p class="text-gray-700 leading-relaxed">{{ selectedCustomer?.report_notes || 'No notes available.' }}</p>
+            <div v-if="!editNotes">
+              <p class="text-gray-700 leading-relaxed">
+                {{ selectedCustomer?.report_notes || 'No notes available.' }}
+              </p>
+                <button
+                  @click="editNotes = true"
+                  class="mt-2 text-sm bg-blue-500 text-white px-3 py-1 rounded"
+                >
+                  Edit Notes
+                </button>
+              </div>
+              <div v-else>
+                <textarea
+                  v-model="notesValue"
+                  class="w-full border rounded-lg p-2"
+                  rows="10"
+                ></textarea>
+
+                  <div class="flex justify-between text-xs mt-1">
+                    <span class="text-gray-500">
+                      {{ notesLength }} / {{ minCharacters }} characters
+                    </span>
+                  </div>
+
+                <div class="flex gap-2 mt-2">
+                  <button
+                    @click="updateNotes"
+                    class="bg-green-500 text-white px-3 py-1 rounded"
+                  >
+                    Save
+                  </button>
+
+                  <button
+                    @click="editNotes = false"
+                    class="bg-gray-400 text-white px-3 py-1 rounded"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
           </div>
           <div v-if="selectedCustomer?.equipment_needs" class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
             <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Equipment Needs</span>
@@ -258,6 +297,8 @@ const search = ref('')
 const loading = ref(false)
 const selectedCustomer = ref(null)
 const showModal = ref(false)
+const editNotes = ref(false)
+const notesValue = ref('')
 
 const currentPage = ref(1)
 const perPage = ref(10)
@@ -269,6 +310,10 @@ const id = localStorage.getItem('id')
 const branch = localStorage.getItem('branch')
 const role = parseInt(localStorage.getItem('role'))
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+
+const notesLength = computed(() => notesValue.value?.length || 0)
+const minCharacters = 0
+const isNotesValid = computed(() => notesLength.value >= minCharacters)
 
 const fetchSalesReports = async () => {
   let url = `${apiBaseUrl}/api/allsalesreports`
@@ -298,6 +343,7 @@ const fetchSalesReports = async () => {
   }
 }
 
+
 const filteredCustomers = computed(() => {
   return allCustomers.value
 })
@@ -313,12 +359,34 @@ watch(search, () => {
 
 const openDetail = (row) => {
   selectedCustomer.value = row
+  notesValue.value = row.report_notes
+  editNotes.value = false
   showModal.value = true
 }
 
 const closeModal = () => {
   showModal.value = false
 }
+
+const updateNotes = async () => {
+  try {
+    await axios.put(
+      `${apiBaseUrl}/api/checkout-notes/${selectedCustomer.value.id}`,
+      {
+        report_notes: notesValue.value
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    )
+
+    selectedCustomer.value.report_notes = notesValue.value
+    editNotes.value = false
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 
 onMounted(fetchSalesReports)
 </script>
