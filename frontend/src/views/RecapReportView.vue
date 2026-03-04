@@ -312,7 +312,7 @@ const role = parseInt(localStorage.getItem('role'))
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
 const notesLength = computed(() => notesValue.value?.length || 0)
-const minCharacters = 0
+const minCharacters = 200
 const isNotesValid = computed(() => notesLength.value >= minCharacters)
 
 const fetchSalesReports = async () => {
