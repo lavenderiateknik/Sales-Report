@@ -192,7 +192,7 @@
           <div class="col-span-full bg-blue-50 p-3 rounded-lg mt-2">
             <span class="text-blue-400 text-xs uppercase font-bold block mb-1">Report Notes</span>
             <div v-if="!editNotes">
-              <p class="text-gray-700 leading-relaxed">
+              <p class="text-gray-700 leading-relaxed  break-all">
                 {{ selectedCustomer?.report_notes || 'No notes available.' }}
               </p>
                 <button
