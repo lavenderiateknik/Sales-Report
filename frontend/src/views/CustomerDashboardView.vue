@@ -32,7 +32,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="customer in paginatedData"
+              v-for="customer in customersProject"
               :key="customer.no"
               class="border-t"
             >
@@ -50,7 +50,7 @@
                 </button>
               </td>
             </tr>
-            <tr v-if="paginatedData.length === 0">
+            <tr v-if="customersProject.length === 0">
               <td colspan="6" class="text-center py-4">No customers found.</td>
             </tr>
           </tbody>
@@ -58,7 +58,7 @@
       </div>
       
       <!-- ===== ROWS PER PAGE ===== -->
-      <div class="flex justify-end items-center px-4 mt-2">
+      <!-- <div class="flex justify-end items-center px-4 mt-2">
         <label class="mr-2 text-sm text-gray-600">Rows:</label>
         <select
           v-model="perPage"
@@ -69,7 +69,7 @@
           <option :value="25">25</option>
           <option :value="50">50</option>
         </select>
-      </div>
+      </div> -->
 
       <!-- ===== PAGINATION ===== -->
       <div class="flex justify-between items-center mt-4 px-4">
@@ -117,7 +117,7 @@
                     <td class="px-4 py-2 border">{{ idx + 1 }}</td>
                     <td class="px-4 py-2 border">{{ report.date }}</td>
                     <td class="px-4 py-2 border">{{ report.type_report_name }}</td>
-                    <td class="px-4 py-2 border">{{ report.report_notes }}</td>
+                    <td class="px-4 py-2 border break-all">{{ report.report_notes }}</td>
                     <td class="px-4 py-2 border">{{ report.user_name }}</td>
                   </tr>
                 </tbody>
@@ -151,24 +151,33 @@ import { ref, computed, onMounted, watch } from "vue";
 import currency from "currency.js";
 
 /* ===========================
-   📦 Helpers
+   Helpers
 =========================== */
 function formatCurrency(value) {
   if (value === null || value === undefined || value === "") return "-";
   const num = Number(value);
   if (!Number.isFinite(num)) return "-";
-  return currency(num, { symbol: "Rp ", separator: ".", decimal: ",", precision: 0 }).format();
+  return currency(num, {
+    symbol: "Rp ",
+    separator: ".",
+    decimal: ",",
+    precision: 0
+  }).format();
 }
 
 function formatDate(value) {
   if (!value) return "-";
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+  return d.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
 }
 
 /* ===========================
-   📊 State
+   State
 =========================== */
 const customersProject = ref([]);
 const loading = ref(false);
@@ -177,68 +186,67 @@ const token = localStorage.getItem("api_token");
 const id = localStorage.getItem("id");
 const role = parseInt(localStorage.getItem("role"));
 
-const isAllowed = computed(() => role <= 3);
 const branch = localStorage.getItem("branch");
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
+const isAllowed = computed(() => role <= 3);
+
 /* ===========================
-   🪟 Modal State
+   Modal
 =========================== */
 const showModal = ref(false);
 const selectedCustomer = ref(null);
 
 /* ===========================
-   🔍 Search & Pagination
+   Search & Pagination
 =========================== */
 const searchQuery = ref("");
 const currentPage = ref(1);
 const perPage = ref(10);
 
-
-const filteredData = computed(() => {
-  if (!searchQuery.value) return customersProject.value;
-  return customersProject.value.filter(
-    (c) =>
-      c.customer_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      c.project_name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      c.pic_name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
-});
-
-const totalPages = computed(() =>
-  Math.ceil(filteredData.value.length / perPage.value)
-);
-
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * perPage.value;
-  return filteredData.value.slice(start, start + perPage.value);
-});
-
-
-/* Reset page saat search berubah */
-watch(perPage, () => {
-  currentPage.value = 1;
-});
+const totalPages = ref(1);
+const totalData = ref(0);
 
 /* ===========================
-   📡 Fetch Data
+   Fetch API
 =========================== */
 const fetchSalesReports = async () => {
   let url = "";
-  if (role === 8) url = `${apiBaseUrl}/api/salesreports/${id}`;
-  else if ([7, 6, 5].includes(role)) url = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
-  else url = `${apiBaseUrl}/api/allsalesreports`;
+
+  if (role === 7) {
+    url = `${apiBaseUrl}/api/salesreports/${id}`;
+  } else if ([6, 5, 4].includes(role)) {
+    url = `${apiBaseUrl}/api/branchsalesreports/${branch}`;
+  } else {
+    url = `${apiBaseUrl}/api/allsalesreports`;
+  }
 
   loading.value = true;
+
   try {
-    const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
-    const data = Array.isArray(res.data.data) ? res.data.data : [];
-   
-    // Group by customer_name
+    const res = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      params: {
+        page: currentPage.value,
+        per_page: perPage.value,
+        search: searchQuery.value
+      }
+    });
+
+    const data = res.data.data || [];
+
+    totalPages.value = res.data.last_page;
+    totalData.value = res.data.total;
+
     const grouped = {};
+
     data.forEach((item) => {
       const key = item.customer_name ?? "Unknown";
+
       if (!grouped[key]) grouped[key] = [];
+
       grouped[key].push({
         date: formatDate(item.date),
         type_report_name: item.type_report?.name ?? "-",
@@ -247,36 +255,34 @@ const fetchSalesReports = async () => {
         pic_name: item.pic_name ?? "-",
         pic_phone: item.pic_phone ?? "-",
         nominal_purchase_order: formatCurrency(item.nominal_purchase_order),
-        user_id: item.user_id?? null,
-        user_name: item.user?.name ?? "-", 
+        user_name: item.user?.name ?? "-"
       });
     });
 
-    // Convert grouped data ke array untuk tabel
     customersProject.value = Object.keys(grouped).map((customerName, idx) => {
       const history = grouped[customerName];
-      const first = history[0]; // ambil data pertama untuk info tabel utama
+      const first = history[0];
+
       return {
-        no: idx + 1,
+        no: (currentPage.value - 1) * perPage.value + idx + 1,
         customer_name: customerName,
         project_name: first.project_name,
         pic_name: first.pic_name,
         pic_phone: first.pic_phone,
         nominal_purchase_order: first.nominal_purchase_order,
-        history: history, // ini array history per customer
+        history: history
       };
     });
 
-    // console.log(customersProject.value);
   } catch (err) {
-    console.error("❌ Gagal ambil sales reports:", err);
+    console.error("❌ Fetch error:", err);
   } finally {
     loading.value = false;
   }
 };
 
 /* ===========================
-   🧩 Actions
+   Actions
 =========================== */
 const openHistory = (row) => {
   selectedCustomer.value = row;
@@ -284,8 +290,22 @@ const openHistory = (row) => {
 };
 
 /* ===========================
-   🚀 Lifecycle
+   Watchers
 =========================== */
+
+watch([currentPage, perPage], () => {
+  fetchSalesReports();
+});
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+  fetchSalesReports();
+});
+
+/* ===========================
+   Lifecycle
+=========================== */
+
 onMounted(() => {
   fetchSalesReports();
 });
