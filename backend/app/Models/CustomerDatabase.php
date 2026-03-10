@@ -21,7 +21,7 @@ class CustomerDatabase extends Model
         'contact_surname','contact_position','contact_landline','contact_email','contact_remark',
         'company_region','mobile','role_status','construction_start_text','construction_end_text',
         'id_branch', 
-        'assigned_to_user', // 🟢 Tambahkan ini
+        'assigned_to_user',
         'hash' 
     ];
 

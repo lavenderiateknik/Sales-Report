@@ -230,7 +230,7 @@ class CustomerDatabaseController extends Controller
         }
     }
 
-  public function updatestatus(Request $request)
+    public function updatestatus(Request $request)
     {
         $request->validate([
             'project_id' => 'required|exists:customer_database,project_id',
