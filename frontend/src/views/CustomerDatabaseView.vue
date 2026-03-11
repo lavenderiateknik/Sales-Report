@@ -82,7 +82,7 @@
                 </ul>
               </td>
               <td class="py-3 px-4 text-center">
-                <button @click="openProjectDetail(item.project_id)"
+                <button @click="openProjectDetail(item.project_id, item.id_branch)"
                   class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md">
                   Open
                 </button>
@@ -285,7 +285,7 @@ const fetchCustomers = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     customersDatabase.value = res.data.data || [];
-    console.log('Fetched customers:', customersDatabase.value) // Debug log
+    
     
   } catch (err) {
     console.error("Gagal mengambil data:", err);
@@ -343,15 +343,21 @@ const uploadExcel = async () => {
 /* ===========================
    Modal Detail Project
 =========================== */
-const openProjectDetail = async (projectId) => {
+const openProjectDetail = async (projectId, branchId) => {
   const token = localStorage.getItem("api_token");
+
   try {
-    const res = await axios.get(`${apiBaseUrl}/api/customer-database/project/${projectId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await axios.get(
+      `${apiBaseUrl}/api/customer-database/project/${projectId}/${branchId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
     projectDetail.value = res.data.project;
     selectedProject.value = res.data.companies;
     showDetailModal.value = true;
+
   } catch (err) {
     console.error("Gagal mengambil detail project:", err);
   }

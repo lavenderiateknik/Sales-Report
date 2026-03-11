@@ -80,34 +80,36 @@ class CustomerDatabaseController extends Controller
         // Ambil role id dengan aman
         $role = is_object($user->role) ? $user->role->id : $user->role;
 
-        // Filter berdasarkan role dan cabang
-        if (in_array($role, [5, 6, 7, 8])) {
-            $data = CustomerDatabase::with('branch')
-                ->where('id_branch', $user->branch_id)
-                ->orderBy('id_branch', 'desc')
-                ->orderBy('project_id', 'asc')
-                ->get();
-        } else {
-            $data = CustomerDatabase::with('branch')
-                ->orderBy('id_branch', 'desc')
-                ->orderBy('project_id', 'asc')
-                ->get();
+        // Query dasar
+        $query = CustomerDatabase::with('branch');
+
+        // Filter berdasarkan role
+        if (in_array($role, [5,6,7,8])) {
+            $query->where('id_branch', $user->branch_id);
         }
 
-        // Kelompokkan berdasarkan project_id
-        $grouped = $data->groupBy('project_id')->map(function ($items) {
+        $data = $query
+            ->orderBy('id_branch', 'desc')
+            ->orderBy('project_id', 'asc')
+            ->get();
+
+        // 🔑 Group berdasarkan project + branch
+        $grouped = $data->groupBy(function ($item) {
+            return $item->project_id . '_' . $item->id_branch;
+        })->map(function ($items) {
+
             $first = $items->first();
 
             return [
                 'project_id'    => $first->project_id,
-                'branch_name'  => $first->branch?->name,
+                'id_branch'     => $first->id_branch,
+                'branch_name'   => $first->branch?->name,
                 'project_name'  => $first->project_name,
                 'project_stage' => $first->project_stage,
                 'project_town'  => $first->project_town,
                 'project_start' => $first->construction_start_text,
                 'project_end'   => $first->construction_end_text,
 
-                // Tambahkan semua company yang terlibat
                 'item' => $items->map(function ($item) {
                     return [
                         'company_name'      => $item->company_name,
@@ -118,10 +120,10 @@ class CustomerDatabaseController extends Controller
                         'contact_person'    => $item->contact_person,
                         'phone'             => $item->phone,
                         'email'             => $item->email,
-                        // tambahkan kolom lain sesuai kebutuhan
                     ];
                 })->values()
             ];
+
         })->values();
 
         return response()->json([
@@ -131,14 +133,15 @@ class CustomerDatabaseController extends Controller
     }
 
 
-    public function detailByProject($project_id, Request $request)
+    public function detailByProject($project_id, $branch_id, Request $request)
     {
         $user = $request->user();
         $role = is_object($user->role) ? $user->role->id : $user->role;
 
-        $query = CustomerDatabase::where('project_id', $project_id);
+        $query = CustomerDatabase::where('project_id', $project_id)
+                    ->where('id_branch', $branch_id);
 
-        if (in_array($role, [5, 6, 7, 8])) {
+        if (in_array($role, [5,6,7,8])) {
             $query->where('id_branch', $user->branch_id);
         }
 

@@ -56,8 +56,9 @@ return new class extends Migration {
             $table->string('construction_end_text')->nullable();
              $table->enum('status', ['open', 'closed'])->default('open');
             // 🟢 Tambahan untuk deteksi duplikat
-            $table->string('hash', 64)->nullable()->unique();
+            $table->string('hash', 64)->nullable();
             $table->timestamps();
+            $table->unique(['hash', 'id_branch']);
         });
     }
 

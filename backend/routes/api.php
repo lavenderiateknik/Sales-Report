@@ -100,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/customerdatabase', [CustomerDatabaseController::class, 'indexGrouped']);
     Route::post('/addcustomerdatabase', [CustomerDatabaseController::class, 'store']);
     Route::post('/import-customer-database', [CustomerDatabaseController::class, 'import']);
-    Route::get('/customer-database/project/{project_id}', [CustomerDatabaseController::class, 'detailByProject']);
+    Route::get('/customer-database/project/{project_id}/{branch_id}',[CustomerDatabaseController::class, 'detailByProject']);
     Route::post('/customer/assign', [CustomerDatabaseController::class, 'assign']);
 
     // KPI
