@@ -11,6 +11,7 @@
               <th class="px-4 py-4 text-center w-16">No</th>
               <th class="px-4 py-4 text-left w-32">Project ID</th>
               <th class="px-4 py-4 text-left w-64">Company & PIC</th>
+              <th class="px-4 py-4 text-left w-64">Project Address</th>
               <th class="px-4 py-4 text-left">Project Name</th>
               <th class="px-4 py-4 text-center w-32">Stage</th>
               <th class="px-4 py-4 text-center w-32">Role On Project</th>
@@ -50,10 +51,12 @@
                   {{ row.contact_landline? row.contact_landline: '1' }}<br/>
                 </div>
               </td>
-
+              <td class="px-4 py-4 text-slate-600 leading-relaxed">
+                {{ row.project_address }}
+              </td>
               <td class="px-4 py-4 text-slate-600 leading-relaxed">
                 {{ row.project_name }}
-              </td>
+              </td>              
 
               <td class="px-4 py-4 text-center">
                 <span class="px-2 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase">
@@ -157,7 +160,7 @@ const fetchData = async () => {
     ]);
 
     customers.value = resCustomers.data.data || resCustomers.data;
-    console.log(customers.value);
+    console.log("customers.value:", customers.value);
     // Pastikan data sales berupa array
     salesList.value = Array.isArray(resSales.data) ? resSales.data : (resSales.data.data || []);
 
