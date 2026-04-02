@@ -160,7 +160,7 @@ const fetchData = async () => {
     ]);
 
     customers.value = resCustomers.data.data || resCustomers.data;
-    console.log("customers.value:", customers.value);
+    console.log(customers.value);
     // Pastikan data sales berupa array
     salesList.value = Array.isArray(resSales.data) ? resSales.data : (resSales.data.data || []);
 
